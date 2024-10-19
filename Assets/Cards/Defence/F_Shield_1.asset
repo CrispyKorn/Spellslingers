@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161f71c5ca98fe24b8131a6d96609389, type: 3}
+  m_Name: F_Shield_1
+  m_EditorClassIdentifier: 
+  cardName: Shield
+  description: A standard, sturdy shield
+  type: 2
+  element: 1
+  values:
+    power: 1
+    special: 0
+  frontImg: {fileID: 21300000, guid: 6ee32e5c6dd0d38478d2e532b0d44fbd, type: 3}
+  backImg: {fileID: 21300000, guid: 3eaef0600269c8e4baa981ef0c66b194, type: 3}

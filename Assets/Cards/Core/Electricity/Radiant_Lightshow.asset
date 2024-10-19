@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d726776118b4464eae238fdf69fa8d9, type: 3}
+  m_Name: Radiant_Lightshow
+  m_EditorClassIdentifier: 
+  cardName: Radiant Lightshow
+  description: The luminescence of electricity
+  type: 0
+  element: 2
+  values:
+    power: 2
+    special: 0
+  frontImg: {fileID: 21300000, guid: 6ea518cdeafe82547b9bdf53f2c77a1d, type: 3}
+  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

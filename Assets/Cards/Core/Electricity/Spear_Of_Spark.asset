@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d58a06ebf0c40a40a7f1273e50fd8cc, type: 3}
+  m_Name: Spear_Of_Spark
+  m_EditorClassIdentifier: 
+  cardName: Spear of Spark
+  description: A piercing jolt of arcane electricity
+  type: 0
+  element: 2
+  values:
+    power: 2
+    special: 0
+  frontImg: {fileID: 21300000, guid: 802cb1363ba92aa41be594a563f4c891, type: 3}
+  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

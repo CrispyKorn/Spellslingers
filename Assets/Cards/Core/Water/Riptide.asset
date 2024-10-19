@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d3a2bd0867df3341873dcf37fb25a60, type: 3}
+  m_Name: Riptide
+  m_EditorClassIdentifier: Assembly-CSharp::RipTide
+  cardName: Riptide
+  description: Safety is never guaranteed in the abyss of the ocean
+  type: 0
+  element: 0
+  values:
+    power: 1
+    special: 0
+  frontImg: {fileID: 21300000, guid: e9cb611fadb77cb4aad97c603e6f9c2d, type: 3}
+  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
