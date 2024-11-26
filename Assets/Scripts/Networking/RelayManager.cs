@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,11 +11,16 @@ using Unity.Netcode.Transports.UTP;
 
 public class RelayManager : NetworkBehaviour
 {
-    [HideInInspector] public string JoinCode;
-    [HideInInspector] public ulong player2ClientId;
+    public string JoinCode { get => _joinCode; }
+    public ulong Player2ClientId { get => _player2ClientId; }
+
+    private string _joinCode;
+    private ulong _player2ClientId;
 
     private void Awake()
     {
+        Locator.Instance.RegisterInstance(this);
+
         DontDestroyOnLoad(this);
     }
 
@@ -41,16 +45,16 @@ public class RelayManager : NetworkBehaviour
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1);
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
-            JoinCode = joinCode.ToUpper();
+            _joinCode = joinCode.ToUpper();
             Debug.Log("Join Code: " + joinCode);
-            DebugMenu.Instance.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, joinCode);
+            Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, joinCode);
 
-            RelayServerData relayServerData = new RelayServerData(allocation, "dtls");
+            var relayServerData = new RelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
 
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+            NetworkManager.Singleton.OnClientConnectedCallback += RegisterSecondPlayer;
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OutputLoadedSceneClients;
         }
         catch (RelayServiceException e)
         {
@@ -58,20 +62,20 @@ public class RelayManager : NetworkBehaviour
         }
     }
 
-    private void SceneManager_OnLoadEventCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    private void OutputLoadedSceneClients(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        string output = sceneName + " loaded in mode " + loadSceneMode + " for clients: ";
+        var output = $"{sceneName} loaded in mode {loadSceneMode} for clients: ";
         foreach (ulong id in clientsCompleted)
         {
-            output += id + ", ";
+            output += $"{id}, ";
         }
 
         Debug.Log(output);
     }
 
-    private void OnClientConnectedCallback(ulong clientId)
+    private void RegisterSecondPlayer(ulong clientId)
     {
-        player2ClientId = clientId;
+        _player2ClientId = clientId;
         MoveToGameScene();
     }
 
@@ -80,12 +84,12 @@ public class RelayManager : NetworkBehaviour
         try
         {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-            RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
+            var relayServerData = new RelayServerData(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartClient();
 
-            JoinCode = joinCode.ToUpper();
-            DebugMenu.Instance.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, JoinCode);
+            _joinCode = joinCode.ToUpper();
+            Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, JoinCode);
         }
         catch (RelayServiceException e)
         {
