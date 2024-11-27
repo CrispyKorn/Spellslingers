@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99655d4241c6bca4c9c3fef55de39cc0, type: 3}
   m_Name: Wrath_Of_The_Heavens
   m_EditorClassIdentifier: 
-  cardName: Wrath of the Heavens
-  description: The sky is angry, and you should fear it
-  type: 0
-  element: 2
-  values:
-    power: 5
-    special: 0
-  frontImg: {fileID: 21300000, guid: 00871b47cb4bb9047ab663b9ea245d24, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 5
+    _special: 0
+  _cardName: Wrath of the Heavens
+  _description: The sky is angry, and you should fear it
+  _frontImg: {fileID: 21300000, guid: 00871b47cb4bb9047ab663b9ea245d24, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

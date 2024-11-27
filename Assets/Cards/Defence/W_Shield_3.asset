@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 161f71c5ca98fe24b8131a6d96609389, type: 3}
   m_Name: W_Shield_3
   m_EditorClassIdentifier: 
-  cardName: Massive Shield
-  description: A massive, sturdy shield
-  type: 2
-  element: 0
-  values:
-    power: 3
-    special: 0
-  frontImg: {fileID: 21300000, guid: 38fc8a5a2a7d3b4418fd8e41fc23a6ae, type: 3}
-  backImg: {fileID: 21300000, guid: 3eaef0600269c8e4baa981ef0c66b194, type: 3}
+  _type: 2
+  _element: 0
+  _values:
+    _power: 3
+    _special: 0
+  _cardName: Large Water Shield
+  _description: A massive, sturdy shield
+  _frontImg: {fileID: 21300000, guid: 38fc8a5a2a7d3b4418fd8e41fc23a6ae, type: 3}
+  _backImg: {fileID: 21300000, guid: 3eaef0600269c8e4baa981ef0c66b194, type: 3}

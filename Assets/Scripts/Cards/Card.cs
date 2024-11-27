@@ -2,7 +2,7 @@ using UnityEngine;
 
 [CreateAssetMenu]
 public class Card : ScriptableObject, ICard
-{    
+{
     public enum CardElement
     {
         Water,
@@ -19,13 +19,12 @@ public class Card : ScriptableObject, ICard
     public Sprite BackImg { get => _backImg; }
 
     [SerializeField] private ICard.CardType _type;
+    [SerializeField] private CardElement _element;
+    [SerializeField] protected CardValues _values;
     [SerializeField] private string _cardName;
     [SerializeField] private string _description;
     [SerializeField] private Sprite _frontImg;
     [SerializeField] private Sprite _backImg;
-
-    protected CardElement _element;
-    protected CardValues _values;
 
     public void PrintDataToConsole()
     {
@@ -34,12 +33,12 @@ public class Card : ScriptableObject, ICard
 
     public int CompareTo(ICard otherCardObj)
     {
-        if (Type == ICard.CardType.Utility || otherCardObj.Type == ICard.CardType.Utility) return (int)Type - (int)otherCardObj.Type;
+        if (_type == ICard.CardType.Utility || otherCardObj.Type == ICard.CardType.Utility) return (int)_type - (int)otherCardObj.Type;
 
         var otherCard = otherCardObj as Card;
 
         // Calculate card values with priority ordering of: Type -> Element -> Power -> Special
-        int aTypeValue = ((int)Type + 1) * 1000;
+        int aTypeValue = ((int)_type + 1) * 1000;
         int bTypeValue = ((int)otherCard.Type + 1) * 1000;
         int aElementValue = ((int)_element + 1) * 100;
         int bElementValue = ((int)otherCard._element + 1) * 100;

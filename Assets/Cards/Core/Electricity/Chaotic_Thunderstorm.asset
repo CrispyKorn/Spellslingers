@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aca846b868d5c2d47bb2f08aa305cd9b, type: 3}
   m_Name: Chaotic_Thunderstorm
   m_EditorClassIdentifier: 
-  cardName: Chaotic Thunderstorm
-  description: Powerful electricity from the looming dark clouds
-  type: 0
-  element: 2
-  values:
-    power: 0
-    special: 0
-  frontImg: {fileID: 21300000, guid: 78197c3ce0782a74b999554658367801, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 0
+    _special: 0
+  _cardName: Chaotic Thunderstorm
+  _description: Powerful electricity from the looming dark clouds
+  _frontImg: {fileID: 21300000, guid: 78197c3ce0782a74b999554658367801, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

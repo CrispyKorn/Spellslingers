@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 009dbe5ecc1c8944db67ca99634a582d, type: 3}
   m_Name: Pillar_Of_Flame
   m_EditorClassIdentifier: 
-  cardName: Pillar of Flame
-  description: The height of fire has no limits
-  type: 0
-  element: 1
-  values:
-    power: 2
-    special: 0
-  frontImg: {fileID: 21300000, guid: 2442a38475b9ee648a67ed670991c6e6, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 1
+  _values:
+    _power: 2
+    _special: 0
+  _cardName: Pillar of Flame
+  _description: The height of fire has no limits
+  _frontImg: {fileID: 21300000, guid: 2442a38475b9ee648a67ed670991c6e6, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

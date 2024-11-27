@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82926aa5835e16048a1e58f87833a5e1, type: 3}
   m_Name: Gurgling_Cauldron
   m_EditorClassIdentifier: 
-  cardName: Gurgling Cauldron
-  description: A bubbling concoction of unknown ingredients
-  type: 0
-  element: 0
-  values:
-    power: 2
-    special: 0
-  frontImg: {fileID: 21300000, guid: f29886cfbee2e68428788679908fa335, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 2
+    _special: 0
+  _cardName: Gurgling Cauldron
+  _description: A bubbling concoction of unknown ingredients
+  _frontImg: {fileID: 21300000, guid: f29886cfbee2e68428788679908fa335, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

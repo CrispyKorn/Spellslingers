@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08bb327809f909f46ba15fe2034e7095, type: 3}
   m_Name: Static_Shock
   m_EditorClassIdentifier: 
-  cardName: Static Shock
-  description: Even a simple shock can chain lightning
-  type: 0
-  element: 2
-  values:
-    power: 1
-    special: 0
-  frontImg: {fileID: 21300000, guid: 1faa740412af05940b6e2f840276b432, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 1
+    _special: 0
+  _cardName: Static Shock
+  _description: Even a simple shock can chain lightning
+  _frontImg: {fileID: 21300000, guid: 1faa740412af05940b6e2f840276b432, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

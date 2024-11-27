@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e597f1241e9e4af42b3d295584262a25, type: 3}
   m_Name: Backdraft
   m_EditorClassIdentifier: 
-  cardName: Backdraft
-  description: An untimely breeze can spread fire to new places
-  type: 0
-  element: 1
-  values:
-    power: 1
-    special: 0
-  frontImg: {fileID: 21300000, guid: b40eef0319e3a244da0310cee687f8c5, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 1
+  _values:
+    _power: 1
+    _special: 0
+  _cardName: Backdraft
+  _description: An untimely breeze can spread fire to new places
+  _frontImg: {fileID: 21300000, guid: b40eef0319e3a244da0310cee687f8c5, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

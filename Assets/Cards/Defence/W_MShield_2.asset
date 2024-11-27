@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 161f71c5ca98fe24b8131a6d96609389, type: 3}
   m_Name: W_MShield_2
   m_EditorClassIdentifier: 
-  cardName: Large Mirror Shield
-  description: A large, reflective shield
-  type: 2
-  element: 0
-  values:
-    power: 3
-    special: 2
-  frontImg: {fileID: 21300000, guid: 1e2313877ecfe2341a17d523f7f69ad3, type: 3}
-  backImg: {fileID: 21300000, guid: 3eaef0600269c8e4baa981ef0c66b194, type: 3}
+  _type: 2
+  _element: 0
+  _values:
+    _power: 3
+    _special: 2
+  _cardName: Large Water Mirror Shield
+  _description: A large, reflective shield
+  _frontImg: {fileID: 21300000, guid: 1e2313877ecfe2341a17d523f7f69ad3, type: 3}
+  _backImg: {fileID: 21300000, guid: 3eaef0600269c8e4baa981ef0c66b194, type: 3}

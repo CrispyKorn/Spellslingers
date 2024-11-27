@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e01a2a6fcc81904d8ce63012b6eb339, type: 3}
   m_Name: Delicate_Icicle
   m_EditorClassIdentifier: 
-  cardName: Delicate Icicle
-  description: The picture-perfect fragility that defines power
-  type: 0
-  element: 0
-  values:
-    power: 4
-    special: 0
-  frontImg: {fileID: 21300000, guid: a778d46fc5665f6448c7372534c66bcd, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 4
+    _special: 0
+  _cardName: Delicate Icicle
+  _description: The picture-perfect fragility that defines power
+  _frontImg: {fileID: 21300000, guid: a778d46fc5665f6448c7372534c66bcd, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

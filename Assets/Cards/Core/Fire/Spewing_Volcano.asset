@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 161e2471906ad574f9582230def7d538, type: 3}
   m_Name: Spewing_Volcano
   m_EditorClassIdentifier: 
-  cardName: Spewing Volcano
-  description: Unprecedented disasters can destroy all plans
-  type: 0
-  element: 1
-  values:
-    power: 0
-    special: 0
-  frontImg: {fileID: 21300000, guid: 5f77686e16f656044a5eaa6016fd683b, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 1
+  _values:
+    _power: 0
+    _special: 0
+  _cardName: Spewing Volcano
+  _description: Unprecedented disasters can destroy all plans
+  _frontImg: {fileID: 21300000, guid: 5f77686e16f656044a5eaa6016fd683b, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f46fc6b15f481cb4a824864c2cb0a7c7, type: 3}
   m_Name: Tidal_Wave
   m_EditorClassIdentifier: 
-  cardName: Tidal Wave
-  description: The ocean's overwhelming presence feared by all
-  type: 0
-  element: 0
-  values:
-    power: 0
-    special: 0
-  frontImg: {fileID: 21300000, guid: f9698509b227735478574bad538d5346, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 0
+    _special: 0
+  _cardName: Tidal Wave
+  _description: The ocean's overwhelming presence feared by all
+  _frontImg: {fileID: 21300000, guid: f9698509b227735478574bad538d5346, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dc911a5828fdc94bb638678dc1f23f2, type: 3}
   m_Name: Tumbling_Avalanche
   m_EditorClassIdentifier: 
-  cardName: Tumbling Avalanche
-  description: With enough pressure, even the strongest fall
-  type: 0
-  element: 0
-  values:
-    power: 5
-    special: 0
-  frontImg: {fileID: 21300000, guid: 528f7f797a4437f4ca5c5d81f97e646d, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 5
+    _special: 0
+  _cardName: Tumbling Avalanche
+  _description: With enough pressure, even the strongest fall
+  _frontImg: {fileID: 21300000, guid: 528f7f797a4437f4ca5c5d81f97e646d, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

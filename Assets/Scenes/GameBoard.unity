@@ -3026,6 +3026,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 912515600}
     - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _btnPass
+      value: 
+      objectReference: {fileID: 341432802}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _txtTurn
+      value: 
+      objectReference: {fileID: 912515600}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
       propertyPath: pnlGameOver
       value: 
       objectReference: {fileID: 359479083}
@@ -3039,6 +3047,22 @@ PrefabInstance:
       objectReference: {fileID: 1300480428}
     - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
       propertyPath: txtP2Health
+      value: 
+      objectReference: {fileID: 1487026181}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _pnlGameOver
+      value: 
+      objectReference: {fileID: 359479083}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _txtGameOver
+      value: 
+      objectReference: {fileID: 1127859995}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _txtP1Health
+      value: 
+      objectReference: {fileID: 1300480428}
+    - target: {fileID: 6669261979913042052, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _txtP2Health
       value: 
       objectReference: {fileID: 1487026181}
     - target: {fileID: 7305307950452458968, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
@@ -3063,6 +3087,10 @@ PrefabInstance:
       objectReference: {fileID: 1487026181}
     - target: {fileID: 7305307950452458968, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
       propertyPath: selectedCard
+      value: 
+      objectReference: {fileID: 1521446740}
+    - target: {fileID: 7305307950452458968, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
+      propertyPath: _selectedCard
       value: 
       objectReference: {fileID: 1521446740}
     - target: {fileID: 7305307950452458969, guid: 38d89303cadfa34499a13131d0e999df, type: 3}

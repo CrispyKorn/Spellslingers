@@ -150,12 +150,13 @@ public class Player : NetworkBehaviour
         _selectedCard.Flip();
     }
 
-    public override void OnNetworkSpawn()
+    public override async void OnNetworkSpawn()
     {
         Hand = new Deck();
 
         if (!IsOwner) return;
 
+        while (Locator.Instance.PlayManager == null) await Awaitable.NextFrameAsync();
         _selectedCardZoom = Locator.Instance.PlayManager.SelectedCard;
     }
 }

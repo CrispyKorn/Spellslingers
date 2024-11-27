@@ -2,17 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System.Threading.Tasks;
+using System;
 
 public class CardManager : NetworkBehaviour
 {
-    [System.Serializable]
+    [Serializable]
     private struct CardData<ICard>
     {
         public ICard Card { get => _card; }
         public int Amount { get => _amount; }
 
-        private ICard _card;
-        private int _amount;
+        [SerializeField] private ICard _card;
+        [SerializeField] private int _amount;
 
         public CardData(ICard card, int amount)
         {
@@ -36,8 +37,8 @@ public class CardManager : NetworkBehaviour
     [SerializeField] private List<CardData<Card>> _allNormalCards = new();
     [SerializeField] private List<CardData<UtilityCard>> _allUtilityCards = new();
 
-    private NetworkList<int> n_player1CardsIndices = new();
-    private NetworkList<int> n_player2CardsIndices = new();
+    private NetworkList<int> n_player1CardsIndices;
+    private NetworkList<int> n_player2CardsIndices;
 
     private List<GameObject> _player1Cards = new();
     private List<GameObject> _player2Cards = new();
@@ -52,6 +53,9 @@ public class CardManager : NetworkBehaviour
     private void Awake()
     {
         Locator.Instance.RegisterInstance(this);
+
+        n_player1CardsIndices = new();
+        n_player2CardsIndices = new();
     }
 
     private void InitializeCardSets()
@@ -141,7 +145,7 @@ public class CardManager : NetworkBehaviour
         for (var i = 0; i < numOfCards; i++)
         {
             if (drawDeck.Cards.Count == 0) break;
-            int cardToDrawIndex = Random.Range(0, drawDeck.Cards.Count);
+            int cardToDrawIndex = UnityEngine.Random.Range(0, drawDeck.Cards.Count);
 
             cards.Add(drawDeck.DrawCard(cardToDrawIndex));
         }

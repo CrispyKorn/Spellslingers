@@ -6,12 +6,12 @@ public class UIManager : MonoBehaviour
 {
     public Button BtnPass { get => _btnPass; }
 
-    [SerializeField] TextMeshProUGUI _txtP1Health;
-    [SerializeField] TextMeshProUGUI _txtP2Health;
-    [SerializeField] TextMeshProUGUI _txtGameOver;
-    [SerializeField] TextMeshProUGUI _txtTurn;
-    [SerializeField] GameObject _pnlGameOver;
-    [SerializeField] Button _btnPass;
+    [SerializeField] private TextMeshProUGUI _txtP1Health;
+    [SerializeField] private TextMeshProUGUI _txtP2Health;
+    [SerializeField] private TextMeshProUGUI _txtGameOver;
+    [SerializeField] private TextMeshProUGUI _txtTurn;
+    [SerializeField] private GameObject _pnlGameOver;
+    [SerializeField] private Button _btnPass;
 
     public void UpdateUI(int player1Hp, int player2Hp, int currentState)
     {

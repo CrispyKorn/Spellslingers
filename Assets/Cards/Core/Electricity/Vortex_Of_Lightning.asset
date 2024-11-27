@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 526f4072061f56743ada7b923d5ef1a6, type: 3}
   m_Name: Vortex_Of_Lightning
   m_EditorClassIdentifier: 
-  cardName: Vortex of Lightning
-  description: The unholy spiral of wind and lightning
-  type: 0
-  element: 2
-  values:
-    power: 0
-    special: 0
-  frontImg: {fileID: 21300000, guid: 4c1a92fdd5c0e6844849adbad21b7b2c, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 0
+    _special: 0
+  _cardName: Vortex of Lightning
+  _description: The unholy spiral of wind and lightning
+  _frontImg: {fileID: 21300000, guid: 4c1a92fdd5c0e6844849adbad21b7b2c, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f8a60ee3ab8c54895bb58e871a8da9, type: 3}
   m_Name: Raging_Typhoon
   m_EditorClassIdentifier: 
-  cardName: Raging Typhoon
-  description: The unholy offspring of the ocean and the wind
-  type: 0
-  element: 0
-  values:
-    power: 0
-    special: 0
-  frontImg: {fileID: 21300000, guid: 2d1d2e6b04981d440b22e3c8974e311e, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 0
+    _special: 0
+  _cardName: Raging Typhoon
+  _description: The unholy offspring of the ocean and the wind
+  _frontImg: {fileID: 21300000, guid: 2d1d2e6b04981d440b22e3c8974e311e, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

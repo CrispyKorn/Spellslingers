@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4f6034d103fef34c90ba6845e6d3d66, type: 3}
   m_Name: Shards_of_Purity
   m_EditorClassIdentifier: 
-  cardName: Shards of Purity
-  description: The purest forces have an unwavering conviction
-  type: 0
-  element: 0
-  values:
-    power: 3
-    special: 0
-  frontImg: {fileID: 21300000, guid: c5500d97169ed3742affc6dcb35ba269, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 0
+  _values:
+    _power: 3
+    _special: 0
+  _cardName: Shard of Purity
+  _description: The purest forces have an unwavering conviction
+  _frontImg: {fileID: 21300000, guid: c5500d97169ed3742affc6dcb35ba269, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

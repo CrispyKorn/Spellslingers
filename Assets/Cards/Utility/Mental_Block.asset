@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 099884ea514b40040ba51042039032a9, type: 3}
   m_Name: Mental_Block
   m_EditorClassIdentifier: 
-  type: 3
-  cardName: Mental Block
-  description: If one's mind is not clear, their best is beyond them
-  frontImg: {fileID: 21300000, guid: cad7f15fa285d954b93aefd5928a8efc, type: 3}
-  backImg: {fileID: 21300000, guid: e24b1231dc7e98744b12f1f46f2c36f0, type: 3}
+  _type: 3
+  _cardName: Mental Block
+  _description: If one's mind is not clear, their best is beyond them
+  _frontImg: {fileID: 21300000, guid: cad7f15fa285d954b93aefd5928a8efc, type: 3}
+  _backImg: {fileID: 21300000, guid: e24b1231dc7e98744b12f1f46f2c36f0, type: 3}

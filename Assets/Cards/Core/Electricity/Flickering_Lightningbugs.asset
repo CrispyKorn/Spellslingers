@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3cb0dd5172cd2f469d4b5f68a9d844e, type: 3}
   m_Name: Flickering_Lightningbugs
   m_EditorClassIdentifier: 
-  cardName: Flickering Lightningbugs
-  description: The sky is alight with a heavenly glow
-  type: 0
-  element: 2
-  values:
-    power: 3
-    special: 0
-  frontImg: {fileID: 21300000, guid: 48d36b5d994392b41b21679b09635cde, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 3
+    _special: 0
+  _cardName: Flickering Lightningbugs
+  _description: The sky is alight with a heavenly glow
+  _frontImg: {fileID: 21300000, guid: 48d36b5d994392b41b21679b09635cde, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

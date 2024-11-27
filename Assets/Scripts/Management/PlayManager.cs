@@ -8,6 +8,8 @@ public class PlayManager : NetworkBehaviour
     public Player Player2 { get => _player2; }
     public SpriteRenderer SelectedCard { get => _selectedCard; }
 
+    [SerializeField] private SpriteRenderer _selectedCard;
+
     private NetworkVariable<int> currentGameState = new(2);
     private NetworkVariable<bool> gameStateNotUpdated = new(true);
     private NetworkVariable<bool> p1Attacking = new(true);
@@ -22,7 +24,6 @@ public class PlayManager : NetworkBehaviour
     private UIManager _uiManager;
     private bool _extendP1Turn;
     private bool _extendP2Turn;
-    private SpriteRenderer _selectedCard;
 
     private void Awake()
     {

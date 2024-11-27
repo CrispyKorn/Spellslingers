@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09934b91c023f2c4197b8e3f3bb7a22b, type: 3}
   m_Name: Amnesia
   m_EditorClassIdentifier: 
-  type: 3
-  cardName: Amnesia
-  description: Disrupted plans, but new opportunities
-  frontImg: {fileID: 21300000, guid: b6435e0789e64c247ae5e76a93703500, type: 3}
-  backImg: {fileID: 21300000, guid: e24b1231dc7e98744b12f1f46f2c36f0, type: 3}
+  _type: 3
+  _cardName: Amnesia
+  _description: Disrupted plans, but new opportunities
+  _frontImg: {fileID: 21300000, guid: b6435e0789e64c247ae5e76a93703500, type: 3}
+  _backImg: {fileID: 21300000, guid: e24b1231dc7e98744b12f1f46f2c36f0, type: 3}

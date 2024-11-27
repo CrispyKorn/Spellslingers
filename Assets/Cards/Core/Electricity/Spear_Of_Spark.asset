@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d58a06ebf0c40a40a7f1273e50fd8cc, type: 3}
   m_Name: Spear_Of_Spark
   m_EditorClassIdentifier: 
-  cardName: Spear of Spark
-  description: A piercing jolt of arcane electricity
-  type: 0
-  element: 2
-  values:
-    power: 2
-    special: 0
-  frontImg: {fileID: 21300000, guid: 802cb1363ba92aa41be594a563f4c891, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 2
+  _values:
+    _power: 2
+    _special: 0
+  _cardName: Spear of Spark
+  _description: A piercing jolt of arcane electricity
+  _frontImg: {fileID: 21300000, guid: 802cb1363ba92aa41be594a563f4c891, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}

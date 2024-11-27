@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbf7768bd2b912a43aa7eb95ae6dcc9c, type: 3}
   m_Name: Whispering_Ember
   m_EditorClassIdentifier: 
-  cardName: Whispering Ember
-  description: An untouched ember can cause untold havok
-  type: 0
-  element: 1
-  values:
-    power: 4
-    special: 0
-  frontImg: {fileID: 21300000, guid: 89da53fe63204cf4b83fb017e393a8e0, type: 3}
-  backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _type: 0
+  _element: 1
+  _values:
+    _power: 4
+    _special: 0
+  _cardName: Whispering Ember
+  _description: An untouched ember can cause untold havok
+  _frontImg: {fileID: 21300000, guid: 89da53fe63204cf4b83fb017e393a8e0, type: 3}
+  _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
