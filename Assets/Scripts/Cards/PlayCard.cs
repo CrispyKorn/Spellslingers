@@ -5,8 +5,8 @@ using Unity.Netcode;
 public class PlayCard : NetworkBehaviour
 {
     public bool Moveable { get => _moveable.Value; set => _moveable.Value = value; }
-    public ICard CardData { get => _cardData; set => _cardData = value; }
-    public bool IsFaceUp { get => _isFaceUp; set => _isFaceUp = value; }
+    public ICard CardData { get => _cardData; }
+    public bool IsFaceUp { get => _isFaceUp; }
     public BoxCollider2D BoxCollider { get => _boxCollider; }
     public bool IsBeingDragged { get => _isBeingDragged; set => _isBeingDragged = value; }
 
@@ -15,11 +15,20 @@ public class PlayCard : NetworkBehaviour
     private SpriteRenderer _spriteRenderer;
     private BoxCollider2D _boxCollider;
     private ICard _cardData;
-    private Vector3 _cardPos;
+    private Vector3 _savedCardPos;
     private bool _isFaceUp;
     private Vector2 _dragOffset;
     private bool _isBeingDragged = false;
 
+    private void Awake()
+    {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+        _boxCollider = GetComponent<BoxCollider2D>();
+    }
+
+    /// <summary>
+    /// Sets the card sprite based on whether it is face-up or face-down
+    /// </summary>
     private void UpdateSprite()
     {
         _spriteRenderer.sprite = _isFaceUp ? _cardData.FrontImg : _cardData.BackImg;
@@ -42,9 +51,6 @@ public class PlayCard : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _boxCollider = GetComponent<BoxCollider2D>();
-
         if (_cardData == null) _cardData = Locator.Instance.CardManager.CardIndexToCard[0];
     }
 
@@ -72,18 +78,29 @@ public class PlayCard : NetworkBehaviour
         UpdateSprite();
     }
 
+    /// <summary>
+    /// Sets the card's positional data, but does not move it there.
+    /// </summary>
+    /// <param name="cardPos">The position to set in world units.</param>
     [ClientRpc]
     public void SetCardPosClientRpc(Vector3 cardPos)
     {
-        _cardPos = cardPos;
+        _savedCardPos = cardPos;
     }
 
+    /// <summary>
+    /// Moves the card to its saved position.
+    /// </summary>
     [ClientRpc]
     public void ResetPosClientRpc()
     {
-        if (IsOwner) transform.position = _cardPos;
+        if (IsOwner) transform.position = _savedCardPos;
     }
 
+    /// <summary>
+    /// Sets the card data of the playcard.
+    /// </summary>
+    /// <param name="cardIndex">The index of the card list whose data to use.</param>
     [ClientRpc]
     public void SetCardDataClientRpc(int cardIndex)
     {

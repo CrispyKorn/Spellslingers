@@ -26,6 +26,6 @@ public abstract class UtilityCard : ScriptableObject, ICard
 
     public int CompareTo(ICard otherCardObj)
     {
-        return (int)Type - (int)otherCardObj.Type;
+        return (int)_type - (int)otherCardObj.Type;
     }
 }

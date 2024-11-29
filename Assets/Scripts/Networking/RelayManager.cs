@@ -8,6 +8,8 @@ using Unity.Services.Relay.Models;
 using Unity.Networking.Transport.Relay;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using TMPro;
+using System.Linq;
 
 public class RelayManager : NetworkBehaviour
 {
@@ -28,6 +30,7 @@ public class RelayManager : NetworkBehaviour
     {
         try
         {
+            // Sign in to unity services
             await UnityServices.InitializeAsync();
             AuthenticationService.Instance.SignedIn += () => { Debug.Log("Signed In! ID: " + AuthenticationService.Instance.PlayerId); };
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -42,19 +45,42 @@ public class RelayManager : NetworkBehaviour
     {
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1);
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1); // Create allocation (slot) for one connection (player 2)
+            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId); // Generate join code based on created allocation
 
+            // Print join code
             _joinCode = joinCode.ToUpper();
             Debug.Log("Join Code: " + joinCode);
             Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, joinCode);
 
+            // Create relay server and start hosting
             var relayServerData = new RelayServerData(allocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
 
+            // Setup connection callbacks
             NetworkManager.Singleton.OnClientConnectedCallback += RegisterSecondPlayer;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OutputLoadedSceneClients;
+        }
+        catch (RelayServiceException e)
+        {
+            Debug.LogException(e);
+        }
+    }
+
+    private async void JoinRelay(string joinCode)
+    {
+        try
+        {
+            // Join allocation (slot) using join code, and initialize relay connection as client
+            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode); 
+            var relayServerData = new RelayServerData(joinAllocation, "dtls");
+            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
+            NetworkManager.Singleton.StartClient();
+
+            // Print join code
+            _joinCode = joinCode.ToUpper();
+            Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, JoinCode);
         }
         catch (RelayServiceException e)
         {
@@ -79,24 +105,6 @@ public class RelayManager : NetworkBehaviour
         MoveToGameScene();
     }
 
-    private async void JoinRelay(string joinCode)
-    {
-        try
-        {
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-            var relayServerData = new RelayServerData(joinAllocation, "dtls");
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-            NetworkManager.Singleton.StartClient();
-
-            _joinCode = joinCode.ToUpper();
-            Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, JoinCode);
-        }
-        catch (RelayServiceException e)
-        {
-            Debug.LogException(e);
-        }
-    }
-
     private void MoveToGameScene()
     {
         if (NetworkManager.Singleton.IsServer) NetworkManager.Singleton.SceneManager.LoadScene("GameBoard", LoadSceneMode.Single);
@@ -107,7 +115,7 @@ public class RelayManager : NetworkBehaviour
         CreateRelay();
     }
 
-    public void JoinGame(TMPro.TMP_InputField inf)
+    public void JoinGame(TMP_InputField inf)
     {
         JoinRelay(inf.text);
     }

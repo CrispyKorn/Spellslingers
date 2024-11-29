@@ -19,15 +19,5 @@ public interface ICard : IComparable<ICard>
 
     public void PrintDataToConsole();
 
-    /*
-    public new int CompareTo(ICard otherCard)
-    {
-        if (Type == CardType.Utility || otherCard.Type == CardType.Utility) return (int)Type - (int)otherCard.Type;
-
-        // Neither card is Utility
-        Card cardA = this as Card;
-        Card cardB = otherCard as Card;
-        return cardA.CompareTo(cardB);
-    }
-    */
+    public new int CompareTo(ICard otherCardObj);
 }

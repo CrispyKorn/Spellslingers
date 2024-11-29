@@ -190,13 +190,17 @@ public class CardManager : NetworkBehaviour
 
         foreach (ICard card in newCards)
         {
+            // Create play card
             GameObject cardObj = Instantiate(_cardPrefab);
             var cardObjData = cardObj.GetComponent<PlayCard>();
 
+            // Spawn playcard on the network
             cardObj.GetComponent<NetworkObject>().Spawn();
 
+            // Set playcard card data to the current card
             cardObjData.SetCardDataClientRpc(CardToCardIndex[card]);
 
+            // Cards spawn face down, so flip to face-up when they are ours
             if (isLocalPlayerCards) cardObjData.Flip();
             else
             {
@@ -232,6 +236,11 @@ public class CardManager : NetworkBehaviour
         });
     }
 
+    /// <summary>
+    /// Sets the position of each card in the hand based on which player's hand it is.
+    /// </summary>
+    /// <param name="hand">The cards to spread.</param>
+    /// <param name="isLocalPlayerCards">Whether the hand is of the local player.</param>
     public async Task SpreadCards(List<GameObject> hand, bool isLocalPlayerCards)
     {
         var handPosY = isLocalPlayerCards ? -5f : 5f;
@@ -242,16 +251,19 @@ public class CardManager : NetworkBehaviour
 
         for (var i = 0; i < cardNum; i++)
         {
+            // Calculate card position
             if (cardNum <= 1) cardPos = Vector3.zero;
             else
             {
-                float localCardsValue = (float)i / (cardNum - 1);
-                float opponentCardsValue = (float)(cardNum - 1 - i) / (cardNum - 1);
+                float maxValue = cardNum - 1;
+                float localCardsValue = i / maxValue;
+                float opponentCardsValue = (maxValue - i) / maxValue;
                 float tValue = isLocalPlayerCards ? localCardsValue : opponentCardsValue;
                 float cardPosX = Mathf.Lerp(minHandPosX, maxHandPosX, tValue);
                 cardPos = new Vector3(cardPosX, handPosY, i);
             }
 
+            // Set card position
             var card = hand[i].GetComponent<PlayCard>();
             card.SetCardPosClientRpc(cardPos);
             card.ResetPosClientRpc();
