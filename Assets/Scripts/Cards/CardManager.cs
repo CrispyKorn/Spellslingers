@@ -22,8 +22,8 @@ public class CardManager : NetworkBehaviour
         }
     }
 
-    public NetworkList<int> Player1CardsIndices { get => n_player1CardsIndices; }
-    public NetworkList<int> Player2CardsIndices { get => n_player2CardsIndices; }
+    public NetworkList<int> N_Player1CardsIndices { get => n_player1CardsIndices; }
+    public NetworkList<int> N_Player2CardsIndices { get => n_player2CardsIndices; }
     public List<GameObject> Player1Cards { get => _player1Cards; }
     public List<GameObject> Player2Cards { get => _player2Cards; }
     public Dictionary<int, ICard> CardIndexToCard { get => _cardIndexToCard; }
@@ -102,9 +102,21 @@ public class CardManager : NetworkBehaviour
         }
     }
 
+    private void InitializePlayerHand(Deck hand, NetworkList<int> playerCardsIndices)
+    {
+        hand.AddCards(Draw(CoreDeck, 3));
+        hand.AddCards(Draw(OffenceDeck, 6));
+        hand.AddCards(Draw(DefenceDeck, 6));
+        hand.AddCards(Draw(UtilityDeck, 3));
+
+        List<int> cardIndices = GetCardIndices(hand.Cards);
+        foreach (int cardIndex in cardIndices) playerCardsIndices.Add(cardIndex);
+    }
+
     public override void OnNetworkSpawn()
     {
         InitializeCardSets();
+        PopulateDecks();
     }
 
     public void PopulateDecks()
@@ -136,6 +148,38 @@ public class CardManager : NetworkBehaviour
                     break;
             }
         }
+    }
+
+    public void InitializePlayerCards(Player player1, Player player2, ulong player2ClientId)
+    {
+        InitializePlayerHand(player1.Hand, N_Player1CardsIndices);
+        InitializePlayerHand(player2.Hand, N_Player2CardsIndices);
+
+        _ = InstantiateCards(player1.Hand.Cards, true, player2ClientId, player1, player2);
+        _ = InstantiateCards(player2.Hand.Cards, false, player2ClientId, player1, player2);
+    }
+
+    public async Task AddEndOfRoundCards(Player player1, Player player2, ulong player2ClientId)
+    {
+        List<ICard> player1Set = DrawEndOfRoundSet();
+        List<ICard> player2Set = DrawEndOfRoundSet();
+
+        player1.Hand.AddCards(player1Set);
+        player2.Hand.AddCards(player2Set);
+
+        await InstantiateCards(player1Set, true, player2ClientId, player1, player2);
+        await InstantiateCards(player2Set, false, player2ClientId, player1, player2);
+    }
+
+    private List<ICard> DrawEndOfRoundSet()
+    {
+        var newCards = new List<ICard>();
+        newCards.Add(DrawOne(OffenceDeck));
+        newCards.Add(DrawOne(DefenceDeck));
+        newCards.Add(DrawOne(CoreDeck));
+        newCards.Add(DrawOne(UtilityDeck));
+
+        return newCards;
     }
 
     public List<ICard> Draw(Deck drawDeck, int numOfCards)

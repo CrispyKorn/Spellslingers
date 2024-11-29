@@ -20,6 +20,8 @@ public class Locator : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(this);
+
+        DontDestroyOnLoad(this);
     }
 
     public void RegisterInstance(DebugMenu instance)

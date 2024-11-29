@@ -50,6 +50,8 @@ public class InputManager : MonoBehaviour
     {
         Locator.Instance.RegisterInstance(this);
         _playerInput = new PlayerInput();
+
+        DontDestroyOnLoad(this);
     }
 
     private void OnEnable()
@@ -102,6 +104,11 @@ public class InputManager : MonoBehaviour
         _playerInput.Menu.Cancel.performed -= Cancel_performed;
         _playerInput.Menu.Cancel.canceled -= Cancel_canceled;
         #endregion
+    }
+
+    private void Start()
+    {
+        SetActionMap(ActionMap.Menu);
     }
 
     #region Input Methods

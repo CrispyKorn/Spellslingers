@@ -4,13 +4,13 @@ using Unity.Netcode;
 
 public class PlayCard : NetworkBehaviour
 {
-    public bool Moveable { get => _moveable.Value; set => _moveable.Value = value; }
+    public bool Moveable { get => n_moveable.Value; set => n_moveable.Value = value; }
     public ICard CardData { get => _cardData; }
     public bool IsFaceUp { get => _isFaceUp; }
     public BoxCollider2D BoxCollider { get => _boxCollider; }
     public bool IsBeingDragged { get => _isBeingDragged; set => _isBeingDragged = value; }
 
-    private NetworkVariable<bool> _moveable = new(true);
+    private NetworkVariable<bool> n_moveable = new(true);
 
     private SpriteRenderer _spriteRenderer;
     private BoxCollider2D _boxCollider;
@@ -64,7 +64,7 @@ public class PlayCard : NetworkBehaviour
     {
         _cardData.PrintDataToConsole();
 
-        if (!_moveable.Value) return;
+        if (!n_moveable.Value) return;
         _isBeingDragged = true;
         _dragOffset = (Vector2)transform.position - GetMousePos();
         FollowMouse();
