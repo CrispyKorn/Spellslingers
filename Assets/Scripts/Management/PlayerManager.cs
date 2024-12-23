@@ -32,11 +32,10 @@ public class PlayerManager : NetworkBehaviour
         _player1.name = "Player 1";
         _player2.name = "Player 2";
 
-        TrackPlayerHealthClientRpc();
+        TrackPlayerHealth();
     }
 
-    [ClientRpc]
-    public void TrackPlayerHealthClientRpc()
+    public void TrackPlayerHealth()
     {
         _player1.N_Health.OnValueChanged += OnPlayerHealthChanged;
         _player2.N_Health.OnValueChanged += OnPlayerHealthChanged;
@@ -44,7 +43,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void OnPlayerHealthChanged(int previous, int current)
     {
-        if (IsHost) _playManager.UpdateUIClientRpc();
+        _playManager.UpdateUIRpc(_player1.Health, _player2.Health, _playManager.CurrentGameState);
     }
 
     public void DealDamage(bool player1Attacking, int damage)

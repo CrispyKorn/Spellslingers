@@ -86,9 +86,9 @@ public class CardManager : NetworkBehaviour
             var cardObjData = card.GetComponent<PlayCard>();
 
             // Set card orientation based on player
-            cardObjData.FlipToClientRpc(false);
+            cardObjData.FlipToRpc(false);
             if (isLocalPlayerCards) cardObjData.Flip();
-            else cardObjData.FlipToClientRpc(true, false);
+            else cardObjData.FlipToRpc(true, false);
             if (isLocalPlayerCards) card.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             else card.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
 
@@ -174,10 +174,15 @@ public class CardManager : NetworkBehaviour
     private List<ICard> DrawEndOfRoundSet()
     {
         var newCards = new List<ICard>();
-        newCards.Add(DrawOne(OffenceDeck));
-        newCards.Add(DrawOne(DefenceDeck));
-        newCards.Add(DrawOne(CoreDeck));
-        newCards.Add(DrawOne(UtilityDeck));
+        ICard offenceCard = DrawOne(OffenceDeck);
+        ICard defenceCard = DrawOne(DefenceDeck);
+        ICard coreCard = DrawOne(CoreDeck);
+        ICard utilityCard = DrawOne(UtilityDeck);
+
+        if (offenceCard != null) newCards.Add(offenceCard);
+        if (defenceCard != null) newCards.Add(defenceCard);
+        if (coreCard != null) newCards.Add(coreCard);
+        if (utilityCard != null) newCards.Add(utilityCard);
 
         return newCards;
     }
@@ -199,6 +204,7 @@ public class CardManager : NetworkBehaviour
 
     public ICard DrawOne(Deck drawDeck)
     {
+        if (drawDeck.Cards.Count == 0) return null;
         return Draw(drawDeck, 1)[0];
     }
 
@@ -242,13 +248,13 @@ public class CardManager : NetworkBehaviour
             cardObj.GetComponent<NetworkObject>().Spawn();
 
             // Set playcard card data to the current card
-            cardObjData.SetCardDataClientRpc(CardToCardIndex[card]);
+            cardObjData.SetCardDataRpc(CardToCardIndex[card]);
 
             // Cards spawn face down, so flip to face-up when they are ours
             if (isLocalPlayerCards) cardObjData.Flip();
             else
             {
-                cardObjData.FlipToClientRpc(true, false);
+                cardObjData.FlipToRpc(true, false);
                 cardObj.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
                 cardObjData.NetworkObject.ChangeOwnership(player2ClientId);
             }
@@ -309,8 +315,8 @@ public class CardManager : NetworkBehaviour
 
             // Set card position
             var card = hand[i].GetComponent<PlayCard>();
-            card.SetCardPosClientRpc(cardPos);
-            card.ResetPosClientRpc();
+            card.SetCardPosRpc(cardPos);
+            card.ResetPosRpc();
 
             await Awaitable.NextFrameAsync();
         }

@@ -7,7 +7,7 @@ public class InputManager : MonoBehaviour
     public enum ActionMap
     {
         None,
-        Player,
+        Battle,
         Menu
     }
 
@@ -41,7 +41,10 @@ public class InputManager : MonoBehaviour
     #endregion
     #endregion
 
+    public Vector2 MousePos { get => _mousePos; }
+
     private PlayerInput _playerInput;
+    private Vector2 _mousePos;
 
     public ActionMap CurrentActionMap { get; private set; } = ActionMap.None;
     public PlayerInputDevice CurrentInputDevice { get; private set; } = PlayerInputDevice.KBM;
@@ -64,6 +67,8 @@ public class InputManager : MonoBehaviour
         _playerInput.Battle.Flip.started += Flip_started;
         _playerInput.Battle.Flip.performed += Flip_performed;
         _playerInput.Battle.Flip.canceled += Flip_canceled;
+
+        _playerInput.Battle.Point.performed += Point_performed;
         #endregion
 
         #region Menu
@@ -78,8 +83,6 @@ public class InputManager : MonoBehaviour
         _playerInput.Menu.Cancel.canceled += Cancel_canceled;
         #endregion
     }
-
-    
 
     private void OnDisable()
     {
@@ -150,6 +153,14 @@ public class InputManager : MonoBehaviour
     {
         UpdateInputDevice(context.control.device);
         OnFlip_Ended?.Invoke();
+    }
+    #endregion
+
+    #region Point
+    private void Point_performed(InputAction.CallbackContext context)
+    {
+        UpdateInputDevice(context.control.device);
+        _mousePos = Camera.main.ScreenToWorldPoint(context.ReadValue<Vector2>());
     }
     #endregion
     #endregion
@@ -234,7 +245,7 @@ public class InputManager : MonoBehaviour
                     _playerInput.Menu.Disable();
                 }
                 break;
-            case ActionMap.Player:
+            case ActionMap.Battle:
                 {
                     _playerInput.Battle.Enable();
                     _playerInput.Menu.Disable();

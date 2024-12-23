@@ -9,4 +9,11 @@ public class CombinedCardValues
     private CardValues _waterValues;
     private CardValues _fireValues;
     private CardValues _electricityValues;
+
+    public CombinedCardValues()
+    {
+        _waterValues = new CardValues();
+        _fireValues = new CardValues();
+        _electricityValues = new CardValues();
+    }
 }

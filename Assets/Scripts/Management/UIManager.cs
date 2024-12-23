@@ -41,4 +41,11 @@ public class UIManager : MonoBehaviour
     {
         _btnPass.gameObject.SetActive(visible);
     }
+
+    public void SwapPlayerHealth()
+    {
+        TextMeshProUGUI temp = _txtP1Health;
+        _txtP1Health = _txtP2Health;
+        _txtP2Health = temp;
+    }
 }

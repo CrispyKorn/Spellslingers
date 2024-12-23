@@ -9,7 +9,6 @@ using Unity.Networking.Transport.Relay;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using TMPro;
-using System.Linq;
 
 public class RelayManager : NetworkBehaviour
 {
@@ -45,7 +44,7 @@ public class RelayManager : NetworkBehaviour
     {
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1); // Create allocation (slot) for one connection (player 2)
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1); // Create allocation with one connection (player 2)
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId); // Generate join code based on created allocation
 
             // Print join code

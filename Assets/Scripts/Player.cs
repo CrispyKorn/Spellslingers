@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.InputSystem;
 using Unity.Netcode;
 
 public class Player : NetworkBehaviour
@@ -13,60 +12,77 @@ public class Player : NetworkBehaviour
     public NetworkVariable<int> N_Health { get => n_health; }
     public Deck Hand { get => _hand; set => _hand = value; }
 
+    [SerializeField] private LayerMask _cardCollisionMask;
+    [SerializeField] private LayerMask _cardSlotCollisionMask;
+
     private NetworkVariable<int> n_health = new(30);
 
     private Deck _hand;
     private PlayCard _selectedCard = null;
-    private ContactFilter2D _contactFilter;
-    private string[] _contactLayers = { "CardSlot", "Card" };
     private SpriteRenderer _selectedCardZoom;
 
-    private async void OnEnable()
+    private void Awake()
     {
-        if (!IsSpawned || !IsOwner) return;
+        _hand = new Deck();
+    }
 
-        while (Locator.Instance.InputManager is null) await Awaitable.NextFrameAsync();
-
-        Locator.Instance.InputManager.OnSelect += TrySelectCard;
-        Locator.Instance.InputManager.OnSelect_Ended += TryPlaceCard;
-        Locator.Instance.InputManager.OnFlip += FlipCard;
+    private void OnEnable()
+    {
+        SubToInputEvents();
     }
 
     private void OnDisable()
     {
         if (!IsSpawned || !IsOwner) return;
 
-        Locator.Instance.InputManager.OnSelect -= TrySelectCard;
-        Locator.Instance.InputManager.OnSelect_Ended -= TryPlaceCard;
-        Locator.Instance.InputManager.OnFlip -= FlipCard;
+        Locator.Instance.InputManager.OnSelect -= Select;
+        Locator.Instance.InputManager.OnSelect_Ended -= TryPlaceCardRpc;
+        Locator.Instance.InputManager.OnFlip -= FlipCardRpc;
     }
 
-    private Vector2 GetMousePos()
+    private async void SubToInputEvents()
     {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        return mousePos;
+        if (!IsSpawned || !IsOwner) return;
+
+        while (Locator.Instance.InputManager == null) await Awaitable.NextFrameAsync();
+
+        Locator.Instance.InputManager.OnSelect += Select;
+        Locator.Instance.InputManager.OnSelect_Ended += TryPlaceCardRpc;
+        Locator.Instance.InputManager.OnFlip += FlipCardRpc;
     }
 
-    private void TrySelectCard()
+    private void Select()
     {
-        _contactFilter.SetLayerMask(LayerMask.NameToLayer(_contactLayers[1]));
+        TrySelectCardRpc(Locator.Instance.InputManager.MousePos, OwnerClientId);
+    }
+
+    [Rpc(SendTo.Server)]
+    private void TrySelectCardRpc(Vector2 mousePos, ulong invokingClientId)
+    {
+        var contactFilter = new ContactFilter2D();
+        contactFilter.SetLayerMask(_cardCollisionMask);
         List<Collider2D> collisions = new();
-        int numOfOverlaps = Physics2D.OverlapPoint(GetMousePos(), _contactFilter, collisions);
+        int numOfOverlaps = Physics2D.OverlapPoint(mousePos, contactFilter, collisions);
+
+        // End early when no cards are hit
+        if (numOfOverlaps == 0)
+        {
+            UpdateSelectedCardRpc(0);
+            DisableSelectedCardZoomRpc();
+            return;
+        }
 
         // Only select cards that the player is allowed to see
         List<Collider2D> disallowedCardCollisions  = new();
         foreach (Collider2D collision in collisions)
         {
             var playCard = collision.GetComponent<PlayCard>();
-            if (!playCard.IsOwner && !playCard.IsFaceUp) disallowedCardCollisions.Add(collision);
-        }
+            bool isNotCardOwner = playCard.OwnerClientId != invokingClientId;
+            bool cardIsFaceDown = !playCard.IsFaceUp;
+            bool cardIsInHand = !playCard.Placed;
 
-        // End early when no cards are hit
-        if (numOfOverlaps == 0) 
-        {
-            _selectedCard = null;
-            _selectedCardZoom.gameObject.SetActive(false);
-            return;
+            // Card can only be selected by its owner, or when it is placed and face-up
+            if (isNotCardOwner && (cardIsInHand || cardIsFaceDown)) disallowedCardCollisions.Add(collision);
         }
 
         // Find the topmost card if multiple were hit
@@ -79,31 +95,50 @@ public class Player : NetworkBehaviour
             }
         }
 
-        _selectedCard = topCard;
+        PlayCard selectedCard = topCard;
 
         // Show zoomed card when allowed
-        var allowedToSeeCard = true;
-        if (disallowedCardCollisions.Contains(_selectedCard.BoxCollider)) allowedToSeeCard = false;
-
-        if (allowedToSeeCard)
+        if (!disallowedCardCollisions.Contains(selectedCard.BoxCollider))
         {
-            _selectedCardZoom.sprite = _selectedCard.CardData.FrontImg;
-            _selectedCardZoom.gameObject.SetActive(true);
+            UpdateSelectedCardRpc(selectedCard.NetworkObjectId);
+            SetSelectedCardZoomRpc();
             _selectedCard.OnSelected();
         }
 
-        OnCardSelected?.Invoke(this, _selectedCard);
+        OnCardSelected?.Invoke(this, selectedCard);
     }
 
-    private void TryPlaceCard()
+    [Rpc(SendTo.Everyone)]
+    private void UpdateSelectedCardRpc(ulong selectedCardNetworkId)
     {
-        if (_selectedCard == null || !_selectedCard.Moveable) return;
+        if (selectedCardNetworkId == 0) _selectedCard = null;
+        else _selectedCard = GetNetworkObject(selectedCardNetworkId).GetComponent<PlayCard>();
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void DisableSelectedCardZoomRpc()
+    {
+        _selectedCardZoom.gameObject.SetActive(false);
+    }
+
+    [Rpc(SendTo.Owner)]
+    private void SetSelectedCardZoomRpc()
+    {
+        _selectedCardZoom.sprite = _selectedCard.CardData.FrontImg;
+        _selectedCardZoom.gameObject.SetActive(true);
+    }
+
+    [Rpc(SendTo.Server)]
+    private void TryPlaceCardRpc()
+    {
+        if (_selectedCard == null || _selectedCard.Placed) return;
 
         var placed = false;
 
-        _contactFilter.SetLayerMask(LayerMask.NameToLayer(_contactLayers[0]));
+        var contactFilter = new ContactFilter2D();
+        contactFilter.SetLayerMask(_cardSlotCollisionMask);
         List<Collider2D> collisions = new();
-        int numOfOverlaps = _selectedCard.BoxCollider.Overlap(_contactFilter, collisions);
+        int numOfOverlaps = _selectedCard.BoxCollider.Overlap(contactFilter, collisions);
 
         if (numOfOverlaps > 0)
         {
@@ -129,7 +164,7 @@ public class Player : NetworkBehaviour
             {
                 if (cardSlot.TryPlaceCard(_selectedCard.gameObject))
                 {
-                    _selectedCard.IsBeingDragged = false;
+                    _selectedCard.SetIsBeingDraggedRpc(false);
                     OnPlaceCard?.Invoke(this, _selectedCard.gameObject);
                     placed = true;
                 }
@@ -138,12 +173,13 @@ public class Player : NetworkBehaviour
 
         if (!placed)
         {
-            _selectedCard.IsBeingDragged = false;
-            _selectedCard.ResetPosServerRpc();
+            _selectedCard.SetIsBeingDraggedRpc(false);
+            _selectedCard.ResetPosRpc();
         }
     }
 
-    private void FlipCard()
+    [Rpc(SendTo.Server)]
+    private void FlipCardRpc()
     {
         if (_selectedCard == null) return;
 
@@ -152,11 +188,9 @@ public class Player : NetworkBehaviour
 
     public override async void OnNetworkSpawn()
     {
-        Hand = new Deck();
-
-        if (!IsOwner) return;
-
         while (Locator.Instance.PlayManager == null) await Awaitable.NextFrameAsync();
         _selectedCardZoom = Locator.Instance.PlayManager.SelectedCard;
+
+        SubToInputEvents();        
     }
 }

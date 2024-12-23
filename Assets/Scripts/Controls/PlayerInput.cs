@@ -44,6 +44,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Point"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""238cc7cf-2a6b-4d8f-8839-22bb6d01a931"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -88,6 +97,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Flip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ed94dce2-060b-46e9-9fce-9ab9ae34779c"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";KBM"",
+                    ""action"": ""Point"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -319,6 +339,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Battle = asset.FindActionMap("Battle", throwIfNotFound: true);
         m_Battle_Select = m_Battle.FindAction("Select", throwIfNotFound: true);
         m_Battle_Flip = m_Battle.FindAction("Flip", throwIfNotFound: true);
+        m_Battle_Point = m_Battle.FindAction("Point", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Navigate = m_Menu.FindAction("Navigate", throwIfNotFound: true);
@@ -395,12 +416,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private List<IBattleActions> m_BattleActionsCallbackInterfaces = new List<IBattleActions>();
     private readonly InputAction m_Battle_Select;
     private readonly InputAction m_Battle_Flip;
+    private readonly InputAction m_Battle_Point;
     public struct BattleActions
     {
         private @PlayerInput m_Wrapper;
         public BattleActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Select => m_Wrapper.m_Battle_Select;
         public InputAction @Flip => m_Wrapper.m_Battle_Flip;
+        public InputAction @Point => m_Wrapper.m_Battle_Point;
         public InputActionMap Get() { return m_Wrapper.m_Battle; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -416,6 +439,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Flip.started += instance.OnFlip;
             @Flip.performed += instance.OnFlip;
             @Flip.canceled += instance.OnFlip;
+            @Point.started += instance.OnPoint;
+            @Point.performed += instance.OnPoint;
+            @Point.canceled += instance.OnPoint;
         }
 
         private void UnregisterCallbacks(IBattleActions instance)
@@ -426,6 +452,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Flip.started -= instance.OnFlip;
             @Flip.performed -= instance.OnFlip;
             @Flip.canceled -= instance.OnFlip;
+            @Point.started -= instance.OnPoint;
+            @Point.performed -= instance.OnPoint;
+            @Point.canceled -= instance.OnPoint;
         }
 
         public void RemoveCallbacks(IBattleActions instance)
@@ -543,6 +572,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     {
         void OnSelect(InputAction.CallbackContext context);
         void OnFlip(InputAction.CallbackContext context);
+        void OnPoint(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {
