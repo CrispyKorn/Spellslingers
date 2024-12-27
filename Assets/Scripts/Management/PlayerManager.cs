@@ -1,6 +1,4 @@
-using UnityEngine;
 using Unity.Netcode;
-using System;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -20,6 +18,11 @@ public class PlayerManager : NetworkBehaviour
         _uiManager = GetComponent<UIManager>();
     }
 
+    private void OnPlayerHealthChanged(int previous, int current)
+    {
+        _playManager.UpdateUIRpc(_player1.Health, _player2.Health, _playManager.CurrentGameState);
+    }
+
     public override void OnNetworkSpawn()
     {
         if (!IsHost) return;
@@ -35,17 +38,20 @@ public class PlayerManager : NetworkBehaviour
         TrackPlayerHealth();
     }
 
+    /// <summary>
+    /// Subscribes to the relevant methods to track both players health changes.
+    /// </summary>
     public void TrackPlayerHealth()
     {
         _player1.N_Health.OnValueChanged += OnPlayerHealthChanged;
         _player2.N_Health.OnValueChanged += OnPlayerHealthChanged;
     }
 
-    private void OnPlayerHealthChanged(int previous, int current)
-    {
-        _playManager.UpdateUIRpc(_player1.Health, _player2.Health, _playManager.CurrentGameState);
-    }
-
+    /// <summary>
+    /// Deals damage to the relevant player, handling all relevant tasks.
+    /// </summary>
+    /// <param name="player1Attacking">Whether player 1 is attacking this round.</param>
+    /// <param name="damage">The amount of damage applied.</param>
     public void DealDamage(bool player1Attacking, int damage)
     {
         Player playerHurt = player1Attacking ? _player2 : _player1;

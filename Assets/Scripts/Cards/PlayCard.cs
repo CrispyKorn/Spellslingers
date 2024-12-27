@@ -25,19 +25,25 @@ public class PlayCard : NetworkBehaviour
     }
 
     /// <summary>
-    /// Sets the card sprite based on whether it is face-up or face-down
+    /// Sets the card sprite based on whether it is face-up or face-down.
     /// </summary>
     private void UpdateSprite()
     {
         _spriteRenderer.sprite = _isFaceUp ? _cardData.FrontImg : _cardData.BackImg;
     }
 
+    /// <summary>
+    /// Begins the mouse-following behaviour on the card-owner's machine.
+    /// </summary>
     [Rpc(SendTo.Owner)]
     private void FollowMouseRpc()
     {
         FollowMouse();
     }
 
+    /// <summary>
+    /// Causes the card to follow the players mouse.
+    /// </summary>
     private async void FollowMouse()
     {
         while (_isBeingDragged)
@@ -52,12 +58,18 @@ public class PlayCard : NetworkBehaviour
         if (_cardData == null) _cardData = Locator.Instance.CardManager.CardIndexToCard[0];
     }
 
+    /// <summary>
+    /// Flips the card and updates the sprite accordingly.
+    /// </summary>
     public void Flip()
     {
         _isFaceUp = !_isFaceUp;
         UpdateSprite();
     }
 
+    /// <summary>
+    /// Runs all behaviour required when a card is selected.
+    /// </summary>
     public void OnSelected()
     {
         _cardData.PrintDataToConsole();
@@ -68,11 +80,15 @@ public class PlayCard : NetworkBehaviour
         FollowMouseRpc();
     }
 
+    /// <summary>
+    /// Flips a card to the given direction for each player.
+    /// </summary>
+    /// <param name="player1FaceUp">Whether to set the card to face-up for player 1 (host).</param>
+    /// <param name="player2FaceUp">Whether to set the card to face-up for player 2 (client).</param>
     [Rpc(SendTo.Everyone)]
-    public void FlipToRpc(bool faceUp, bool includeInvoker = true)
+    public void FlipToRpc(bool player1FaceUp, bool player2FaceUp)
     {
-        if (!includeInvoker && IsHost) return;
-        _isFaceUp = faceUp;
+        _isFaceUp = IsHost ? player1FaceUp : player2FaceUp;
         UpdateSprite();
     }
 
@@ -107,6 +123,10 @@ public class PlayCard : NetworkBehaviour
         UpdateSprite();
     }
 
+    /// <summary>
+    /// Sets the value of the _isBeingDragged boolean. Used for instant updates of the value.
+    /// </summary>
+    /// <param name="value">Whether the card is being dragged.</param>
     [Rpc(SendTo.Everyone)]
     public void SetIsBeingDraggedRpc(bool value)
     {

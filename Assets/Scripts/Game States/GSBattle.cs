@@ -1,11 +1,13 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 
 public class GSBattle : GameState
 {
+    /// <summary>
+    /// Fires when damage is dealt to a player. (player 1 is attacking, damage amount)
+    /// </summary>
     public event Action<bool, int> OnDamageDealt;
 
     public override void OnEnterState(GameStateManager stateManager, GameBoard board)
@@ -55,6 +57,10 @@ public class GSBattle : GameState
         ResetBoard(_gameBoard.player2Board);
     }
 
+    /// <summary>
+    /// Resets the given game board, sending cards back to decks and performing cleanup.
+    /// </summary>
+    /// <param name="_board">The board (set of card slots) to reset.</param>
     private void ResetBoard(CardSlot[] _board)
     {
         foreach (CardSlot slot in _board)
@@ -68,10 +74,15 @@ public class GSBattle : GameState
         }
     }
 
+    /// <summary>
+    /// Gets the values of all played cards combined for the given player board.
+    /// </summary>
+    /// <param name="_playerBoard">The board for which to get the values.</param>
+    /// <returns>The combined values of the played cards.</returns>
     private CombinedCardValues GetPlayerValues(CardSlot[] _playerBoard)
     {
-        CoreCard coreCard = _playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData as CoreCard;
-        Card[] cardSlots = new Card[5];
+        var coreCard = _playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData as CoreCard;
+        var cardSlots = new Card[5];
         GameObject peripheralCard;
 
         for (int i = 1; i <= 5; i++)
@@ -80,7 +91,7 @@ public class GSBattle : GameState
             if (peripheralCard != null) cardSlots[i-1] = (Card)peripheralCard.GetComponent<PlayCard>().CardData;
         }
 
-        List<Card> cards = new List<Card>();
+        var cards = new List<Card>();
         foreach (Card card in cardSlots)
         {
             if (card != null) cards.Add(card);
@@ -89,6 +100,13 @@ public class GSBattle : GameState
         return coreCard.CalculateFinalValues(cards.ToArray());
     }
 
+    /// <summary>
+    /// Calculates the total damage absorbed by defences in an exchange. Use to calculate just one element at a time.
+    /// </summary>
+    /// <param name="attackerAtk">Attacking player's final attack value.</param>
+    /// <param name="defenderAtk">Defending player's final attack value (from deflects).</param>
+    /// <param name="attackerValues">The values used to calculate the attackers damage.</param>
+    /// <param name="defenderValues">The values used to calculate the defenders defence.</param>
     private void CalculateDmg(ref int attackerAtk, ref int defenderAtk, CardValues attackerValues, CardValues defenderValues)
     {
         // Special v Special

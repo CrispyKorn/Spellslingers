@@ -17,6 +17,9 @@ public interface ICard : IComparable<ICard>
     public Sprite FrontImg { get; }
     public Sprite BackImg { get; }
 
+    /// <summary>
+    /// Prints the card's main data to the console. Used for debug purposes only.
+    /// </summary>
     public void PrintDataToConsole();
 
     public new int CompareTo(ICard otherCardObj);

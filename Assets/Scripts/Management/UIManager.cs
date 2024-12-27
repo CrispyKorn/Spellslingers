@@ -13,6 +13,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
 
+    /// <summary>
+    /// Updates the game UI
+    /// </summary>
+    /// <param name="player1Hp">The current health of player 1 (host).</param>
+    /// <param name="player2Hp">The current health of player 2 (client).</param>
+    /// <param name="currentState">The current value of the game state.</param>
     public void UpdateUI(int player1Hp, int player2Hp, int currentState)
     {
         _txtP1Health.text = "HP: " + player1Hp;
@@ -30,6 +36,10 @@ public class UIManager : MonoBehaviour
         _txtTurn.text = turnText;
     }
 
+    /// <summary>
+    /// Sets and enables the 'Game Over' screen UI.
+    /// </summary>
+    /// <param name="player1Won">Whether player 1 (host) was the winner.</param>
     public void GameOverUI(bool player1Won)
     {
         _txtGameOver.text = "Game Over!\n\n";
@@ -37,11 +47,18 @@ public class UIManager : MonoBehaviour
         _pnlGameOver.SetActive(true);
     }
 
+    /// <summary>
+    /// Sets the visibility of the 'Pass' button.
+    /// </summary>
+    /// <param name="visible"></param>
     public void ChangePassBtnVisibility(bool visible)
     {
         _btnPass.gameObject.SetActive(visible);
     }
 
+    /// <summary>
+    /// Visually swaps the health for each player (for player 2 since their camera is flipped).
+    /// </summary>
     public void SwapPlayerHealth()
     {
         TextMeshProUGUI temp = _txtP1Health;

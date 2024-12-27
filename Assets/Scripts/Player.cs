@@ -40,6 +40,9 @@ public class Player : NetworkBehaviour
         Locator.Instance.InputManager.OnFlip -= FlipCardRpc;
     }
 
+    /// <summary>
+    /// Subscribes to the relevant input events when available.
+    /// </summary>
     private async void SubToInputEvents()
     {
         if (!IsSpawned || !IsOwner) return;
@@ -51,11 +54,19 @@ public class Player : NetworkBehaviour
         Locator.Instance.InputManager.OnFlip += FlipCardRpc;
     }
 
+    /// <summary>
+    /// Tells the server to select the card under the mouse.
+    /// </summary>
     private void Select()
     {
         TrySelectCardRpc(Locator.Instance.InputManager.MousePos, OwnerClientId);
     }
 
+    /// <summary>
+    /// Attempts to select a card under the cursor position for the given player. Runs on the server.
+    /// </summary>
+    /// <param name="mousePos">The position to check for a card.</param>
+    /// <param name="invokingClientId">The client ID of the player selecting.</param>
     [Rpc(SendTo.Server)]
     private void TrySelectCardRpc(Vector2 mousePos, ulong invokingClientId)
     {
@@ -108,6 +119,10 @@ public class Player : NetworkBehaviour
         OnCardSelected?.Invoke(this, selectedCard);
     }
 
+    /// <summary>
+    /// Locally updates _selectedCard using the given network ID for everyone on the network.
+    /// </summary>
+    /// <param name="selectedCardNetworkId">The network object ID of the selected card.</param>
     [Rpc(SendTo.Everyone)]
     private void UpdateSelectedCardRpc(ulong selectedCardNetworkId)
     {
@@ -115,12 +130,18 @@ public class Player : NetworkBehaviour
         else _selectedCard = GetNetworkObject(selectedCardNetworkId).GetComponent<PlayCard>();
     }
 
+    /// <summary>
+    /// Disables the zoomed card preview for the local player.
+    /// </summary>
     [Rpc(SendTo.Owner)]
     private void DisableSelectedCardZoomRpc()
     {
         _selectedCardZoom.gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Updates and activates the zoomed card preview for the local player.
+    /// </summary>
     [Rpc(SendTo.Owner)]
     private void SetSelectedCardZoomRpc()
     {
@@ -128,20 +149,26 @@ public class Player : NetworkBehaviour
         _selectedCardZoom.gameObject.SetActive(true);
     }
 
+    /// <summary>
+    /// Attempts to place the held card. Runs on the server.
+    /// </summary>
     [Rpc(SendTo.Server)]
     private void TryPlaceCardRpc()
     {
+        // Early exit when placing impossible
         if (_selectedCard == null || _selectedCard.Placed) return;
 
         var placed = false;
 
+        // Check for an overlap between the card and a card slot
         var contactFilter = new ContactFilter2D();
         contactFilter.SetLayerMask(_cardSlotCollisionMask);
         List<Collider2D> collisions = new();
         int numOfOverlaps = _selectedCard.BoxCollider.Overlap(contactFilter, collisions);
 
-        if (numOfOverlaps > 0)
+        if (numOfOverlaps > 0) // Successful card slot overlap
         {
+            // Find the closest card slot
             var cardSlot = collisions[0].GetComponent<CardSlot>();
             float minDist = Vector2.Distance(_selectedCard.transform.position, cardSlot.transform.position);
             var dist = 0f;
@@ -156,6 +183,7 @@ public class Player : NetworkBehaviour
                 }
             }
             
+            // Check for invalid card placements
             bool isUtility = _selectedCard.CardData.Type == ICard.CardType.Utility;
             bool isValidCard = Locator.Instance.PlayManager.CheckValidCard(_selectedCard.CardData);
             bool canPlace = cardSlot.IsUtilitySlot ? isUtility : isValidCard;
@@ -164,6 +192,7 @@ public class Player : NetworkBehaviour
             {
                 if (cardSlot.TryPlaceCard(_selectedCard.gameObject))
                 {
+                    // Card placement allowed, place the card!
                     _selectedCard.SetIsBeingDraggedRpc(false);
                     OnPlaceCard?.Invoke(this, _selectedCard.gameObject);
                     placed = true;
@@ -171,13 +200,16 @@ public class Player : NetworkBehaviour
             }
         }
 
-        if (!placed)
+        if (!placed) // Placing into card slot failed, reset card
         {
             _selectedCard.SetIsBeingDraggedRpc(false);
             _selectedCard.ResetPosRpc();
         }
     }
 
+    /// <summary>
+    /// Flips the selected card. Runs on the server.
+    /// </summary>
     [Rpc(SendTo.Server)]
     private void FlipCardRpc()
     {

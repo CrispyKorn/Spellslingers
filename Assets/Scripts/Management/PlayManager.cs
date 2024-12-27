@@ -39,12 +39,10 @@ public class PlayManager : NetworkBehaviour
         Locator.Instance.InputManager.SetActionMap(InputManager.ActionMap.Battle);
     }
 
-    private void SetGameStateUpdated()
-    {
-        n_gameStateNotUpdated.Value = false;
-        Debug.Log("Game State Updated!");
-    }
-
+    #region Private
+    /// <summary>
+    /// Sets up the game on a high level, initializing players, and cards before starting the game.
+    /// </summary>
     private void SetupGame()
     {
         _cardManager.PopulateDecks();
@@ -56,6 +54,11 @@ public class PlayManager : NetworkBehaviour
         _gameStateManager.SetState(_gameStateManager.Player1Turn, _board);
     }
 
+    /// <summary>
+    /// Used to check for cards that require special treatment. Temporary bandaid.
+    /// </summary>
+    /// <param name="cardName">The card to check.</param>
+    /// <returns>Whether this card requires special treatment.</returns>
     private bool CheckSpecialCard(string cardName)
     {
         var isSpecialCard = false;
@@ -70,11 +73,21 @@ public class PlayManager : NetworkBehaviour
         return isSpecialCard;
     }
 
-    private void OnPlaceCard(Player placingPlayer, GameObject cardObj)
+    /// <summary>
+    /// Run when a card is played by a player.
+    /// </summary>
+    /// <param name="placingPlayer">The player placing the card.</param>
+    /// <param name="cardObj">The placed card.</param>
+    private void PlayCard(Player placingPlayer, GameObject cardObj)
     {
         PlayCardRpc(placingPlayer.NetworkObjectId, cardObj.GetComponent<NetworkObject>().NetworkObjectId);
     }
 
+    /// <summary>
+    /// Run when a utility card effect is complete. Cleans up the game state and cards.
+    /// </summary>
+    /// <param name="utilityCard">The utility card that was used.</param>
+    /// <param name="playerHand">The player who played the utility card.</param>
     private void UtilityCardCleanup(UtilityCard utilityCard, Deck playerHand)
     {
         _gameStateManager.SetState(_gameStateManager.PrevState, _board, false);
@@ -84,6 +97,10 @@ public class PlayManager : NetworkBehaviour
         utilityCard.OnCardEffectComplete -= UtilityCardCleanup;
     }
 
+    /// <summary>
+    /// Updates a players turn, moving on to the appropriate next stage of the game flow.
+    /// </summary>
+    /// <param name="isPlayer1Turn">Whether it is currently player 1 (host)'s turn.</param>
     private void PlayTurn(bool isPlayer1Turn)
     {
         // Check for end of turn
@@ -104,6 +121,9 @@ public class PlayManager : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Ends a players turn, allowing for turn-extensions.
+    /// </summary>
     private void EndTurn()
     {
         n_gameStateNotUpdated.Value = true;
@@ -122,6 +142,9 @@ public class PlayManager : NetworkBehaviour
         else EndRound();
     }
 
+    /// <summary>
+    /// Ends a round, flipping the active player or moving to the battle phase.
+    /// </summary>
     private async void EndRound()
     {
         var p1CoreCard = _board.player1Board[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>();
@@ -129,8 +152,8 @@ public class PlayManager : NetworkBehaviour
 
         if (!p1CoreCard.IsFaceUp)
         {
-            p1CoreCard.FlipToRpc(true);
-            p2CoreCard.FlipToRpc(true);
+            p1CoreCard.FlipToRpc(true, true);
+            p2CoreCard.FlipToRpc(true, true);
 
             _extendP1Turn = CheckSpecialCard(p1CoreCard.CardData.CardName);
             _extendP2Turn = CheckSpecialCard(p2CoreCard.CardData.CardName);
@@ -172,43 +195,71 @@ public class PlayManager : NetworkBehaviour
         _gameStateManager.SetState(n_p1Attacking.Value ? _gameStateManager.Player1Turn : _gameStateManager.Player2Turn, _board);
     }
 
-    private void UpdateAttackingPlayer(bool _p1Attacking)
+    /// <summary>
+    /// Run when the attacking player is updated. Updates the local value of n_p1Attacking.
+    /// </summary>
+    /// <param name="p1Attacking"></param>
+    private void UpdateAttackingPlayer(bool p1Attacking)
     {
-        n_p1Attacking.Value = _p1Attacking;
+        n_p1Attacking.Value = p1Attacking;
     }
 
+    /// <summary>
+    /// Run when the game state is updated. Updates the local value of n_currentGameState and the UI.
+    /// </summary>
+    /// <param name="gameState"></param>
     private void UpdateGameState(int gameState)
     {
         n_currentGameState.Value = gameState;
         UpdateUIRpc(_playerManager.Player1.Health, _playerManager.Player2.Health, gameState);
     }
 
-    public void TrackCardPlacement()
+    /// <summary>
+    /// Updates the local value of n_gameStateNotUpdated. Run when the value is updated on the network.
+    /// </summary>
+    private void SetGameStateUpdated()
     {
-        _playerManager.Player1.OnPlaceCard += OnPlaceCard;
-        _playerManager.Player2.OnPlaceCard += OnPlaceCard;
+        n_gameStateNotUpdated.Value = false;
+        Debug.Log("Game State Updated!");
     }
 
-    [Rpc(SendTo.Everyone)]
-    public void UpdateUIRpc(int player1Health, int player2Health, int currentGameState)
+    /// <summary>
+    /// Begins tracking when a player places a card.
+    /// </summary>
+    private void TrackCardPlacement()
     {
-        _uiManager.UpdateUI(player1Health, player2Health, currentGameState);
+        _playerManager.Player1.OnPlaceCard += PlayCard;
+        _playerManager.Player2.OnPlaceCard += PlayCard;
     }
 
+    /// <summary>
+    /// Locally sets the 'Pass' button visibility for everyone on the network.
+    /// </summary>
+    /// <param name="enabledForPlayer1">Whether it should be active for player 1 (host).</param>
+    /// <param name="enabledForPlayer2">Whether it should be active for player 2 (client).</param>
     [Rpc(SendTo.Everyone)]
-    private void SetPassBtnRpc(bool forPlayer1, bool forPlayer2)
+    private void SetPassBtnRpc(bool enabledForPlayer1, bool enabledForPlayer2)
     {
-        bool activeForMe = IsHost ? forPlayer1 : forPlayer2;
+        bool activeForMe = IsHost ? enabledForPlayer1 : enabledForPlayer2;
 
         _uiManager.ChangePassBtnVisibility(activeForMe);
     }
 
+    /// <summary>
+    /// Locally sets the UI to the 'Game Over' screen for everyone on the network.
+    /// </summary>
+    /// <param name="player1Winner"></param>
     [Rpc(SendTo.Everyone)]
     private void GameOverRpc(bool player1Winner)
     {
         _uiManager.GameOverUI(player1Winner);
     }
 
+    /// <summary>
+    /// Handles the playing of a card. Run on the server.
+    /// </summary>
+    /// <param name="placingPlayerNetworkId">The network ID of the player placing the card.</param>
+    /// <param name="cardObjNetworkId">The network ID of the placed card.</param>
     [Rpc(SendTo.Server)]
     private void PlayCardRpc(ulong placingPlayerNetworkId, ulong cardObjNetworkId)
     {
@@ -218,9 +269,9 @@ public class PlayManager : NetworkBehaviour
         var card = cardObj.GetComponent<PlayCard>();
         ICard cardData = card.CardData;
 
-        // Handle core cards
-        if (cardData.Type == ICard.CardType.Core) card.FlipToRpc(false);
-        else card.FlipToRpc(true);
+        // Handle core and peripheral cards
+        if (cardData.Type == ICard.CardType.Core) card.FlipToRpc(false, false);
+        else card.FlipToRpc(true, true);
 
         // Handle utility cards
         if (cardData.Type != ICard.CardType.Utility) placingPlayer.Hand.RemoveCard(cardData);
@@ -244,8 +295,11 @@ public class PlayManager : NetworkBehaviour
         else PlayTurn(isPlayer1Turn);
     }
 
+    /// <summary>
+    /// Handles the ending of a turn prematurely. Run on the server.
+    /// </summary>
     [Rpc(SendTo.Server)]
-    private void OnEndTurnBtnClickedRpc()
+    private void EndTurnEarlyRpc()
     {
         CardSlot[] playerBoard = n_currentGameState.Value == (int)GameStateManager.GameStateIndex.Player1Turn ? _board.player1Board : _board.player2Board;
 
@@ -254,10 +308,12 @@ public class PlayManager : NetworkBehaviour
 
         EndTurn();
     }
+    #endregion
 
-    public override void OnNetworkSpawn()
+    #region Public
+    public override async void OnNetworkSpawn()
     {
-        _uiManager.BtnPass.onClick.AddListener(OnEndTurnBtnClickedRpc);
+        _uiManager.BtnPass.onClick.AddListener(EndTurnEarlyRpc);
 
         if (IsHost)
         {
@@ -270,7 +326,8 @@ public class PlayManager : NetworkBehaviour
 
             _utilityManager.Initialize(new UtilityInfo(_cardManager, _playerManager.Player1, _playerManager.Player2));
 
-            Invoke("SetupGame", 3f);
+            await Awaitable.WaitForSecondsAsync(3f);
+            SetupGame();
         }
         else
         {
@@ -279,10 +336,14 @@ public class PlayManager : NetworkBehaviour
             _selectedCard.flipY = true;
 
             _uiManager.SwapPlayerHealth();
-
         }
     }
 
+    /// <summary>
+    /// Checks whether the given card is valid to play given the current game state context.
+    /// </summary>
+    /// <param name="card">The card to validate.</param>
+    /// <returns>Whether the card is valid.</returns>
     public bool CheckValidCard(ICard card)
     {
         if (n_gameStateNotUpdated.Value) return card.Type == ICard.CardType.Core;
@@ -292,9 +353,26 @@ public class PlayManager : NetworkBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Handles 'Game Over' 
+    /// </summary>
+    /// <param name="player1Winner">Whether player 1 (host) was the winner.</param>
     public void GameOver(bool player1Winner)
     {
         _gameStateManager.SetState(_gameStateManager.Interrupt, _board);
         GameOverRpc(player1Winner);
     }
+
+    /// <summary>
+    /// Locally updates the UI for everyone on the network.
+    /// </summary>
+    /// <param name="player1Health">The current health of player 1 (host).</param>
+    /// <param name="player2Health">The current health of player 2 (client).</param>
+    /// <param name="currentGameState">The current value of the game state.</param>
+    [Rpc(SendTo.Everyone)]
+    public void UpdateUIRpc(int player1Health, int player2Health, int currentGameState)
+    {
+        _uiManager.UpdateUI(player1Health, player2Health, currentGameState);
+    }
+    #endregion
 }

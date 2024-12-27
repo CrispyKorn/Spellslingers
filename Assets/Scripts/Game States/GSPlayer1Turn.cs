@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class GSPlayer1Turn : GameState
 {
-    int cardsPlayed;
+    private int _cardsPlayed;
 
     public override void OnEnterState(GameStateManager stateManager, GameBoard board)
     {
@@ -10,7 +10,7 @@ public class GSPlayer1Turn : GameState
 
         _stateManager = stateManager;
         _gameBoard = board;
-        cardsPlayed = 0;
+        _cardsPlayed = 0;
 
         _gameBoard.player1Board[(int)GameBoard.Slot.CoreSlot].IsUsable = true;
         _gameBoard.player1Board[(int)GameBoard.Slot.PeripheralSlot1].IsUsable = false;
@@ -26,9 +26,9 @@ public class GSPlayer1Turn : GameState
     {
         Debug.Log("Updating Player 1 Turn...");
 
-        cardsPlayed++;
+        _cardsPlayed++;
 
-        switch (cardsPlayed)
+        switch (_cardsPlayed)
         {
             case 1:
                 {

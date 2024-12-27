@@ -6,6 +6,11 @@ public abstract class CoreCard : Card
 
     protected CombinedCardValues _finalValues;
 
+    /// <summary>
+    /// Calculates the total values of this core card and its peripheral cards for each element.
+    /// </summary>
+    /// <param name="peripheralCards">The peripheral cards associated with this core card.</param>
+    /// <returns>The total combined values.</returns>
     public CombinedCardValues CalculateFinalValues(Card[] peripheralCards)
     {
         _finalValues = new CombinedCardValues();
@@ -48,5 +53,10 @@ public abstract class CoreCard : Card
         return _finalValues;
     }
 
+    /// <summary>
+    /// Applies the effect of the core card it is called on.
+    /// </summary>
+    /// <param name="peripheralCards">The peripheral cards associated with this core card.</param>
+    /// <returns>The combined values after applying the core card's effects.</returns>
     protected abstract CombinedCardValues ApplyEffect(Card[] peripheralCards);
 }

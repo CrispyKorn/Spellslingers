@@ -20,11 +20,27 @@ public class CardSlot : NetworkBehaviour
     private BoxCollider2D _boxCollider;
     private GameObject _heldCard;
 
+    /// <summary>
+    /// Places the held card.
+    /// </summary>
+    private void PlaceCard()
+    {
+        n_hasCard.Value = true;
+        _heldCard.transform.position = transform.position;
+        _heldCard.transform.rotation = transform.rotation;
+        _heldCard.GetComponent<PlayCard>().Placed = true;
+    }
+
     public override void OnNetworkSpawn()
     {
         _boxCollider = GetComponent<BoxCollider2D>();
     }
 
+    /// <summary>
+    /// Attempts to place the given card into the slot.
+    /// </summary>
+    /// <param name="_card">The card to place.</param>
+    /// <returns>Whether placement was successful.</returns>
     public bool TryPlaceCard(GameObject _card)
     {
         if (n_hasCard.Value || !n_isUsable.Value) return false;
@@ -35,14 +51,10 @@ public class CardSlot : NetworkBehaviour
         return true;
     }
 
-    public void PlaceCard()
-    {
-        n_hasCard.Value = true;
-        _heldCard.transform.position = transform.position;
-        _heldCard.transform.rotation = transform.rotation;
-        _heldCard.GetComponent<PlayCard>().Placed = true;
-    }
-
+    /// <summary>
+    /// Removes the card from the slot.
+    /// </summary>
+    /// <returns>The removed card.</returns>
     public GameObject TakeCard()
     {
         GameObject tempCard = _heldCard;

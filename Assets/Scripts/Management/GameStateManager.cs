@@ -48,12 +48,20 @@ public class GameStateManager
         _stateIndices.Add(_battle, 3);
     }
 
+    /// <summary>
+    /// Updates the currently active state.
+    /// </summary>
     public void UpdateState()
     {
         OnStateUpdated?.Invoke();
         _currentState.OnUpdateState();
     }
 
+    /// <summary>
+    /// Moves on to the next players turn.
+    /// </summary>
+    /// <param name="board">The active game board object.</param>
+    /// <param name="resetState">Whether to run the OnEnterState method.</param>
     public void FlipTurn(GameBoard board, bool resetState = true)
     {
         if (_currentState == _player1Turn)
@@ -83,6 +91,12 @@ public class GameStateManager
         }
     }
 
+    /// <summary>
+    /// Sets the current gamestate to the given state.
+    /// </summary>
+    /// <param name="state">The new state to set the game to.</param>
+    /// <param name="board">The active game board.</param>
+    /// <param name="resetState">Whether to run the OnEnterState method of the new state.</param>
     public void SetState(GameState state, GameBoard board, bool resetState = true)
     {
         _prevState = _currentState;
@@ -93,6 +107,9 @@ public class GameStateManager
         OnGameStateChanged?.Invoke(_stateIndices[_currentState]);
     }
 
+    /// <summary>
+    /// Switches the attacking player and ends the round.
+    /// </summary>
     public void ChangeRound()
     {
         _p1Attacking = !_p1Attacking;

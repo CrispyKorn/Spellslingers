@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using Unity.Netcode;
 
 public class DebugMenu : MonoBehaviour
 {
@@ -29,6 +28,11 @@ public class DebugMenu : MonoBehaviour
         WriteToDebugMenu(DebugSection.JoinCode, Locator.Instance.RelayManager.JoinCode);
     }
 
+    /// <summary>
+    /// Writes the given string to the given section of the debug menu.
+    /// </summary>
+    /// <param name="section">The section to write to.</param>
+    /// <param name="text">The text to write.</param>
     public void WriteToDebugMenu(DebugSection section, string text)
     {
         var outputText = "";
