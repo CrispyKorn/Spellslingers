@@ -37,7 +37,6 @@ public class Player : NetworkBehaviour
 
         Locator.Instance.InputManager.OnSelect -= Select;
         Locator.Instance.InputManager.OnSelect_Ended -= TryPlaceCardRpc;
-        Locator.Instance.InputManager.OnFlip -= FlipCardRpc;
     }
 
     /// <summary>
@@ -51,7 +50,6 @@ public class Player : NetworkBehaviour
 
         Locator.Instance.InputManager.OnSelect += Select;
         Locator.Instance.InputManager.OnSelect_Ended += TryPlaceCardRpc;
-        Locator.Instance.InputManager.OnFlip += FlipCardRpc;
     }
 
     /// <summary>
@@ -205,17 +203,6 @@ public class Player : NetworkBehaviour
             _selectedCard.SetIsBeingDraggedRpc(false);
             _selectedCard.ResetPosRpc();
         }
-    }
-
-    /// <summary>
-    /// Flips the selected card. Runs on the server.
-    /// </summary>
-    [Rpc(SendTo.Server)]
-    private void FlipCardRpc()
-    {
-        if (_selectedCard == null) return;
-
-        _selectedCard.Flip();
     }
 
     public override async void OnNetworkSpawn()

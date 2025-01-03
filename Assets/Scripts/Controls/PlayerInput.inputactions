@@ -15,15 +15,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Flip",
-                    "type": "Button",
-                    "id": "43d9c455-a322-48d8-8706-e3795f015ca9",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Point",
                     "type": "PassThrough",
                     "id": "238cc7cf-2a6b-4d8f-8839-22bb6d01a931",
@@ -53,28 +44,6 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Select",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "b2e6ba23-943a-43c9-9ae1-8acd0dbceee1",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";KBM",
-                    "action": "Flip",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c0ae8c90-070c-40fd-a6b9-8c8dac7a96da",
-                    "path": "<Gamepad>/buttonWest",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Flip",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

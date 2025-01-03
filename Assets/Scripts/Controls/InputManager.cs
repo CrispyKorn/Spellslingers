@@ -22,10 +22,6 @@ public class InputManager : MonoBehaviour
     public event Action OnSelect_Started;
     public event Action OnSelect;
     public event Action OnSelect_Ended;
-
-    public event Action OnFlip_Started;
-    public event Action OnFlip;
-    public event Action OnFlip_Ended;
     #endregion
 
     #region Menu
@@ -64,10 +60,6 @@ public class InputManager : MonoBehaviour
         _playerInput.Battle.Select.performed += Select_performed;
         _playerInput.Battle.Select.canceled += Select_canceled;
 
-        _playerInput.Battle.Flip.started += Flip_started;
-        _playerInput.Battle.Flip.performed += Flip_performed;
-        _playerInput.Battle.Flip.canceled += Flip_canceled;
-
         _playerInput.Battle.Point.performed += Point_performed;
         #endregion
 
@@ -90,10 +82,6 @@ public class InputManager : MonoBehaviour
         _playerInput.Battle.Select.started += Select_started;
         _playerInput.Battle.Select.performed += Select_performed;
         _playerInput.Battle.Select.canceled += Select_canceled;
-
-        _playerInput.Battle.Flip.started += Flip_started;
-        _playerInput.Battle.Flip.performed += Flip_performed;
-        _playerInput.Battle.Flip.canceled += Flip_canceled;
         #endregion
 
         #region Menu
@@ -133,26 +121,6 @@ public class InputManager : MonoBehaviour
     {
         UpdateInputDevice(context.control.device);
         OnSelect_Ended?.Invoke();
-    }
-    #endregion
-
-    #region Flip
-    private void Flip_started(InputAction.CallbackContext context)
-    {
-        UpdateInputDevice(context.control.device);
-        OnFlip_Started?.Invoke();
-    }
-
-    private void Flip_performed(InputAction.CallbackContext context)
-    {
-        UpdateInputDevice(context.control.device);
-        OnFlip?.Invoke();
-    }
-
-    private void Flip_canceled(InputAction.CallbackContext context)
-    {
-        UpdateInputDevice(context.control.device);
-        OnFlip_Ended?.Invoke();
     }
     #endregion
 
