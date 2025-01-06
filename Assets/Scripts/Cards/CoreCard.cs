@@ -1,8 +1,18 @@
-
+using UnityEngine;
 
 public abstract class CoreCard : Card
 {
     // All calculations go through this card before being output to the game manager
+    [System.Serializable]
+    public enum CoreCardType
+    {
+        Normal,
+        TurnExtender
+    }
+
+    public CoreCardType CoreType { get => _coreType; }
+
+    [SerializeField] private CoreCardType _coreType;
 
     protected CombinedCardValues _finalValues;
 

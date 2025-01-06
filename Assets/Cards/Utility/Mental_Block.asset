@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Mental_Block
   m_EditorClassIdentifier: 
   _type: 3
+  _utilityType: 1
   _cardName: Mental Block
   _description: If one's mind is not clear, their best is beyond them
   _frontImg: {fileID: 21300000, guid: cad7f15fa285d954b93aefd5928a8efc, type: 3}

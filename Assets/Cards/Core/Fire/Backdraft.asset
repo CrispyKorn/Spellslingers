@@ -21,3 +21,4 @@ MonoBehaviour:
   _description: An untimely breeze can spread fire to new places
   _frontImg: {fileID: 21300000, guid: b40eef0319e3a244da0310cee687f8c5, type: 3}
   _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _coreType: 1

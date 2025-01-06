@@ -5,13 +5,22 @@ public abstract class UtilityCard : ScriptableObject, ICard
 {
     public abstract event Action<UtilityCard, Deck> OnCardEffectComplete;
 
+    [Serializable]
+    public enum UtilityCardType
+    {
+        Normal,
+        SlotBlocker
+    }
+
     public ICard.CardType Type { get => _type; }
+    public UtilityCardType UtilityType { get => _utilityType; }
     public string CardName { get => _cardName; }
     public string Description { get => _description; }
     public Sprite FrontImg { get => _frontImg; }
     public Sprite BackImg { get => _backImg; }
 
     [SerializeField] private ICard.CardType _type;
+    [SerializeField] private UtilityCardType _utilityType;
     [SerializeField] private string _cardName;
     [SerializeField] private string _description;
     [SerializeField] private Sprite _frontImg;

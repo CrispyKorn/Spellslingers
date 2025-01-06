@@ -21,3 +21,4 @@ MonoBehaviour:
   _description: Safety is never guaranteed in the abyss of the ocean
   _frontImg: {fileID: 21300000, guid: e9cb611fadb77cb4aad97c603e6f9c2d, type: 3}
   _backImg: {fileID: 21300000, guid: 8930c8dee34ae7544951d021957a490a, type: 3}
+  _coreType: 1

@@ -34,9 +34,9 @@ public class Card : ScriptableObject, ICard
     public int CompareTo(ICard otherCardObj)
     {
         if (otherCardObj.Type == ICard.CardType.Utility) return -1;
-
+            
         // Other card is not utility
-        var otherCard = otherCardObj as Card;
+        var otherCard = (Card)otherCardObj;
 
         // Calculate card values with priority ordering of: Type -> Element -> Power -> Special
         int aTypeValue = ((int)_type + 1) * 1000;

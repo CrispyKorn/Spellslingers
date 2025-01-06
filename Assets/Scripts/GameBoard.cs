@@ -12,6 +12,9 @@ public class GameBoard : MonoBehaviour
         PeripheralSlot5,
     }
 
-    public CardSlot[] player1Board = new CardSlot[6];
-    public CardSlot[] player2Board = new CardSlot[6];
+    public CardSlot[] Player1Board { get => _player1Board; }
+    public CardSlot[] Player2Board { get => _player2Board; }
+
+    [SerializeField] private CardSlot[] _player1Board = new CardSlot[6];
+    [SerializeField] private CardSlot[] _player2Board = new CardSlot[6];
 }

@@ -5,17 +5,16 @@ using Unity.Netcode;
 
 public class Player : NetworkBehaviour
 {
-    public event Action<Player, GameObject> OnPlaceCard;
+    public event Action<Player, GameObject, CardSlot> OnPlaceCard;
     public event Action<Player, PlayCard> OnCardSelected;
 
-    public int Health { get => n_health.Value; set => n_health.Value = value; }
-    public NetworkVariable<int> N_Health { get => n_health; }
+    public int Health { get => _health; set => _health = value; }
     public Deck Hand { get => _hand; set => _hand = value; }
 
     [SerializeField] private LayerMask _cardCollisionMask;
     [SerializeField] private LayerMask _cardSlotCollisionMask;
 
-    private NetworkVariable<int> n_health = new(30);
+    private int _health = 30;
 
     private Deck _hand;
     private PlayCard _selectedCard = null;
@@ -182,26 +181,35 @@ public class Player : NetworkBehaviour
             }
             
             // Check for invalid card placements
-            bool isUtility = _selectedCard.CardData.Type == ICard.CardType.Utility;
+            bool isUtilityCard = _selectedCard.CardData.Type == ICard.CardType.Utility;
+            bool isSlotBlocker = false;
             bool isValidCard = Locator.Instance.PlayManager.CheckValidCard(_selectedCard.CardData);
-            bool canPlace = cardSlot.IsUtilitySlot ? isUtility : isValidCard;
-
-            if (canPlace)
+            bool canPlace = false;
+            
+            if (isUtilityCard)
             {
-                if (cardSlot.TryPlaceCard(_selectedCard.gameObject))
-                {
-                    // Card placement allowed, place the card!
-                    _selectedCard.SetIsBeingDraggedRpc(false);
-                    OnPlaceCard?.Invoke(this, _selectedCard.gameObject);
-                    placed = true;
-                }
+                var selectedUtilityCard = (UtilityCard)_selectedCard.CardData;
+                isSlotBlocker = selectedUtilityCard.UtilityType == UtilityCard.UtilityCardType.SlotBlocker;
+                if (isSlotBlocker != cardSlot.IsUtilitySlot) canPlace = true;
+            }
+            else
+            {
+                if (!cardSlot.IsUtilitySlot && isValidCard) canPlace = true;
+            }
+
+            if (canPlace && cardSlot.TryPlaceCard(_selectedCard.gameObject, isSlotBlocker))
+            {
+                // Card placement allowed, place the card!
+                _selectedCard.SetIsBeingDraggedRpc(false);
+                OnPlaceCard?.Invoke(this, _selectedCard.gameObject, cardSlot);
+                placed = true;
             }
         }
 
         if (!placed) // Placing into card slot failed, reset card
         {
             _selectedCard.SetIsBeingDraggedRpc(false);
-            _selectedCard.ResetPosRpc();
+            _selectedCard.ResetTransformRpc();
         }
     }
 

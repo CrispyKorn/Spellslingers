@@ -3,18 +3,19 @@ using UnityEngine;
 
 public class PlayCard : NetworkBehaviour
 {
-    public bool Placed { get => n_placed.Value; set => n_placed.Value = value; }
+    public bool Placed { get => _placed; set => _placed = value; }
     public ICard CardData { get => _cardData; }
     public bool IsFaceUp { get => _isFaceUp; }
     public BoxCollider2D BoxCollider { get => _boxCollider; }
     public bool IsBeingDragged { get => _isBeingDragged; set => _isBeingDragged = value; }
 
-    private NetworkVariable<bool> n_placed = new();
+    private bool _placed;
 
     private SpriteRenderer _spriteRenderer;
     private BoxCollider2D _boxCollider;
     private ICard _cardData;
     private Vector3 _savedCardPos;
+    private Quaternion _savedCardRot;
     private bool _isFaceUp;
     private bool _isBeingDragged;
 
@@ -74,7 +75,7 @@ public class PlayCard : NetworkBehaviour
     {
         _cardData.PrintDataToConsole();
 
-        if (n_placed.Value) return;
+        if (_placed) return;
 
         SetIsBeingDraggedRpc(true);
         FollowMouseRpc();
@@ -97,18 +98,21 @@ public class PlayCard : NetworkBehaviour
     /// </summary>
     /// <param name="cardPos">The position to set in world units.</param>
     [Rpc(SendTo.Everyone)]
-    public void SetCardPosRpc(Vector3 cardPos)
+    public void SetCardTransformRpc(Vector3 cardPos, Quaternion rotation)
     {
         _savedCardPos = cardPos;
+        _savedCardRot = rotation;
     }
 
     /// <summary>
     /// Moves the card to its saved position.
     /// </summary>
     [Rpc(SendTo.Everyone)]
-    public void ResetPosRpc()
+    public void ResetTransformRpc()
     {
-        if (IsOwner) transform.position = _savedCardPos;
+        if (!IsOwner) return;
+        transform.position = _savedCardPos;
+        transform.rotation = _savedCardRot;
     }
 
     /// <summary>
@@ -131,5 +135,11 @@ public class PlayCard : NetworkBehaviour
     public void SetIsBeingDraggedRpc(bool value)
     {
         _isBeingDragged = value;
+    }
+
+    [Rpc(SendTo.Everyone)]
+    public void SetOrderRpc(int layer)
+    {
+        _spriteRenderer.sortingOrder = layer;
     }
 }

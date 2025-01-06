@@ -92,23 +92,25 @@ public class CardManager : NetworkBehaviour
     /// <param name="player2">Transform of the player 2 gameobject.</param>
     private async Task UpdateHand(bool isPlayer1Cards, ulong player2ClientId, Transform player1, Transform player2)
     {
-        foreach (GameObject card in isPlayer1Cards ? _player1Cards : _player2Cards)
+        List<GameObject> playerCards = isPlayer1Cards ? _player1Cards : _player2Cards;
+
+        foreach (GameObject cardObj in playerCards)
         {
-            var cardObjData = card.GetComponent<PlayCard>();
+            var playCard = cardObj.GetComponent<PlayCard>();
 
-            // Set card orientation based on player
-            cardObjData.FlipToRpc(isPlayer1Cards, !isPlayer1Cards);
-            if (isPlayer1Cards) card.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            else card.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
+            // Set card ownership based on player (host is same as server)
+            bool cardOwnedByServer = playCard.NetworkObject.IsOwnedByServer;
+            if (isPlayer1Cards && !cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(NetworkManager.ServerClientId);
+            if (!isPlayer1Cards && cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(player2ClientId);
 
-            // Set card ownership based on player
-            if (!isPlayer1Cards) cardObjData.NetworkObject.ChangeOwnership(player2ClientId);
-            else cardObjData.NetworkObject.ChangeOwnership(NetworkManager.LocalClientId);
-
-            card.transform.SetParent(isPlayer1Cards ? player1 : player2);
+            cardObj.transform.SetParent(isPlayer1Cards ? player1 : player2);
 
             await Awaitable.NextFrameAsync();
         }
+
+        // Sort Hands
+        SortPlayerCards(playerCards);
+        await SpreadCards(playerCards, isPlayer1Cards);
     }
 
     /// <summary>
@@ -159,7 +161,7 @@ public class CardManager : NetworkBehaviour
                     break;
                 case ICard.CardType.Utility:
                     {
-                        if (cardData.Card.CardName != "Smooth Talker") break;
+                        if (cardData.Card.CardName != "Mental Block") break;
                         for (var i = cardData.Amount; i > 0; i--) _utilityDeck.AddCard((UtilityCard)cardData.Card);
                     }
                     break;
@@ -173,13 +175,13 @@ public class CardManager : NetworkBehaviour
     /// <param name="player1">Player 1 object (host).</param>
     /// <param name="player2">Player 2 object (client).</param>
     /// <param name="player2ClientId">Player 2's client ID.</param>
-    public void InitializePlayerCards(Player player1, Player player2, ulong player2ClientId)
+    public async void InitializePlayerCards(Player player1, Player player2, ulong player2ClientId)
     {
-        InitializePlayerHand(player1.Hand, N_Player1CardsIndices);
-        InitializePlayerHand(player2.Hand, N_Player2CardsIndices);
+        InitializePlayerHand(player1.Hand, n_player1CardsIndices);
+        InitializePlayerHand(player2.Hand, n_player2CardsIndices);
 
-        _ = InstantiateCards(player1.Hand.Cards, true, player2ClientId, player1, player2);
-        _ = InstantiateCards(player2.Hand.Cards, false, player2ClientId, player1, player2);
+        await InstantiateCards(player1.Hand.Cards, true, player2ClientId, player1, player2);
+        await InstantiateCards(player2.Hand.Cards, false, player2ClientId, player1, player2);
     }
 
     /// <summary>
@@ -304,35 +306,14 @@ public class CardManager : NetworkBehaviour
             GameObject cardObj = Instantiate(_cardPrefab);
             var cardObjData = cardObj.GetComponent<PlayCard>();
 
-            // Spawn playcard on the network
-            cardObj.GetComponent<NetworkObject>().Spawn();
-
-            // Set playcard card data to the current card
-            cardObjData.SetCardDataRpc(CardToCardIndex[card]);
-
-            // Cards spawn face down, so flip to face-up for relevant player
-            cardObjData.FlipToRpc(isPlayer1Cards, !isPlayer1Cards);
-
-            if (!isPlayer1Cards)
-            {
-                cardObj.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
-                cardObjData.NetworkObject.ChangeOwnership(player2ClientId);
-            }
-
-            cardObj.transform.SetParent(isPlayer1Cards ? player1.transform : player2.transform);
-
             playerCards.Add(cardObj);
+            cardObj.GetComponent<NetworkObject>().Spawn(); // Spawn playcard on the network
+            cardObjData.SetCardDataRpc(CardToCardIndex[card]); // Set playcard card data to the current card
 
             await Awaitable.NextFrameAsync();
         }
 
-        // Sort Hand
-        if (isPlayer1Cards) player1.Hand.Cards.Sort();
-        else player2.Hand.Cards.Sort();
-
-        SortPlayerCards(playerCards);
-
-        await SpreadCards(playerCards, isPlayer1Cards);
+        await UpdateHand(isPlayer1Cards, player2ClientId, player1.transform, player2.transform);
     }
 
     /// <summary>
@@ -365,22 +346,33 @@ public class CardManager : NetworkBehaviour
 
         for (var i = 0; i < cardNum; i++)
         {
+            int sortingOrder = 0;
+
             // Calculate card position
             if (cardNum <= 1) cardPos = Vector3.zero;
             else
             {
                 float maxValue = cardNum - 1;
-                float localCardsValue = i / maxValue;
-                float opponentCardsValue = (maxValue - i) / maxValue;
-                float tValue = isPlayer1Cards ? localCardsValue : opponentCardsValue;
+                float p1CardsValue = i / maxValue;
+                float p2CardsValue = (maxValue - i) / maxValue;
+                float tValue = isPlayer1Cards ? p1CardsValue : p2CardsValue;
                 float cardPosX = Mathf.Lerp(minHandPosX, maxHandPosX, tValue);
-                cardPos = new Vector3(cardPosX, handPosY, i);
+                cardPos = new Vector3(cardPosX, handPosY, 0f);
+
+                // Set card layering
+                sortingOrder = cardNum - 1 - i;
             }
 
-            // Set card position
-            var card = hand[i].GetComponent<PlayCard>();
-            card.SetCardPosRpc(cardPos);
-            card.ResetPosRpc();
+            // Set card position and orientation
+            var cardObj = hand[i];
+            var playCard = cardObj.GetComponent<PlayCard>();
+            var cardRot = cardObj.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            if (!isPlayer1Cards) cardRot = Quaternion.Euler(0f, 0f, 180f);
+
+            playCard.FlipToRpc(isPlayer1Cards, !isPlayer1Cards);
+            playCard.SetOrderRpc(sortingOrder);
+            playCard.SetCardTransformRpc(cardPos, cardRot);
+            playCard.ResetTransformRpc();
 
             await Awaitable.NextFrameAsync();
         }
@@ -421,9 +413,6 @@ public class CardManager : NetworkBehaviour
     {
         await UpdateHand(true, player2ClientId, player1, player2);
         await UpdateHand(false, player2ClientId, player1, player2);
-
-        await SpreadCards(_player1Cards, true);
-        await SpreadCards(_player2Cards, false);
     }
 
     /// <summary>
@@ -435,5 +424,25 @@ public class CardManager : NetworkBehaviour
 
         _player1Cards = _player2Cards;
         _player2Cards = tempHand;
+    }
+
+    /// <summary>
+    /// Handles the cleanup of placing a card.
+    /// </summary>
+    /// <param name="cardObj">The placed card object.</param>
+    /// <param name="card">The placed play card.</param>
+    /// <param name="cardData">The placed card's card data.</param>
+    /// <param name="placingPlayer">The player who placed the card.</param>
+    /// <param name="isPlayer1Turn">Whether it is player 1 (host)'s turn.</param>
+    public void HandleCardPlaced(GameObject cardObj, PlayCard card, ICard cardData, Player placingPlayer, bool isPlayer1Turn)
+    {
+        // Handle core and peripheral cards
+        if (cardData.Type == ICard.CardType.Core) card.FlipToRpc(false, false);
+        else card.FlipToRpc(true, true);
+        if (cardData.Type != ICard.CardType.Utility) placingPlayer.Hand.RemoveCard(cardData);
+
+        // Handle hand
+        RemoveFromPlayerHand(isPlayer1Turn ? Player1Cards : Player2Cards, cardObj);
+        _ = SpreadCards(isPlayer1Turn ? Player1Cards : Player2Cards, isPlayer1Turn);
     }
 }

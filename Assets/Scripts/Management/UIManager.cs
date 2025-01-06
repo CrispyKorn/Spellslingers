@@ -14,12 +14,21 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button _btnPass;
 
     /// <summary>
+    /// Sets the visibility of the 'Pass' button.
+    /// </summary>
+    /// <param name="visible"></param>
+    private void ChangePassBtnVisibility(bool visible)
+    {
+        _btnPass.gameObject.SetActive(visible);
+    }
+
+    /// <summary>
     /// Updates the game UI
     /// </summary>
     /// <param name="player1Hp">The current health of player 1 (host).</param>
     /// <param name="player2Hp">The current health of player 2 (client).</param>
     /// <param name="currentState">The current value of the game state.</param>
-    public void UpdateUI(int player1Hp, int player2Hp, int currentState)
+    public void UpdateUI(int player1Hp, int player2Hp, int currentState, bool isHost)
     {
         _txtP1Health.text = "HP: " + player1Hp;
         _txtP2Health.text = "HP: " + player2Hp;
@@ -27,13 +36,22 @@ public class UIManager : MonoBehaviour
         string turnText;
         switch (currentState)
         {
-            case 0: turnText = "P1 Turn"; break;
-            case 1: turnText = "P2 Turn"; break;
-            case 2: turnText = "Interrupt"; break;
-            case 3: turnText = "Battle"; break;
+            case 0: turnText = "Interrupt"; break;
+            case 1: turnText = "P1 Turn"; break;
+            case 2: turnText = "P2 Turn"; break;
+            case 3: turnText = "P1 Extended Turn"; break;
+            case 4: turnText = "P2 Extended Turn"; break;
+            case 5: turnText = "Battle"; break;
             default: turnText = "Error"; break;
         }
         _txtTurn.text = turnText;
+
+        // Update pass button visibility
+        bool enabledForPlayer1 = currentState == (int)GameStateManager.GameStateIndex.Player1Turn || currentState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
+        bool enabledForPlayer2 = currentState == (int)GameStateManager.GameStateIndex.Player2Turn || currentState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
+        bool activeForMe = isHost ? enabledForPlayer1 : enabledForPlayer2;
+
+        ChangePassBtnVisibility(activeForMe);
     }
 
     /// <summary>
@@ -45,15 +63,6 @@ public class UIManager : MonoBehaviour
         _txtGameOver.text = "Game Over!\n\n";
         _txtGameOver.text += player1Won ? "Player 1 Wins!" : "Player 2 Wins!";
         _pnlGameOver.SetActive(true);
-    }
-
-    /// <summary>
-    /// Sets the visibility of the 'Pass' button.
-    /// </summary>
-    /// <param name="visible"></param>
-    public void ChangePassBtnVisibility(bool visible)
-    {
-        _btnPass.gameObject.SetActive(visible);
     }
 
     /// <summary>

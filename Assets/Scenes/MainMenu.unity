@@ -1107,7 +1107,8 @@ MonoBehaviour:
     NetworkTransport: {fileID: 854805207}
     PlayerPrefab: {fileID: 4693029984760927881, guid: df8a6c3cfccb8b24f8e6fa40174fad80, type: 3}
     Prefabs:
-      NetworkPrefabsLists: []
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: e6e0c83368fcb604295842028dd58b4c, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -1128,27 +1129,7 @@ MonoBehaviour:
     AutoSpawnPlayerPrefabClientSide: 1
     NetworkMessageMetrics: 1
     NetworkProfilingMetrics: 1
-    OldPrefabList:
-    - Override: 0
-      Prefab: {fileID: 8375452187925209966, guid: fb15d2ed7f429f84b9ee12e98e85aa05, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 4195834916364869649, guid: 4e10c4b85bf924747af34e9a9fcc597a, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 7305307950452458971, guid: 38d89303cadfa34499a13131d0e999df, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 4693029984760927881, guid: df8a6c3cfccb8b24f8e6fa40174fad80, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
+    OldPrefabList: []
   RunInBackground: 1
   LogLevel: 1
 --- !u!4 &854805209

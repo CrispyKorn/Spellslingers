@@ -3,8 +3,8 @@ using Unity.Netcode;
 
 public class CardSlot : NetworkBehaviour
 {
-    [SerializeField] public bool IsUsable { get => n_isUsable.Value; set => n_isUsable.Value = value; }
-    public bool HasCard { get => n_hasCard.Value; }
+    public bool IsUsable { get => _isUsable; set => _isUsable = value; }
+    public bool HasCard { get => _hasCard; }
     public Bounds Bounds { get => _boxCollider.bounds; }
     public GameObject Card { get => _heldCard; }
     public bool IsUtilitySlot { get => _isUtilitySlot; }
@@ -13,8 +13,8 @@ public class CardSlot : NetworkBehaviour
 
     [Header("Read Only")]
     [BeginReadOnlyGroup]
-    [SerializeField] private NetworkVariable<bool> n_isUsable = new(true);
-    [SerializeField] private NetworkVariable<bool> n_hasCard = new(false);
+    [SerializeField] private bool _isUsable = true;
+    [SerializeField] private bool _hasCard;
     [EndReadOnlyGroup]
 
     private BoxCollider2D _boxCollider;
@@ -25,7 +25,7 @@ public class CardSlot : NetworkBehaviour
     /// </summary>
     private void PlaceCard()
     {
-        n_hasCard.Value = true;
+        _hasCard = true;
         _heldCard.transform.position = transform.position;
         _heldCard.transform.rotation = transform.rotation;
         _heldCard.GetComponent<PlayCard>().Placed = true;
@@ -41,12 +41,14 @@ public class CardSlot : NetworkBehaviour
     /// </summary>
     /// <param name="_card">The card to place.</param>
     /// <returns>Whether placement was successful.</returns>
-    public bool TryPlaceCard(GameObject _card)
+    public bool TryPlaceCard(GameObject _card, bool ignoreUsable = false)
     {
-        if (n_hasCard.Value || !n_isUsable.Value) return false;
+        if (_hasCard || (!ignoreUsable && !_isUsable)) return false;
 
         _heldCard = _card;
-        _heldCard.GetComponent<NetworkObject>().ChangeOwnership(NetworkManager.ServerClientId);
+        var heldCardNetworkObj = _heldCard.GetComponent<NetworkObject>();
+        if (!heldCardNetworkObj.IsOwnedByServer) heldCardNetworkObj.ChangeOwnership(NetworkManager.ServerClientId);
+
         PlaceCard();
         return true;
     }
@@ -59,7 +61,7 @@ public class CardSlot : NetworkBehaviour
     {
         GameObject tempCard = _heldCard;
         _heldCard = null;
-        n_hasCard.Value = false;
+        _hasCard = false;
 
         return tempCard;
     }

@@ -15,19 +15,19 @@ public class GSBattle : GameState
         _stateManager = stateManager;
         _gameBoard = board;
 
-        foreach (CardSlot slot in _gameBoard.player1Board)
+        foreach (CardSlot slot in _gameBoard.Player1Board)
         {
             slot.IsUsable = false;
         }
 
-        foreach (CardSlot slot in _gameBoard.player2Board)
+        foreach (CardSlot slot in _gameBoard.Player2Board)
         {
             slot.IsUsable = false;
         }
 
         // Calculate Damage
-        CombinedCardValues p1Values = GetPlayerValues(_gameBoard.player1Board);
-        CombinedCardValues p2Values = GetPlayerValues(_gameBoard.player2Board);
+        CombinedCardValues p1Values = GetPlayerValues(_gameBoard.Player1Board);
+        CombinedCardValues p2Values = GetPlayerValues(_gameBoard.Player2Board);
 
         // Compare Values
         var p1Atk = 0;
@@ -53,8 +53,10 @@ public class GSBattle : GameState
         OnDamageDealt?.Invoke(false, p2Atk);
 
         // Reset
-        ResetBoard(_gameBoard.player1Board);
-        ResetBoard(_gameBoard.player2Board);
+        ResetBoard(_gameBoard.Player1Board);
+        ResetBoard(_gameBoard.Player2Board);
+
+        _stateManager.FinishState();
     }
 
     /// <summary>
@@ -81,7 +83,7 @@ public class GSBattle : GameState
     /// <returns>The combined values of the played cards.</returns>
     private CombinedCardValues GetPlayerValues(CardSlot[] _playerBoard)
     {
-        var coreCard = _playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData as CoreCard;
+        var coreCard = (CoreCard)_playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData;
         var cardSlots = new Card[5];
         GameObject peripheralCard;
 
