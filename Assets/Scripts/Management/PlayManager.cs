@@ -7,6 +7,7 @@ public class PlayManager : NetworkBehaviour
     public int CurrentGameState { get => _gameStateManager.CurrentStateIndex; }
     public bool IsPlayer1Turn { get => _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn 
                                     || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn; }
+    public GameBoard Board { get => _board; }
 
     [SerializeField] private SpriteRenderer _selectedCard;
 
@@ -124,7 +125,7 @@ public class PlayManager : NetworkBehaviour
         _cardManager.HandleCardPlaced(cardObj, card, cardData, placingPlayer, isPlayer1Turn);
 
         // Play Card
-        if (cardSlot.IsUtilitySlot)
+        if (cardSlot.Type == CardSlot.SlotType.Utility)
         {
             _gameStateManager.SetState(_gameStateManager.Interrupt, _board);
 

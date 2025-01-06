@@ -187,17 +187,23 @@ public class Player : NetworkBehaviour
             PlayManager playManager = Locator.Instance.PlayManager;
             bool isValidCard = playManager.CheckValidCard(_selectedCard.CardData);
             bool isMyTurn = _isPlayer1 == playManager.IsPlayer1Turn;
+            bool isMyBoard = _isPlayer1 == playManager.Board.IsSlotOnPlayer1Board(cardSlot);
+            bool isUtilitySlot = cardSlot.Type == CardSlot.SlotType.Utility;
+            bool isCoreSlot = cardSlot.Type == CardSlot.SlotType.Core;
             bool canPlace = false;
             
             if (isUtilityCard)
             {
+                // Handle utility card placement
                 var selectedUtilityCard = (UtilityCard)_selectedCard.CardData;
                 isSlotBlocker = selectedUtilityCard.UtilityType == UtilityCard.UtilityCardType.SlotBlocker;
-                if (isSlotBlocker != cardSlot.IsUtilitySlot) canPlace = true;
+
+                canPlace = (isSlotBlocker && !isUtilitySlot && !isCoreSlot && !isMyBoard) || (!isSlotBlocker && isUtilitySlot);
             }
             else
             {
-                if (isMyTurn && !cardSlot.IsUtilitySlot && isValidCard) canPlace = true;
+                // Handle core/peripheral card placement
+                if (isMyTurn && !isUtilitySlot && isValidCard) canPlace = true;
             }
 
             if (canPlace && cardSlot.TryPlaceCard(_selectedCard.gameObject, isSlotBlocker))

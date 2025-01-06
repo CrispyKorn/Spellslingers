@@ -179,7 +179,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &2938130089547783388
@@ -274,7 +274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &4138566733126651213
@@ -369,7 +369,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 0
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &4195834916364869649
@@ -534,7 +534,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &5022535649847042074
@@ -629,7 +629,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &5074867778153521245
@@ -724,7 +724,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &5219753032681160173
@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &5795597562289353810
@@ -914,7 +914,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &7490092593162751976
@@ -1010,7 +1010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 1
+  _type: 2
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &7529208723579514635
@@ -1105,7 +1105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 0
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &7530095082108857106
@@ -1200,7 +1200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &8030860328634211981
@@ -1295,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0
 --- !u!1 &8754737118899665003
@@ -1390,6 +1390,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  _isUtilitySlot: 0
+  _type: 1
   _isUsable: 1
   _hasCard: 0

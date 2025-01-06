@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class GameBoard : MonoBehaviour
@@ -17,4 +18,9 @@ public class GameBoard : MonoBehaviour
 
     [SerializeField] private CardSlot[] _player1Board = new CardSlot[6];
     [SerializeField] private CardSlot[] _player2Board = new CardSlot[6];
+
+    public bool IsSlotOnPlayer1Board(CardSlot slot)
+    {
+        return _player1Board.Contains(slot);
+    }
 }

@@ -3,13 +3,21 @@ using Unity.Netcode;
 
 public class CardSlot : NetworkBehaviour
 {
+    [System.Serializable]
+    public enum SlotType
+    {
+        Core,
+        Peripheral,
+        Utility
+    }
+
     public bool IsUsable { get => _isUsable; set => _isUsable = value; }
     public bool HasCard { get => _hasCard; }
     public Bounds Bounds { get => _boxCollider.bounds; }
     public GameObject Card { get => _heldCard; }
-    public bool IsUtilitySlot { get => _isUtilitySlot; }
+    public SlotType Type { get => _type; }
 
-    [SerializeField] bool _isUtilitySlot = false;
+    [SerializeField] SlotType _type;
 
     [Header("Read Only")]
     [BeginReadOnlyGroup]
