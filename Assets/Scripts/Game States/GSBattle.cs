@@ -15,14 +15,10 @@ public class GSBattle : GameState
         _stateManager = stateManager;
         _gameBoard = board;
 
-        foreach (CardSlot slot in _gameBoard.Player1Board)
+        for (int i = 0; i < _gameBoard.Player1Board.Length; i++)
         {
-            slot.IsUsable = false;
-        }
-
-        foreach (CardSlot slot in _gameBoard.Player2Board)
-        {
-            slot.IsUsable = false;
+            _gameBoard.Player1Board[i].IsUsable = false;
+            _gameBoard.Player2Board[i].IsUsable = false;
         }
 
         // Calculate Damage
@@ -84,22 +80,19 @@ public class GSBattle : GameState
     private CombinedCardValues GetPlayerValues(CardSlot[] _playerBoard)
     {
         var coreCard = (CoreCard)_playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData;
-        var cardSlots = new Card[5];
-        GameObject peripheralCard;
+        var peripheralCards = new List<Card>();
 
         for (int i = 1; i <= 5; i++)
         {
-            peripheralCard = _playerBoard[i].Card;
-            if (peripheralCard != null) cardSlots[i-1] = (Card)peripheralCard.GetComponent<PlayCard>().CardData;
+            GameObject peripheralCard = _playerBoard[i].Card;
+            if (peripheralCard != null)
+            {
+                ICard cardData = peripheralCard.GetComponent<PlayCard>().CardData;
+                if (cardData.Type != ICard.CardType.Utility) peripheralCards.Add((Card)cardData);
+            }
         }
 
-        var cards = new List<Card>();
-        foreach (Card card in cardSlots)
-        {
-            if (card != null) cards.Add(card);
-        }
-
-        return coreCard.CalculateFinalValues(cards.ToArray());
+        return coreCard.CalculateFinalValues(peripheralCards.ToArray());
     }
 
     /// <summary>
