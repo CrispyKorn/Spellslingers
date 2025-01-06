@@ -3,7 +3,7 @@ using System;
 
 public abstract class UtilityCard : ScriptableObject, ICard
 {
-    public abstract event Action<UtilityCard, Deck> OnCardEffectComplete;
+    public abstract event Action<UtilityCard, bool, bool> OnCardEffectComplete;
 
     [Serializable]
     public enum UtilityCardType

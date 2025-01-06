@@ -9,13 +9,10 @@ public class PlayerManager : NetworkBehaviour
     private Player _player1;
     private Player _player2;
     private ulong _player2ClientId;
-    private PlayManager _playManager;
-    private UIManager _uiManager;
 
     private void Awake()
     {
-        _playManager = GetComponent<PlayManager>();
-        _uiManager = GetComponent<UIManager>();
+        Locator.Instance.RegisterInstance(this);
     }
 
     public override void OnNetworkSpawn()
@@ -44,9 +41,9 @@ public class PlayerManager : NetworkBehaviour
         playerHurt.Health -= damage;
 
         // Update UI
-        _uiManager.UpdateUI(_player1.Health, _player2.Health, _playManager.CurrentGameState, IsHost);
+        Locator.Instance.UIManager.UpdateUI(_player1.Health, _player2.Health, Locator.Instance.PlayManager.CurrentGameState, IsHost);
 
         // Check Game Over
-        if (playerHurt.Health <= 0) _playManager.GameOver(player1Attacking);
+        if (playerHurt.Health <= 0) Locator.Instance.PlayManager.GameOver(player1Attacking);
     }
 }

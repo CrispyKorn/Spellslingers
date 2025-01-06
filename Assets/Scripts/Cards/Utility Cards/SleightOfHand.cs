@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 [CreateAssetMenu(menuName = "Utility Card/Sleight of Hand", fileName = "Sleight_Of_Hand")]
 public class SleightOfHand : UtilityCard
 {
-    public override event Action<UtilityCard, Deck> OnCardEffectComplete;
+    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private Player _placingPlayer;
@@ -23,33 +24,22 @@ public class SleightOfHand : UtilityCard
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedCard)
     {
-        if (_utilityInfo.ActivatedByPlayer1)
-        {
-            if (_utilityInfo.CardManager.Player1Cards.Contains(selectedCard.gameObject)) _selectedPlayerCard = selectedCard;
-        }
-        else
-        {
-            if (_utilityInfo.CardManager.Player2Cards.Contains(selectedCard.gameObject)) _selectedOpponentCard = selectedCard;
-        }
+        Hand placingPlayerHand = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player1.Hand : _utilityInfo.Player2.Hand;
+        Hand opponentHand = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player2.Hand : _utilityInfo.Player1.Hand;
+        
+        if (placingPlayerHand.CardObjs.Contains(selectedCard.gameObject)) _selectedPlayerCard = selectedCard;
+        else if (opponentHand.CardObjs.Contains(selectedCard.gameObject)) _selectedOpponentCard = selectedCard;
 
+        // Check for incomplete selection
         if (_selectedPlayerCard == null || _selectedOpponentCard == null) return;
 
-        //Both Cards Selected, Swap!
-        List<GameObject> placingPlayerCards = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.CardManager.Player1Cards : _utilityInfo.CardManager.Player2Cards;
-        List<GameObject> opponentCards = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.CardManager.Player2Cards : _utilityInfo.CardManager.Player1Cards;
+        //Both cards selected, swap!
+        _utilityInfo.CardManager.RemoveCardFromPlayer(_selectedPlayerCard.gameObject, _utilityInfo.ActivatedByPlayer1);
+        _utilityInfo.CardManager.RemoveCardFromPlayer(_selectedOpponentCard.gameObject, !_utilityInfo.ActivatedByPlayer1);
+        _utilityInfo.CardManager.GiveCardToPlayer(_selectedOpponentCard.gameObject, _utilityInfo.ActivatedByPlayer1);
+        _utilityInfo.CardManager.GiveCardToPlayer(_selectedPlayerCard.gameObject, !_utilityInfo.ActivatedByPlayer1);
 
-        _utilityInfo.CardManager.DiscardCard(_placingPlayer.Hand, placingPlayerCards, _selectedPlayerCard);
-        _utilityInfo.CardManager.DiscardCard(_opponent.Hand, opponentCards, _selectedOpponentCard);
-
-        var cardToAdd = new List<ICard> { _selectedOpponentCard.CardData };
-        ulong player2ClientId = _utilityInfo.CardManager.NetworkManager.ConnectedClients[1].ClientId;
-        _ = _utilityInfo.CardManager.InstantiateCards(cardToAdd, _utilityInfo.ActivatedByPlayer1, player2ClientId, _utilityInfo.Player1, _utilityInfo.Player2);
-        cardToAdd[0] = _selectedPlayerCard.CardData;
-        _ = _utilityInfo.CardManager.InstantiateCards(cardToAdd, !_utilityInfo.ActivatedByPlayer1, player2ClientId, _utilityInfo.Player1, _utilityInfo.Player2);
-
-        if (_utilityInfo.ActivatedByPlayer1) _utilityInfo.Player1.OnCardSelected -= OnCardSelected;
-        else _utilityInfo.Player2.OnCardSelected -= OnCardSelected;
-
-        OnCardEffectComplete?.Invoke(this, _placingPlayer.Hand);
+        _placingPlayer.OnCardSelected -= OnCardSelected;
+        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
     }
 }

@@ -66,8 +66,7 @@ public class GSBattle : GameState
             if (slot.HasCard)
             {
                 GameObject card = slot.TakeCard();
-                _stateManager.CardManager.AddToDeck(card.GetComponent<PlayCard>().CardData);
-                card.GetComponent<NetworkObject>().Despawn();
+                _stateManager.CardManager.DiscardCard(card.GetComponent<PlayCard>());
             }
         }
     }

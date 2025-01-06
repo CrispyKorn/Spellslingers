@@ -1,5 +1,8 @@
 using UnityEngine;
 using Unity.Netcode;
+using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 public class PlayManager : NetworkBehaviour
 {    
@@ -43,7 +46,7 @@ public class PlayManager : NetworkBehaviour
     private void SetupGame()
     {
         _cardManager.PopulateDecks();
-        _cardManager.InitializePlayerCards(_playerManager.Player1, _playerManager.Player2, _playerManager.Player2ClientId);
+        _cardManager.InitializePlayerCards();
 
         _playerManager.Player1.OnPlaceCard += PlayCard;
         _playerManager.Player2.OnPlaceCard += PlayCard;
@@ -68,13 +71,23 @@ public class PlayManager : NetworkBehaviour
     /// Run when a utility card effect is complete. Cleans up the game state and cards.
     /// </summary>
     /// <param name="utilityCard">The utility card that was used.</param>
-    /// <param name="playerHand">The player who played the utility card.</param>
-    private void UtilityCardCleanup(UtilityCard utilityCard, Deck playerHand)
+    /// <param name="activatedByPlayer1">Whether player 1 played the utility card.</param>
+    /// <param name="successful">Whether the utility card applied its effect successfully.</param>
+    private void UtilityCardCleanup(UtilityCard utilityCard, bool activatedByPlayer1, bool successful)
     {
         _gameStateManager.UpdateState();
+        Hand playerHand = activatedByPlayer1 ? _playerManager.Player1.Hand : _playerManager.Player2.Hand;
 
-        playerHand.Cards.Remove(utilityCard);
-        _cardManager.AddToDeck(utilityCard);
+        if (successful)
+        {
+            if (utilityCard.UtilityType == UtilityCard.UtilityCardType.Normal)
+            {
+                PlayCard utilityPlayCard = _board.UtilitySlot.TakeCard().GetComponent<PlayCard>();
+                _cardManager.DiscardCard(utilityPlayCard);
+            }
+        }
+        else _cardManager.GiveCardToPlayer(_board.UtilitySlot.TakeCard(), activatedByPlayer1);
+
         utilityCard.OnCardEffectComplete -= UtilityCardCleanup;
     }
 
@@ -83,7 +96,7 @@ public class PlayManager : NetworkBehaviour
     /// </summary>
     public async void HandleEndOfRound()
     {
-        await _cardManager.AddEndOfRoundCards(_playerManager.Player1, _playerManager.Player2, _playerManager.Player2ClientId);
+        await _cardManager.AddEndOfRoundCards();
     }
 
     /// <summary>
@@ -120,9 +133,11 @@ public class PlayManager : NetworkBehaviour
         ICard cardData = card.CardData;
         cardSlotNetworkReference.TryGet(out var cardSlotNetworkObject, NetworkManager);
         var cardSlot = cardSlotNetworkObject.GetComponent<CardSlot>();
-        bool isPlayer1Turn = placingPlayer == _playerManager.Player1;
+        bool placedByPlayer1 = placingPlayer == _playerManager.Player1;
 
-        _cardManager.HandleCardPlaced(cardObj, card, cardData, placingPlayer, isPlayer1Turn);
+        // Handle core and peripheral cards
+        if (card.CardData.Type == ICard.CardType.Core) card.FlipToRpc(false, false);
+        else card.FlipToRpc(true, true);
 
         // Play Card
         if (cardSlot.Type == CardSlot.SlotType.Utility)
@@ -131,7 +146,7 @@ public class PlayManager : NetworkBehaviour
 
             var utilityCard = (UtilityCard)cardData;
             utilityCard.OnCardEffectComplete += UtilityCardCleanup;
-            _utilityManager.ApplyUtilityEffect(utilityCard, isPlayer1Turn);
+            _utilityManager.ApplyUtilityEffect(utilityCard, placedByPlayer1);
         }
         else _gameStateManager.UpdateState();
     }

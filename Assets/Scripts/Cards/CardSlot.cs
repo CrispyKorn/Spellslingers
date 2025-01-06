@@ -68,6 +68,7 @@ public class CardSlot : NetworkBehaviour
     public GameObject TakeCard()
     {
         GameObject tempCard = _heldCard;
+        _heldCard.GetComponent<PlayCard>().Placed = false;
         _heldCard = null;
         _hasCard = false;
 

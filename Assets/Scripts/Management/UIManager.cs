@@ -13,6 +13,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
 
+    private void Awake()
+    {
+        Locator.Instance.RegisterInstance(this);
+    }
+
     /// <summary>
     /// Sets the visibility of the 'Pass' button.
     /// </summary>

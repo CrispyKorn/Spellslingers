@@ -10,21 +10,17 @@ public class Player : NetworkBehaviour
 
     public int Health { get => _health; set => _health = value; }
     public bool IsPlayer1 { get => _isPlayer1; set => _isPlayer1 = value; }
-    public Deck Hand { get => _hand; set => _hand = value; }
+    public Hand Hand { get => _hand; }
 
     [SerializeField] private LayerMask _cardCollisionMask;
     [SerializeField] private LayerMask _cardSlotCollisionMask;
 
     private int _health = 30;
     private bool _isPlayer1;
-    private Deck _hand;
+    private Hand _hand = new();
+
     private PlayCard _selectedCard = null;
     private SpriteRenderer _selectedCardZoom;
-
-    private void Awake()
-    {
-        _hand = new Deck();
-    }
 
     private void OnEnable()
     {
@@ -209,6 +205,7 @@ public class Player : NetworkBehaviour
             if (canPlace && cardSlot.TryPlaceCard(_selectedCard.gameObject, isSlotBlocker))
             {
                 // Card placement allowed, place the card!
+                Locator.Instance.CardManager.RemoveCardFromPlayer(_selectedCard.gameObject, _isPlayer1);
                 _selectedCard.SetIsBeingDraggedRpc(false);
                 OnPlaceCard?.Invoke(this, _selectedCard.gameObject, cardSlot);
                 placed = true;

@@ -5,20 +5,21 @@ using System;
 [CreateAssetMenu(menuName = "Utility Card/Amnesia", fileName = "Amnesia")]
 public class Amnesia : UtilityCard
 {
-    public override event Action<UtilityCard, Deck> OnCardEffectComplete;
+    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
-        Deck affectedHand = utilityInfo.ActivatedByPlayer1 ? utilityInfo.Player2.Hand : utilityInfo.Player1.Hand;
-        List<GameObject> playerCards = utilityInfo.ActivatedByPlayer1 ? utilityInfo.CardManager.Player2Cards : utilityInfo.CardManager.Player1Cards;
+        Hand affectedHand = utilityInfo.ActivatedByPlayer1 ? utilityInfo.Player2.Hand : utilityInfo.Player1.Hand;
         var coreNum = 0;
         var offenceNum = 0;
         var defenceNum = 0;
         var utilityNum = 0;
+        int affectedHandSize = affectedHand.Size;
 
-        for (var i = 0; i < playerCards.Count; i++)
+        // Count the number of each type of card in the affected player's hand
+        for (var i = 0; i < affectedHandSize; i++)
         {
-            var playCard = playerCards[i].GetComponent<PlayCard>();
+            var playCard = affectedHand.CardObjs[i].GetComponent<PlayCard>();
 
             switch (playCard.CardData.Type)
             {
@@ -28,7 +29,7 @@ public class Amnesia : UtilityCard
                 case ICard.CardType.Utility: utilityNum++; break;
             }
 
-            utilityInfo.CardManager.DiscardCard(affectedHand, playerCards, playCard);
+            utilityInfo.CardManager.DiscardCard(playCard);
         }
 
         // Refund Cards
@@ -39,10 +40,9 @@ public class Amnesia : UtilityCard
         foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.DefenceDeck, defenceNum)) newCards.Add(card);
         foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.UtilityDeck, utilityNum)) newCards.Add(card);
 
-        bool isLocalPlayerCards = !utilityInfo.ActivatedByPlayer1;
-        ulong player2ClientId = utilityInfo.CardManager.NetworkManager.ConnectedClients[1].ClientId;
-        _ = utilityInfo.CardManager.InstantiateCards(newCards, isLocalPlayerCards, player2ClientId, utilityInfo.Player1, utilityInfo.Player2);
+        _ = utilityInfo.CardManager.InstantiateCards(newCards, utilityInfo.ActivatedByPlayer1);
 
-        OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1 ? utilityInfo.Player1.Hand : utilityInfo.Player2.Hand);
+        // Finish
+        OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);
     }
 }
