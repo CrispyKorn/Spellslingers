@@ -178,12 +178,16 @@ public class PlayManager : NetworkBehaviour
     public bool CheckValidCard(ICard card)
     {
         bool isPlayer1Turn = _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
+        CardSlot currentPlayerCoreSlot = isPlayer1Turn ? _board.Player1Board[(int)GameBoard.Slot.CoreSlot] : _board.Player2Board[(int)GameBoard.Slot.CoreSlot];
+
+        // Enforce core cards when slot is vacant
+        if (currentPlayerCoreSlot.IsUsable) return card.Type == ICard.CardType.Core;
+
+        // Enforce peripheral cards
         bool isOffenceCard = card.Type == ICard.CardType.Offence;
         bool isDefenceCard = card.Type == ICard.CardType.Defence;
 
-        if (card.Type == ICard.CardType.Core) return true;
-        if (isPlayer1Turn) return _gameStateManager.P1Attacking ? isOffenceCard : isDefenceCard;
-        else return _gameStateManager.P1Attacking ? isDefenceCard : isOffenceCard;
+        return (isPlayer1Turn == _gameStateManager.P1Attacking) ? isOffenceCard : isDefenceCard;
     }
 
     /// <summary>
