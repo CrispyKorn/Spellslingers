@@ -29,6 +29,8 @@ public class PlayerManager : NetworkBehaviour
 
         _player1.name = "Player 1";
         _player2.name = "Player 2";
+        _player1.IsPlayer1 = true;
+        _player2.IsPlayer1 = false;
     }
 
     /// <summary>

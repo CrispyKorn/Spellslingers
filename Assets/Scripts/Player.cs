@@ -9,13 +9,14 @@ public class Player : NetworkBehaviour
     public event Action<Player, PlayCard> OnCardSelected;
 
     public int Health { get => _health; set => _health = value; }
+    public bool IsPlayer1 { get => _isPlayer1; set => _isPlayer1 = value; }
     public Deck Hand { get => _hand; set => _hand = value; }
 
     [SerializeField] private LayerMask _cardCollisionMask;
     [SerializeField] private LayerMask _cardSlotCollisionMask;
 
     private int _health = 30;
-
+    private bool _isPlayer1;
     private Deck _hand;
     private PlayCard _selectedCard = null;
     private SpriteRenderer _selectedCardZoom;
@@ -183,7 +184,9 @@ public class Player : NetworkBehaviour
             // Check for invalid card placements
             bool isUtilityCard = _selectedCard.CardData.Type == ICard.CardType.Utility;
             bool isSlotBlocker = false;
-            bool isValidCard = Locator.Instance.PlayManager.CheckValidCard(_selectedCard.CardData);
+            PlayManager playManager = Locator.Instance.PlayManager;
+            bool isValidCard = playManager.CheckValidCard(_selectedCard.CardData);
+            bool isMyTurn = _isPlayer1 == playManager.IsPlayer1Turn;
             bool canPlace = false;
             
             if (isUtilityCard)
@@ -194,7 +197,7 @@ public class Player : NetworkBehaviour
             }
             else
             {
-                if (!cardSlot.IsUtilitySlot && isValidCard) canPlace = true;
+                if (isMyTurn && !cardSlot.IsUtilitySlot && isValidCard) canPlace = true;
             }
 
             if (canPlace && cardSlot.TryPlaceCard(_selectedCard.gameObject, isSlotBlocker))

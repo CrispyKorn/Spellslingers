@@ -5,6 +5,8 @@ public class PlayManager : NetworkBehaviour
 {    
     public SpriteRenderer SelectedCard { get => _selectedCard; }
     public int CurrentGameState { get => _gameStateManager.CurrentStateIndex; }
+    public bool IsPlayer1Turn { get => _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn 
+                                    || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn; }
 
     [SerializeField] private SpriteRenderer _selectedCard;
 
@@ -177,8 +179,7 @@ public class PlayManager : NetworkBehaviour
     /// <returns>Whether the card is valid.</returns>
     public bool CheckValidCard(ICard card)
     {
-        bool isPlayer1Turn = _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
-        CardSlot currentPlayerCoreSlot = isPlayer1Turn ? _board.Player1Board[(int)GameBoard.Slot.CoreSlot] : _board.Player2Board[(int)GameBoard.Slot.CoreSlot];
+        CardSlot currentPlayerCoreSlot = IsPlayer1Turn ? _board.Player1Board[(int)GameBoard.Slot.CoreSlot] : _board.Player2Board[(int)GameBoard.Slot.CoreSlot];
 
         // Enforce core cards when slot is vacant
         if (currentPlayerCoreSlot.IsUsable) return card.Type == ICard.CardType.Core;
@@ -187,7 +188,7 @@ public class PlayManager : NetworkBehaviour
         bool isOffenceCard = card.Type == ICard.CardType.Offence;
         bool isDefenceCard = card.Type == ICard.CardType.Defence;
 
-        return (isPlayer1Turn == _gameStateManager.P1Attacking) ? isOffenceCard : isDefenceCard;
+        return (IsPlayer1Turn == _gameStateManager.P1Attacking) ? isOffenceCard : isDefenceCard;
     }
 
     /// <summary>
