@@ -4,11 +4,9 @@ public class PlayerManager : NetworkBehaviour
 {
     public Player Player1 { get => _player1; }
     public Player Player2 { get => _player2; }
-    public ulong Player2ClientId { get => _player2ClientId; }
 
     private Player _player1;
     private Player _player2;
-    private ulong _player2ClientId;
 
     private void Awake()
     {
@@ -19,10 +17,8 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!IsHost) return;
 
-        RelayManager relayManager = Locator.Instance.RelayManager;
-        _player2ClientId = relayManager.Player2ClientId;
         _player1 = NetworkManager.LocalClient.PlayerObject.GetComponent<Player>();
-        _player2 = NetworkManager.ConnectedClients[relayManager.Player2ClientId].PlayerObject.GetComponent<Player>();
+        _player2 = NetworkManager.ConnectedClients[Locator.Instance.RelayManager.Player2ClientId].PlayerObject.GetComponent<Player>();
 
         _player1.name = "Player 1";
         _player2.name = "Player 2";

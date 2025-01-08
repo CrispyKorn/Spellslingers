@@ -10,7 +10,6 @@ public class SleightOfHand : UtilityCard
 
     private UtilityInfo _utilityInfo;
     private Player _placingPlayer;
-    private Player _opponent;
     private PlayCard _selectedOpponentCard;
     private PlayCard _selectedPlayerCard;
 
@@ -18,7 +17,6 @@ public class SleightOfHand : UtilityCard
     {
         _utilityInfo = utilityInfo;
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player1 : _utilityInfo.Player2;
-        _opponent = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player2 : _utilityInfo.Player1;
         _placingPlayer.OnCardSelected += OnCardSelected;
     }
 

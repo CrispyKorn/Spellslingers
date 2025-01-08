@@ -15,6 +15,14 @@ public class SmoothTalker : UtilityCard
     {
         _utilityInfo = utilityInfo;
         _opponent = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player2 : _utilityInfo.Player1;
+
+        if (!Array.Exists(_opponent.Hand.CardObjs, (o) => o.GetComponent<PlayCard>().CardData.Type == ICard.CardType.Offence 
+                                                        || o.GetComponent<PlayCard>().CardData.Type == ICard.CardType.Defence))
+        {
+            OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, false);
+            return;
+        }
+
         _opponent.OnCardSelected += OnCardSelected;
     }
 

@@ -1,10 +1,12 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
-public class UIManager : MonoBehaviour
+public class UIManager : NetworkBehaviour
 {
     public Button BtnPass { get => _btnPass; }
+    public ElementSelectionManager ElementSelectionManager { get => _elementSelectionManager; }
 
     [SerializeField] private TextMeshProUGUI _txtP1Health;
     [SerializeField] private TextMeshProUGUI _txtP2Health;
@@ -12,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _txtTurn;
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
+    [SerializeField] private ElementSelectionManager _elementSelectionManager;
 
     private void Awake()
     {
@@ -78,5 +81,10 @@ public class UIManager : MonoBehaviour
         TextMeshProUGUI temp = _txtP1Health;
         _txtP1Health = _txtP2Health;
         _txtP2Health = temp;
+    }
+
+    public void SetElementSelectionActive(bool active, ulong targetClientId)
+    {
+        _elementSelectionManager.SetButtonsActiveRpc(active, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
     }
 }

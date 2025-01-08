@@ -75,6 +75,23 @@ public class CardManager : NetworkBehaviour
     }
 
     /// <summary>
+    /// Initializes the given card.
+    /// </summary>
+    /// <param name="card">The card to instantiate.</param>
+    /// <returns>The instantiated card's GameObject representation.</returns>
+    private GameObject InitializeCard(ICard card)
+    {
+        // Create play card
+        GameObject cardObj = Instantiate(_cardPrefab);
+        var playCard = cardObj.GetComponent<PlayCard>();
+
+        cardObj.GetComponent<NetworkObject>().Spawn(); // Spawn playcard on the network
+        playCard.SetCardDataRpc(CardToCardIndex[card]); // Set playcard card data to the current card
+
+        return cardObj;
+    }
+
+    /// <summary>
     /// Sets up a players hand of cards with proper orientation, ownership and parent.
     /// Note: This runs over a number of frames to keep the network from being overloaded with calls.
     /// </summary>
@@ -91,8 +108,8 @@ public class CardManager : NetworkBehaviour
 
             // Set card ownership based on player (host is same as server)
             bool cardOwnedByServer = playCard.NetworkObject.IsOwnedByServer;
-            if (isPlayer1Cards && !cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(NetworkManager.ServerClientId);
-            if (!isPlayer1Cards && cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(_playerManager.Player2ClientId);
+            if (isPlayer1Cards && !cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(Locator.Instance.RelayManager.Player1ClientId);
+            if (!isPlayer1Cards && cardOwnedByServer) playCard.NetworkObject.ChangeOwnership(Locator.Instance.RelayManager.Player2ClientId);
 
             cardObj.transform.SetParent(isPlayer1Cards ? player1.transform : player2.transform);
 
@@ -114,7 +131,7 @@ public class CardManager : NetworkBehaviour
         cards.AddRange(Draw(CoreDeck, 3));
         cards.AddRange(Draw(OffenceDeck, 6));
         cards.AddRange(Draw(DefenceDeck, 6));
-        cards.AddRange(Draw(UtilityDeck, 3));
+        cards.AddRange(Draw(UtilityDeck, 2));
 
         return cards;
     }
@@ -237,7 +254,7 @@ public class CardManager : NetworkBehaviour
                     break;
                 case ICard.CardType.Utility:
                     {
-                        if (cardData.Card.CardName != "Mind Control") break;
+                        if (cardData.Card.CardName != "Open Minded") break;
                         for (var i = cardData.Amount; i > 0; i--) _utilityDeck.AddCard((UtilityCard)cardData.Card);
                     }
                     break;
@@ -315,6 +332,13 @@ public class CardManager : NetworkBehaviour
         }
     }
 
+    public void InstantiateCardToSlot(ICard newCard, CardSlot cardSlot, bool faceUp)
+    {
+        GameObject cardObj = InitializeCard(newCard);
+        cardSlot.TryPlaceCard(cardObj, true);
+        cardObj.GetComponent<PlayCard>().FlipToRpc(faceUp, faceUp);
+    }
+
     /// <summary>
     /// Instantiates the given cards, setting orientation, ownership and parents appropriately while adding them to the relevant player's hand.
     /// </summary>
@@ -326,13 +350,8 @@ public class CardManager : NetworkBehaviour
 
         foreach (ICard card in newCards)
         {
-            // Create play card
-            GameObject cardObj = Instantiate(_cardPrefab);
-            var playCard = cardObj.GetComponent<PlayCard>();
-
+            GameObject cardObj = InitializeCard(card);
             playerHand.AddCard(card, cardObj); // Add to hand
-            cardObj.GetComponent<NetworkObject>().Spawn(); // Spawn playcard on the network
-            playCard.SetCardDataRpc(CardToCardIndex[card]); // Set playcard card data to the current card
 
             await Awaitable.NextFrameAsync();
         }
@@ -380,9 +399,6 @@ public class CardManager : NetworkBehaviour
     /// Updates both players hands. 
     /// Note: Runs over multiple frames to keep the network from being overloaded.
     /// </summary>
-    /// <param name="player2ClientId"></param>
-    /// <param name="player1"></param>
-    /// <param name="player2"></param>
     public async void UpdatePlayerCards()
     {
         await UpdateHand(true);

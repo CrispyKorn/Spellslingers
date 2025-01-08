@@ -13,6 +13,7 @@ using TMPro;
 public class RelayManager : NetworkBehaviour
 {
     public string JoinCode { get => _joinCode; }
+    public ulong Player1ClientId { get => NetworkManager.ServerClientId; }
     public ulong Player2ClientId { get => _player2ClientId; }
 
     private string _joinCode;

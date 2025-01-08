@@ -7,7 +7,7 @@ public class PlayCard : NetworkBehaviour
     public ICard CardData { get => _cardData; }
     public bool IsFaceUp { get => _isFaceUp; }
     public BoxCollider2D BoxCollider { get => _boxCollider; }
-    public bool IsBeingDragged { get => _isBeingDragged; set => _isBeingDragged = value; }
+    public CardSlot PlacedCardSlot { get => _placedCardSlot; set => _placedCardSlot = value; }
 
     private bool _placed;
 
@@ -18,6 +18,7 @@ public class PlayCard : NetworkBehaviour
     private Quaternion _savedCardRot;
     private bool _isFaceUp;
     private bool _isBeingDragged;
+    private CardSlot _placedCardSlot;
 
     private void Awake()
     {
@@ -57,15 +58,6 @@ public class PlayCard : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         if (_cardData == null) _cardData = Locator.Instance.CardManager.CardIndexToCard[0];
-    }
-
-    /// <summary>
-    /// Flips the card and updates the sprite accordingly.
-    /// </summary>
-    public void Flip()
-    {
-        _isFaceUp = !_isFaceUp;
-        UpdateSprite();
     }
 
     /// <summary>

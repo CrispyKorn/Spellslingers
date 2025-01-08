@@ -36,7 +36,9 @@ public class CardSlot : NetworkBehaviour
         _hasCard = true;
         _heldCard.transform.position = transform.position;
         _heldCard.transform.rotation = transform.rotation;
-        _heldCard.GetComponent<PlayCard>().Placed = true;
+        var heldPlayCard = _heldCard.GetComponent<PlayCard>();
+        heldPlayCard.Placed = true;
+        heldPlayCard.PlacedCardSlot = this;
     }
 
     public override void OnNetworkSpawn()
@@ -68,7 +70,9 @@ public class CardSlot : NetworkBehaviour
     public GameObject TakeCard()
     {
         GameObject tempCard = _heldCard;
-        _heldCard.GetComponent<PlayCard>().Placed = false;
+        var heldPlayCard = _heldCard.GetComponent<PlayCard>();
+        heldPlayCard.Placed = false;
+        heldPlayCard.PlacedCardSlot = null;
         _heldCard = null;
         _hasCard = false;
 
