@@ -254,7 +254,7 @@ public class CardManager : NetworkBehaviour
                     break;
                 case ICard.CardType.Utility:
                     {
-                        if (cardData.Card.CardName != "Roll the Dice") break;
+                        if (cardData.Card.CardName != "Sabotage") break;
                         for (var i = cardData.Amount; i > 0; i--) _utilityDeck.AddCard((UtilityCard)cardData.Card);
                     }
                     break;
@@ -379,7 +379,8 @@ public class CardManager : NetworkBehaviour
     /// <param name="removeFromPlayer1">Whether to remove the card from player 1 (host)'s hand.</param>
     public void RemoveCardFromPlayer(GameObject cardObj, bool removeFromPlayer1)
     {
-        Hand playerHand = removeFromPlayer1 ? _playerManager.Player1.Hand : _playerManager.Player2.Hand;
+        Player holdingPlayer = removeFromPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
+        Hand playerHand = holdingPlayer.Hand;
 
         playerHand.RemoveCard(cardObj);
         _ = SpreadCards(playerHand, removeFromPlayer1);

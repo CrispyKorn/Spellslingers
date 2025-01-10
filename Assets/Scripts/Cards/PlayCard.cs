@@ -63,11 +63,11 @@ public class PlayCard : NetworkBehaviour
     /// <summary>
     /// Runs all behaviour required when a card is selected.
     /// </summary>
-    public void OnSelected()
+    public void OnSelected(bool doNotPickup)
     {
         _cardData.PrintDataToConsole();
 
-        if (_placed) return;
+        if (_placed || doNotPickup) return;
 
         SetIsBeingDraggedRpc(true);
         FollowMouseRpc();

@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
     public int Health { get => _health; set => _health = value; }
     public bool IsPlayer1 { get => _isPlayer1; set => _isPlayer1 = value; }
     public Hand Hand { get => _hand; }
+    public bool PickupDisabled { get => _pickupDisabled; set => _pickupDisabled = value; }
 
     [SerializeField] private LayerMask _cardCollisionMask;
     [SerializeField] private LayerMask _cardSlotCollisionMask;
@@ -18,9 +19,9 @@ public class Player : NetworkBehaviour
     private int _health = 30;
     private bool _isPlayer1;
     private Hand _hand = new();
-
     private PlayCard _selectedCard = null;
     private SpriteRenderer _selectedCardZoom;
+    private bool _pickupDisabled;
 
     private void OnEnable()
     {
@@ -107,7 +108,7 @@ public class Player : NetworkBehaviour
         {
             UpdateSelectedCardRpc(selectedCard.NetworkObjectId);
             SetSelectedCardZoomRpc();
-            _selectedCard.OnSelected();
+            _selectedCard.OnSelected(PickupDisabled);
         }
 
         OnCardSelected?.Invoke(this, selectedCard);
