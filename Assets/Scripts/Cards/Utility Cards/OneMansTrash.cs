@@ -8,7 +8,7 @@ public class OneMansTrash : UtilityCard
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
-        utilityInfo.CardManager.SwapPlayerCards();
+        Locator.Instance.CardManager.SwapPlayerCards();
 
         OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);
     }

@@ -37,7 +37,7 @@ public class OpenMinded : UtilityCard
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         _utilityInfo = utilityInfo;
-        _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player1 : _utilityInfo.Player2;
+        _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayerManager.Player1 : Locator.Instance.PlayerManager.Player2;
         _uiManager = Locator.Instance.UIManager;
         _elementSelectionManager = _uiManager.ElementSelectionManager;
         _placingPlayerClientId = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.RelayManager.Player1ClientId : Locator.Instance.RelayManager.Player2ClientId;
@@ -66,14 +66,15 @@ public class OpenMinded : UtilityCard
         _elementSelectionManager.OnElementButtonClicked -= OnElementButtonClicked;
 
         // Find card equivalent
+        CardManager cardManager = Locator.Instance.CardManager;
         ICard.CardType cardType = _selectedCard.CardData.Type;
         Deck searchDeck = null;
 
         switch (cardType)
         {
-            case ICard.CardType.Core: searchDeck = _utilityInfo.CardManager.CoreDeck; break;
-            case ICard.CardType.Offence: searchDeck = _utilityInfo.CardManager.OffenceDeck; break;
-            case ICard.CardType.Defence: searchDeck = _utilityInfo.CardManager.DefenceDeck; break;
+            case ICard.CardType.Core: searchDeck = cardManager.CoreDeck; break;
+            case ICard.CardType.Offence: searchDeck = cardManager.OffenceDeck; break;
+            case ICard.CardType.Defence: searchDeck = cardManager.DefenceDeck; break;
         }
 
         ICard equivalentCard = _selectedCard.CardData;
@@ -126,8 +127,8 @@ public class OpenMinded : UtilityCard
         bool selectedCardIsFaceUp = _selectedCard.IsFaceUp;
 
         _selectedCardSlot.TakeCard();
-        _utilityInfo.CardManager.DiscardCard(_selectedCard);
-        _utilityInfo.CardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp);
+        cardManager.DiscardCard(_selectedCard);
+        cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp);
 
         // Finish
         _placingPlayer.OnCardSelected -= OnCardSelected;

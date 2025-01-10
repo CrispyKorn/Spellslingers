@@ -9,7 +9,8 @@ public class Amnesia : UtilityCard
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
-        Hand affectedHand = utilityInfo.ActivatedByPlayer1 ? utilityInfo.Player2.Hand : utilityInfo.Player1.Hand;
+        CardManager cardManager = Locator.Instance.CardManager;
+        Hand affectedHand = utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayerManager.Player2.Hand : Locator.Instance.PlayerManager.Player1.Hand;
         var coreNum = 0;
         var offenceNum = 0;
         var defenceNum = 0;
@@ -29,18 +30,18 @@ public class Amnesia : UtilityCard
                 case ICard.CardType.Utility: utilityNum++; break;
             }
 
-            utilityInfo.CardManager.DiscardCard(playCard);
+            cardManager.DiscardCard(playCard);
         }
 
         // Refund Cards
         List<ICard> newCards = new();
 
-        foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.CoreDeck, coreNum)) newCards.Add(card);
-        foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.OffenceDeck, offenceNum)) newCards.Add(card);
-        foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.DefenceDeck, defenceNum)) newCards.Add(card);
-        foreach (ICard card in utilityInfo.CardManager.Draw(utilityInfo.CardManager.UtilityDeck, utilityNum)) newCards.Add(card);
+        foreach (ICard card in cardManager.Draw(cardManager.CoreDeck, coreNum)) newCards.Add(card);
+        foreach (ICard card in cardManager.Draw(cardManager.OffenceDeck, offenceNum)) newCards.Add(card);
+        foreach (ICard card in cardManager.Draw(cardManager.DefenceDeck, defenceNum)) newCards.Add(card);
+        foreach (ICard card in cardManager.Draw(cardManager.UtilityDeck, utilityNum)) newCards.Add(card);
 
-        _ = utilityInfo.CardManager.InstantiateCards(newCards, utilityInfo.ActivatedByPlayer1);
+        _ = cardManager.InstantiateCards(newCards, utilityInfo.ActivatedByPlayer1);
 
         // Finish
         OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);

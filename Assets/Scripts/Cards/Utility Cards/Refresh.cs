@@ -9,6 +9,8 @@ public class Refresh : UtilityCard
     public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
+    private PlayerManager _playerManager;
+    private CardManager _cardManager;
     private List<PlayCard> _selectedCards = new();
     private int _numOfCardsToTake = 3;
     private Player _placingPlayer;
@@ -16,9 +18,10 @@ public class Refresh : UtilityCard
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         _utilityInfo = utilityInfo;
+        _playerManager = Locator.Instance.PlayerManager;
         _selectedCards.Clear();
-        _numOfCardsToTake = Mathf.Min(3, _utilityInfo.Player1.Hand.Size);
-        _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player1 : _utilityInfo.Player2;
+        _numOfCardsToTake = Mathf.Min(3, _playerManager.Player1.Hand.Size);
+        _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
 
         _placingPlayer.OnCardSelected += OnCardSelected;
     }
@@ -34,25 +37,23 @@ public class Refresh : UtilityCard
         // Handle activation
         if (_selectedCards.Count == _numOfCardsToTake)
         {
-            Hand playerHand = _utilityInfo.ActivatedByPlayer1 ? _utilityInfo.Player1.Hand : _utilityInfo.Player2.Hand;
-
             foreach (PlayCard card in _selectedCards)
             {
                 // Discard
-                _utilityInfo.CardManager.DiscardCard(card);
+                _cardManager.DiscardCard(card);
 
                 // Refund Player
                 Deck drawDeck = null;
                 switch (card.CardData.Type)
                 {
-                    case ICard.CardType.Core: drawDeck = _utilityInfo.CardManager.CoreDeck; break;
-                    case ICard.CardType.Offence: drawDeck = _utilityInfo.CardManager.OffenceDeck; break;
-                    case ICard.CardType.Defence: drawDeck = _utilityInfo.CardManager.DefenceDeck; break;
-                    case ICard.CardType.Utility: drawDeck = _utilityInfo.CardManager.UtilityDeck; break;
+                    case ICard.CardType.Core: drawDeck = _cardManager.CoreDeck; break;
+                    case ICard.CardType.Offence: drawDeck = _cardManager.OffenceDeck; break;
+                    case ICard.CardType.Defence: drawDeck = _cardManager.DefenceDeck; break;
+                    case ICard.CardType.Utility: drawDeck = _cardManager.UtilityDeck; break;
                 }
 
-                ICard newCard = _utilityInfo.CardManager.DrawOne(drawDeck);
-                _ = _utilityInfo.CardManager.InstantiateCards(new List<ICard>() { newCard }, _utilityInfo.ActivatedByPlayer1);
+                ICard newCard = _cardManager.DrawOne(drawDeck);
+                _ = _cardManager.InstantiateCards(new List<ICard>() { newCard }, _utilityInfo.ActivatedByPlayer1);
             }
 
             // Finish

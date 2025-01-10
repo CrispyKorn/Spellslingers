@@ -1,8 +1,5 @@
 using UnityEngine;
 using Unity.Netcode;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 
 public class PlayManager : NetworkBehaviour
 {    
@@ -11,6 +8,7 @@ public class PlayManager : NetworkBehaviour
     public bool IsPlayer1Turn { get => _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn 
                                     || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn; }
     public GameBoard Board { get => _board; }
+    public GameStateManager StateManager { get => _gameStateManager; }
 
     [SerializeField] private SpriteRenderer _selectedCard;
 
@@ -173,7 +171,7 @@ public class PlayManager : NetworkBehaviour
             _gameStateManager.OnGameStateChanged += UpdateGameState;
             _gameStateManager.Battle.OnDamageDealt += (b, i) => { _playerManager.DealDamage(b, i); };
 
-            _utilityManager.Initialize(new UtilityInfo(_cardManager, _playerManager.Player1, _playerManager.Player2));
+            _utilityManager.Initialize(new UtilityInfo());
 
             await Awaitable.WaitForSecondsAsync(3f);
             SetupGame();
