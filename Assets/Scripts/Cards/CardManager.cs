@@ -254,7 +254,6 @@ public class CardManager : NetworkBehaviour
                     break;
                 case ICard.CardType.Utility:
                     {
-                        if (cardData.Card.CardName != "What Spell?") break;
                         for (var i = cardData.Amount; i > 0; i--) _utilityDeck.AddCard((UtilityCard)cardData.Card);
                     }
                     break;
