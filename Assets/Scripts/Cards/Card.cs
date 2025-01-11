@@ -17,6 +17,7 @@ public class Card : ScriptableObject, ICard
     public string Description { get => _description; }
     public Sprite FrontImg { get => _frontImg; }
     public Sprite BackImg { get => _backImg; }
+    public bool IsNullfied { get => _isNullified; set => _isNullified = value; }
 
     [SerializeField] private ICard.CardType _type;
     [SerializeField] private CardElement _element;
@@ -25,6 +26,8 @@ public class Card : ScriptableObject, ICard
     [SerializeField] private string _description;
     [SerializeField] private Sprite _frontImg;
     [SerializeField] private Sprite _backImg;
+
+    private bool _isNullified = false;
 
     public void PrintDataToConsole()
     {

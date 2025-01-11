@@ -55,9 +55,9 @@ public class CardManager : NetworkBehaviour
     /// </summary>
     private void InitializeCardSets()
     {
-        foreach (CardData<Card> cardData in _allNormalCards)
+        foreach (CardData<Card> cardAmount in _allNormalCards)
         {
-            var newCard = new CardData<ICard>(cardData.Card, cardData.Amount);
+            var newCard = new CardData<ICard>(cardAmount.Card, cardAmount.Amount);
             _allCards.Add(newCard);
         }
 
@@ -254,7 +254,7 @@ public class CardManager : NetworkBehaviour
                     break;
                 case ICard.CardType.Utility:
                     {
-                        if (cardData.Card.CardName != "Single-Minded") break;
+                        if (cardData.Card.CardName != "What Spell?") break;
                         for (var i = cardData.Amount; i > 0; i--) _utilityDeck.AddCard((UtilityCard)cardData.Card);
                     }
                     break;

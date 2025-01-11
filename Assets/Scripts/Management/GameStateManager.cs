@@ -146,8 +146,8 @@ public class GameStateManager
 
             var p1CoreCard = (CoreCard)p1CorePlayCard.CardData;
             var p2CoreCard = (CoreCard)p2CorePlayCard.CardData;
-            bool extendP1Turn = p1CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
-            bool extendP2Turn = p2CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
+            bool extendP1Turn = p1CoreCard.IsNullfied ? false : p1CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
+            bool extendP2Turn = p2CoreCard.IsNullfied ? false : p2CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
 
             if (extendP1Turn || extendP2Turn)
             {

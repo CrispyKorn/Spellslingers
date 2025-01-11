@@ -91,7 +91,7 @@ public class GSBattle : GameState
             }
         }
 
-        return coreCard.CalculateFinalValues(peripheralCards.ToArray());
+        return coreCard.CalculateFinalValues(peripheralCards);
     }
 
     /// <summary>

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public abstract class CoreCard : Card
@@ -21,19 +23,27 @@ public abstract class CoreCard : Card
     /// </summary>
     /// <param name="peripheralCards">The peripheral cards associated with this core card.</param>
     /// <returns>The total combined values.</returns>
-    public CombinedCardValues CalculateFinalValues(Card[] peripheralCards)
+    public CombinedCardValues CalculateFinalValues(List<Card> peripheralCards)
     {
         _finalValues = new CombinedCardValues();
 
         // Add this card's values to the pool
-        switch (Element)
+        if (!IsNullfied)
         {
-            case CardElement.Electricity: _finalValues.ElectricityValues.Power += _values.Power; break;
-            case CardElement.Fire: _finalValues.FireValues.Power += _values.Power; break;
-            case CardElement.Water: _finalValues.WaterValues.Power += _values.Power; break;
+            switch (Element)
+            {
+                case CardElement.Electricity: _finalValues.ElectricityValues.Power += _values.Power; break;
+                case CardElement.Fire: _finalValues.FireValues.Power += _values.Power; break;
+                case CardElement.Water: _finalValues.WaterValues.Power += _values.Power; break;
+            }
         }
 
         // Add all peripheral values to the pool
+        for (int i = peripheralCards.Count - 1; i >= 0; i--)
+        {
+            if (peripheralCards[i].IsNullfied) peripheralCards.RemoveAt(i);
+        }
+
         foreach (Card card in peripheralCards)
         {
             switch (card.Element)
@@ -59,7 +69,7 @@ public abstract class CoreCard : Card
             }
         }
 
-        ApplyEffect(peripheralCards);
+        if (!IsNullfied) ApplyEffect(peripheralCards.ToArray());
         return _finalValues;
     }
 
