@@ -41,7 +41,6 @@ public class OpenMinded : UtilityCard
         _uiManager = Locator.Instance.UIManager;
         _elementSelectionManager = _uiManager.ElementSelectionManager;
         _placingPlayerClientId = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.RelayManager.Player1ClientId : Locator.Instance.RelayManager.Player2ClientId;
-        Debug.Log(_placingPlayerClientId);
         _placingPlayer.OnCardSelected += OnCardSelected;
     }
 
@@ -77,20 +76,37 @@ public class OpenMinded : UtilityCard
             case ICard.CardType.Defence: searchDeck = cardManager.DefenceDeck; break;
         }
 
+        ICard equivalentCard = FindEquivalentCard(cardType, element, searchDeck);
+
+        // Swap cards
+        bool selectedCardIsFaceUp = _selectedCard.IsFaceUp;
+
+        _selectedCardSlot.TakeCard();
+        cardManager.DiscardCard(_selectedCard);
+        cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp);
+
+        // Finish
+        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+    }
+
+    private ICard FindEquivalentCard(ICard.CardType cardType, Card.CardElement element, Deck searchDeck)
+    {
         ICard equivalentCard = _selectedCard.CardData;
 
         if (cardType == ICard.CardType.Core)
         {
             // Requires manual mapping
-            List<CoreCardSet> coreCardSets = new();
-            coreCardSets.Add(new CoreCardSet(typeof(TumblingAvalanche), typeof(MeteorShower), typeof(WrathOfTheHeavens)));
-            coreCardSets.Add(new CoreCardSet(typeof(TidalWave), typeof(SpewingVolcano), typeof(VortexOfLightning)));
-            coreCardSets.Add(new CoreCardSet(typeof(RagingTyphoon), typeof(WhippingWhirlwind), typeof(ChaoticThunderstorm)));
-            coreCardSets.Add(new CoreCardSet(typeof(DelicateIcicle), typeof(WhisperingEmber), typeof(TeslaCoil)));
-            coreCardSets.Add(new CoreCardSet(typeof(Riptide), typeof(Backdraft), typeof(StaticShock)));
-            coreCardSets.Add(new CoreCardSet(typeof(ShardsOfPurity), typeof(PiercingSunbeams), typeof(FlickeringLightningBugs)));
-            coreCardSets.Add(new CoreCardSet(typeof(RushingWaterfall), typeof(PillarOfFlame), typeof(SpearOfSpark)));
-            coreCardSets.Add(new CoreCardSet(typeof(GurglingCauldron), typeof(RainbowRope), typeof(RadiantLightshow)));
+            List<CoreCardSet> coreCardSets = new()
+            {
+                new CoreCardSet(typeof(TumblingAvalanche), typeof(MeteorShower), typeof(WrathOfTheHeavens)),
+                new CoreCardSet(typeof(TidalWave), typeof(SpewingVolcano), typeof(VortexOfLightning)),
+                new CoreCardSet(typeof(RagingTyphoon), typeof(WhippingWhirlwind), typeof(ChaoticThunderstorm)),
+                new CoreCardSet(typeof(DelicateIcicle), typeof(WhisperingEmber), typeof(TeslaCoil)),
+                new CoreCardSet(typeof(Riptide), typeof(Backdraft), typeof(StaticShock)),
+                new CoreCardSet(typeof(ShardsOfPurity), typeof(PiercingSunbeams), typeof(FlickeringLightningBugs)),
+                new CoreCardSet(typeof(RushingWaterfall), typeof(PillarOfFlame), typeof(SpearOfSpark)),
+                new CoreCardSet(typeof(GurglingCauldron), typeof(RainbowRope), typeof(RadiantLightshow))
+            };
 
             CoreCardSet selectionSet = coreCardSets.Find(set =>
             {
@@ -123,15 +139,6 @@ public class OpenMinded : UtilityCard
             });
         }
 
-        // Swap cards
-        bool selectedCardIsFaceUp = _selectedCard.IsFaceUp;
-
-        _selectedCardSlot.TakeCard();
-        cardManager.DiscardCard(_selectedCard);
-        cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp);
-
-        // Finish
-        _placingPlayer.OnCardSelected -= OnCardSelected;
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        return equivalentCard;
     }
 }

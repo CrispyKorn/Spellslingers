@@ -7,6 +7,7 @@ public class UIManager : NetworkBehaviour
 {
     public Button BtnPass { get => _btnPass; }
     public ElementSelectionManager ElementSelectionManager { get => _elementSelectionManager; }
+    public PeripheralSelectionManager PeripheralSelectionManager { get => _peripheralSelectionManager; }
 
     [SerializeField] private TextMeshProUGUI _txtP1Health;
     [SerializeField] private TextMeshProUGUI _txtP2Health;
@@ -15,6 +16,7 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
     [SerializeField] private ElementSelectionManager _elementSelectionManager;
+    [SerializeField] private PeripheralSelectionManager _peripheralSelectionManager;
 
     private void Awake()
     {
@@ -86,5 +88,10 @@ public class UIManager : NetworkBehaviour
     public void SetElementSelectionActive(bool active, ulong targetClientId)
     {
         _elementSelectionManager.SetButtonsActiveRpc(active, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
+    }
+
+    public void SetPeripheralSelectionActive(bool active, ulong targetClientId)
+    {
+        _peripheralSelectionManager.SetButtonsActiveRpc(active, RpcTarget.Single(targetClientId, RpcTargetUse.Temp));
     }
 }
