@@ -19,6 +19,7 @@ public class Refresh : UtilityCard
     {
         _utilityInfo = utilityInfo;
         _playerManager = Locator.Instance.PlayerManager;
+        _cardManager = Locator.Instance.CardManager;
         _selectedCards.Clear();
         _numOfCardsToTake = Mathf.Min(3, _playerManager.Player1.Hand.Size);
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
