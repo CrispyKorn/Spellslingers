@@ -169,6 +169,7 @@ public class PlayManager : NetworkBehaviour
             _gameStateManager = new GameStateManager(this, _cardManager, _board);
 
             _gameStateManager.OnGameStateChanged += UpdateGameState;
+            _gameStateManager.OnStateUpdated += UpdateGameState;
             _gameStateManager.Battle.OnDamageDealt += (b, i) => { _playerManager.DealDamage(b, i); };
 
             _utilityManager.Initialize(new UtilityInfo());
@@ -182,7 +183,7 @@ public class PlayManager : NetworkBehaviour
             _selectedCard.flipX = true;
             _selectedCard.flipY = true;
 
-            _uiManager.SwapPlayerHealth();
+            _uiManager.SwapUIElements();
         }
     }
 

@@ -14,9 +14,9 @@ public class GameStateManager
         Battle
     }
 
+    public event Action<int> OnStateUpdated;
     public event Action<int> OnGameStateChanged;
     public event Action<bool> OnRoundEnd;
-    public event Action<GameState> OnStateUpdated;
 
     public GSPlayerTurn Player1Turn { get => _player1Turn; }
     public GSPlayerTurn Player2Turn { get => _player2Turn; }
@@ -67,7 +67,7 @@ public class GameStateManager
     /// </summary>
     public void UpdateState()
     {
-        OnStateUpdated?.Invoke(_currentState);
+        OnStateUpdated?.Invoke(_stateIndices[_currentState]);
         _currentState.OnUpdateState();
     }
 

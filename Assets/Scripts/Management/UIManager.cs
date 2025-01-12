@@ -13,6 +13,7 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI _txtP2Health;
     [SerializeField] private TextMeshProUGUI _txtGameOver;
     [SerializeField] private TextMeshProUGUI _txtTurn;
+    [SerializeField] private TextMeshProUGUI _txtUtilitySlot;
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
     [SerializeField] private ElementSelectionManager _elementSelectionManager;
@@ -60,8 +61,11 @@ public class UIManager : NetworkBehaviour
         bool enabledForPlayer1 = currentState == (int)GameStateManager.GameStateIndex.Player1Turn || currentState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
         bool enabledForPlayer2 = currentState == (int)GameStateManager.GameStateIndex.Player2Turn || currentState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
         bool activeForMe = isHost ? enabledForPlayer1 : enabledForPlayer2;
+        bool player1CoreSlotFilled = Locator.Instance.PlayManager.Board.Player1Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool player2CoreSlotFilled = Locator.Instance.PlayManager.Board.Player2Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool myCoreSlotFilled = isHost ? player1CoreSlotFilled : player2CoreSlotFilled;
 
-        ChangePassBtnVisibility(activeForMe);
+        ChangePassBtnVisibility(activeForMe && myCoreSlotFilled);
     }
 
     /// <summary>
@@ -78,11 +82,13 @@ public class UIManager : NetworkBehaviour
     /// <summary>
     /// Visually swaps the health for each player (for player 2 since their camera is flipped).
     /// </summary>
-    public void SwapPlayerHealth()
+    public void SwapUIElements()
     {
         TextMeshProUGUI temp = _txtP1Health;
         _txtP1Health = _txtP2Health;
         _txtP2Health = temp;
+
+        _txtUtilitySlot.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 180);
     }
 
     public void SetElementSelectionActive(bool active, ulong targetClientId)
