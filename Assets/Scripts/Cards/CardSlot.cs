@@ -33,10 +33,11 @@ public class CardSlot : NetworkBehaviour
     /// </summary>
     private void PlaceCard()
     {
-        _hasCard = true;
-        _heldCard.transform.position = transform.position;
-        _heldCard.transform.rotation = transform.rotation;
         var heldPlayCard = _heldCard.GetComponent<PlayCard>();
+
+        _hasCard = true;
+        heldPlayCard.SetCardTransformRpc(transform.position, transform.rotation);
+        heldPlayCard.ResetTransformRpc();
         heldPlayCard.Placed = true;
         heldPlayCard.PlacedCardSlot = this;
     }
@@ -56,8 +57,6 @@ public class CardSlot : NetworkBehaviour
         if (_hasCard || (!ignoreUsable && !_isUsable)) return false;
 
         _heldCard = _card;
-        var heldCardNetworkObj = _heldCard.GetComponent<NetworkObject>();
-        if (!heldCardNetworkObj.IsOwnedByServer) heldCardNetworkObj.ChangeOwnership(NetworkManager.ServerClientId);
 
         PlaceCard();
         return true;
