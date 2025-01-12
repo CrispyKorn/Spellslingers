@@ -91,17 +91,24 @@ public class Player : NetworkBehaviour
             if (isNotCardOwner && (cardIsInHand || cardIsFaceDown)) disallowedCardCollisions.Add(collision);
         }
 
-        // Find the topmost card if multiple were hit
-        var topCard = collisions[0].GetComponent<PlayCard>();
+        // Find the closest card to cursor if multiple were hit
+        PlayCard selectedCard = collisions[0].GetComponent<PlayCard>();
+        float selectedCardDist = Mathf.Infinity;
+
         if (collisions.Count > 1)
         {
             foreach (Collider2D collision in collisions)
             {
-                if (collision.transform.position.z < topCard.transform.position.z) topCard = collision.GetComponent<PlayCard>();
+                Vector2 collisionPos = new Vector2(collision.transform.position.x, collision.transform.position.y);
+                float collisionDist = Vector2.Distance(mousePos, collisionPos);
+
+                if (collisionDist < selectedCardDist) 
+                {
+                    selectedCard = collision.GetComponent<PlayCard>();
+                    selectedCardDist = collisionDist;
+                }
             }
         }
-
-        PlayCard selectedCard = topCard;
 
         // Show zoomed card when allowed
         if (!disallowedCardCollisions.Contains(selectedCard.BoxCollider))
