@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Piercing Sunbeams", fileName = "Piercing_Sunbeams")]
 public class PiercingSunbeams : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
-        _finalValues.FireValues.Power -= _values.Power;
+        _finalValues.OffenceValues.FireValues -= _values;
 
         foreach (Card card in peripheralCards)
         {
@@ -15,8 +15,6 @@ public class PiercingSunbeams : CoreCard
             }
         }
 
-        _finalValues.FireValues.Power += _values.Power;
-
-        return _finalValues;
+        _finalValues.OffenceValues.FireValues += _values;
     }
 }

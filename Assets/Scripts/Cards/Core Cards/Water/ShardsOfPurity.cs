@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Shards of Purity", fileName = "Shards_of_Purity")]
 public class ShardsOfPurity : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
-        _finalValues.WaterValues.Power -= _values.Power;
+        _finalValues.OffenceValues.WaterValues -= _values;
 
         foreach (Card card in peripheralCards)
         {
@@ -15,8 +15,6 @@ public class ShardsOfPurity : CoreCard
             }
         }
 
-        _finalValues.WaterValues.Power += _values.Power;
-
-        return _finalValues;
+        _finalValues.OffenceValues.WaterValues += _values;
     }
 }

@@ -22,28 +22,22 @@ public class GSBattle : GameState
         }
 
         // Calculate Damage
-        CombinedCardValues p1Values = GetPlayerValues(_gameBoard.Player1Board);
-        CombinedCardValues p2Values = GetPlayerValues(_gameBoard.Player2Board);
+        CardValueSet p1Values = GetPlayerValues(_gameBoard.Player1Board);
+        CardValueSet p2Values = GetPlayerValues(_gameBoard.Player2Board);
 
         // Compare Values
         var p1Atk = 0;
         var p2Atk = 0;
 
-        if (stateManager.P1Attacking)
-        {
-            CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.FireValues,  p2Values.FireValues);
-            CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.WaterValues,  p2Values.WaterValues);
-            CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.ElectricityValues,  p2Values.ElectricityValues);
-        }
-        else
-        {
-            CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.FireValues,  p1Values.FireValues);
-            CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.WaterValues,  p1Values.WaterValues);
-            CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.ElectricityValues,  p1Values.ElectricityValues);
-        }
+        CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.OffenceValues.FireValues,  p2Values.DefenceValues.FireValues);
+        CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.OffenceValues.WaterValues,  p2Values.DefenceValues.WaterValues);
+        CalculateDmg(ref p1Atk, ref p2Atk,  p1Values.OffenceValues.ElectricityValues,  p2Values.DefenceValues.ElectricityValues);
+        CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.OffenceValues.FireValues,  p1Values.DefenceValues.FireValues);
+        CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.OffenceValues.WaterValues,  p1Values.DefenceValues.WaterValues);
+        CalculateDmg(ref p2Atk, ref p1Atk,  p2Values.OffenceValues.ElectricityValues,  p1Values.DefenceValues.ElectricityValues);
 
-        Debug.Log("Player 1 dealt " + p1Atk + " damage!");
-        Debug.Log("Player 2 dealt " + p2Atk + " damage!");
+        Debug.Log($"Player 1 dealt {p1Atk} damage!");
+        Debug.Log($"Player 2 dealt {p2Atk} damage!");
 
         OnDamageDealt?.Invoke(true, p1Atk);
         OnDamageDealt?.Invoke(false, p2Atk);
@@ -76,7 +70,7 @@ public class GSBattle : GameState
     /// </summary>
     /// <param name="_playerBoard">The board for which to get the values.</param>
     /// <returns>The combined values of the played cards.</returns>
-    private CombinedCardValues GetPlayerValues(CardSlot[] _playerBoard)
+    private CardValueSet GetPlayerValues(CardSlot[] _playerBoard)
     {
         var coreCard = (CoreCard)_playerBoard[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>().CardData;
         var peripheralCards = new List<Card>();

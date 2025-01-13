@@ -3,20 +3,17 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Tidal Wave", fileName = "Tidal_Wave")]
 public class TidalWave : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
-        CardValues combinedValues = new();
-        combinedValues.Power = _finalValues.FireValues.Power + _finalValues.ElectricityValues.Power;
-        combinedValues.Special = _finalValues.FireValues.Special + _finalValues.ElectricityValues.Special;
+        CardValues combinedOffenceValues = _finalValues.OffenceValues.FireValues + _finalValues.OffenceValues.ElectricityValues;
+        CardValues combinedDefenceValues = _finalValues.DefenceValues.FireValues + _finalValues.DefenceValues.ElectricityValues;
 
-        _finalValues.WaterValues.Power += combinedValues.Power;
-        _finalValues.WaterValues.Special += combinedValues.Special;
+        _finalValues.OffenceValues.WaterValues += combinedOffenceValues;
+        _finalValues.DefenceValues.WaterValues += combinedDefenceValues;
 
-        _finalValues.FireValues.Power = 0;
-        _finalValues.FireValues.Special = 0;
-        _finalValues.ElectricityValues.Power = 0;
-        _finalValues.ElectricityValues.Special = 0;
-
-        return _finalValues;
+        _finalValues.OffenceValues.FireValues.Zero();
+        _finalValues.OffenceValues.ElectricityValues.Zero();
+        _finalValues.DefenceValues.FireValues.Zero();
+        _finalValues.DefenceValues.ElectricityValues.Zero();
     }
 }

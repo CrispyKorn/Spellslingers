@@ -24,7 +24,7 @@ public class GameStateManager
     public GSPlayerTurn GSPlayer2ExtendedTurn { get => _player2ExtendedTurn; }
     public GSInterrupt Interrupt { get => _interrupt; }
     public GSBattle Battle { get => _battle; }
-    public bool P1Attacking { get => _p1Attacking; }
+    public bool P1First { get => _p1First; }
     public GameState CurrentState { get => _currentState; }
     public int CurrentStateIndex { get => _stateIndices[_currentState]; }
     public GameState PrevState { get => _prevState; }
@@ -41,7 +41,7 @@ public class GameStateManager
     private GameState _prevState;
     private PlayManager _playManager;
     private CardManager _cardManager;
-    private bool _p1Attacking = true;
+    private bool _p1First = true;
     private bool _extendP1Turn;
     private bool _extendP2Turn;
     private Dictionary<GameState, int> _stateIndices = new();
@@ -82,25 +82,25 @@ public class GameStateManager
                 break;
             case 1: // Player 1 Turn
                 {
-                    if (_p1Attacking) SetState(_player2Turn);
+                    if (_p1First) SetState(_player2Turn);
                     else if (!HandleExtendTurn()) EndRound();
                 }
                 break;
             case 2: // Player 2 Turn
                 {
-                    if (!_p1Attacking) SetState(_player1Turn);
+                    if (!_p1First) SetState(_player1Turn);
                     else if (!HandleExtendTurn()) EndRound();
                 }
                 break;
             case 3: // Player 1 Extended Turn
                 {
-                    if (_p1Attacking && _extendP2Turn) SetState(_player2Turn);
+                    if (_p1First && _extendP2Turn) SetState(_player2Turn);
                     else EndRound();
                 }
                 break;
             case 4: // Player 2 Extended Turn
                 {
-                    if (!_p1Attacking && _extendP1Turn) SetState(_player1Turn);
+                    if (!_p1First && _extendP1Turn) SetState(_player1Turn);
                     else EndRound();
                 }
                 break;
@@ -108,7 +108,7 @@ public class GameStateManager
                 {
                     _playManager.HandleEndOfRound();
                     ChangeRound();
-                    SetState(_p1Attacking ? _player1Turn : _player2Turn);
+                    SetState(_p1First ? _player1Turn : _player2Turn);
                 }
                 break;
         }
@@ -165,7 +165,7 @@ public class GameStateManager
         _extendP1Turn = extendP1Turn;
         _extendP2Turn = extendP2Turn;
 
-        if (_p1Attacking)
+        if (_p1First)
         {
             if (_extendP1Turn) nextState = _player1ExtendedTurn;
             else nextState = _player2ExtendedTurn;
@@ -195,7 +195,7 @@ public class GameStateManager
     /// </summary>
     public void ChangeRound()
     {
-        _p1Attacking = !_p1Attacking;
-        OnRoundEnd?.Invoke(_p1Attacking);
+        _p1First = !_p1First;
+        OnRoundEnd?.Invoke(_p1First);
     }
 }

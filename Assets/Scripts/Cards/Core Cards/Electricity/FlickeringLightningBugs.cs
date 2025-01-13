@@ -3,9 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Flickering Lightningbugs", fileName = "Flickering_Lightningbugs")]
 public class FlickeringLightningBugs : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
-        _finalValues.ElectricityValues.Power -= _values.Power;
+        _finalValues.OffenceValues.ElectricityValues -= _values;
 
         foreach (Card card in peripheralCards)
         {
@@ -15,8 +15,6 @@ public class FlickeringLightningBugs : CoreCard
             }
         }
 
-        _finalValues.ElectricityValues.Power += _values.Power;
-
-        return _finalValues;
+        _finalValues.OffenceValues.ElectricityValues += _values;
     }
 }

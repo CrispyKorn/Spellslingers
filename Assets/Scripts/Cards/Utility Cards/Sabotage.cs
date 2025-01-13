@@ -34,7 +34,7 @@ public class Sabotage : UtilityCard
     {
         // Check for invalid card selection
         ICard.CardType cardType = selectedCard.CardData.Type;
-        bool placingPlayerAttacking = Locator.Instance.PlayManager.StateManager.P1Attacking == _utilityInfo.ActivatedByPlayer1;
+        bool placingPlayerAttacking = Locator.Instance.PlayManager.StateManager.P1First == _utilityInfo.ActivatedByPlayer1;
         ICard.CardType requiredCardType = placingPlayerAttacking ? requiredCardType = ICard.CardType.Defence : requiredCardType = ICard.CardType.Offence;
         bool cardNotFromHand = !_placingPlayer.Hand.CardObjs.Contains(selectedCard.gameObject);
         bool invalidCardType = cardType != requiredCardType && cardType != ICard.CardType.Core;

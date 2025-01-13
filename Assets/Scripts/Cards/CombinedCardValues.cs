@@ -1,5 +1,7 @@
 
 
+using Unity.Mathematics;
+
 public class CombinedCardValues
 {
     public CardValues WaterValues { get => _waterValues; set => _waterValues = value; }
@@ -12,8 +14,25 @@ public class CombinedCardValues
 
     public CombinedCardValues()
     {
-        _waterValues = new CardValues();
-        _fireValues = new CardValues();
-        _electricityValues = new CardValues();
+        _waterValues = new();
+        _fireValues = new();
+        _electricityValues = new();
+    }
+
+    public CombinedCardValues(CardValues waterValues, CardValues fireValues, CardValues electricityValues)
+    {
+        _waterValues = waterValues;
+        _fireValues = fireValues;
+        _electricityValues = electricityValues;
+    }
+
+    public static CombinedCardValues operator +(CombinedCardValues left, CombinedCardValues right)
+    {
+        return new CombinedCardValues(left.WaterValues + right.WaterValues, left.FireValues + right.FireValues, left.ElectricityValues + right.ElectricityValues);
+    }
+
+    public static CombinedCardValues operator -(CombinedCardValues left, CombinedCardValues right)
+    {
+        return new CombinedCardValues(left.WaterValues - right.WaterValues, left.FireValues - right.FireValues, left.ElectricityValues - right.ElectricityValues);
     }
 }

@@ -3,20 +3,17 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Spewing Volcano", fileName = "Spewing_Volcano")]
 public class SpewingVolcano : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
-        CardValues combinedValues = new();
-        combinedValues.Power = _finalValues.WaterValues.Power + _finalValues.ElectricityValues.Power;
-        combinedValues.Special = _finalValues.WaterValues.Special + _finalValues.ElectricityValues.Special;
+        CardValues combinedOffenceValues = _finalValues.OffenceValues.WaterValues + _finalValues.OffenceValues.ElectricityValues;
+        CardValues combinedDefenceValues = _finalValues.DefenceValues.WaterValues + _finalValues.DefenceValues.ElectricityValues;
 
-        _finalValues.FireValues.Power += combinedValues.Power;
-        _finalValues.FireValues.Special += combinedValues.Special;
+        _finalValues.OffenceValues.FireValues += combinedOffenceValues;
+        _finalValues.DefenceValues.FireValues += combinedDefenceValues;
 
-        _finalValues.WaterValues.Power = 0;
-        _finalValues.WaterValues.Special = 0;
-        _finalValues.ElectricityValues.Power = 0;
-        _finalValues.ElectricityValues.Special = 0;
-
-        return _finalValues;
+        _finalValues.OffenceValues.WaterValues.Zero();
+        _finalValues.OffenceValues.ElectricityValues.Zero();
+        _finalValues.DefenceValues.WaterValues.Zero();
+        _finalValues.DefenceValues.ElectricityValues.Zero();
     }
 }

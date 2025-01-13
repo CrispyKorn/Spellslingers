@@ -3,23 +3,21 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Gurgling Cauldron", fileName = "Gurgling_Cauldron")]
 public class GurglingCauldron : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
         var usedFire = false;
-        var usedLight = false;
+        var usedElectricity = false;
 
         foreach (Card card in peripheralCards)
         {
             if (card.Element == CardElement.Fire) usedFire = true;
-            if (card.Element == CardElement.Electricity) usedLight = true;
+            if (card.Element == CardElement.Electricity) usedElectricity = true;
         }
 
         var additionalSpellTypeNum = 0;
         if (usedFire) additionalSpellTypeNum++;
-        if (usedLight) additionalSpellTypeNum++;
+        if (usedElectricity) additionalSpellTypeNum++;
 
-        _finalValues.WaterValues.Power += additionalSpellTypeNum;
-
-        return _finalValues;
+        _finalValues.OffenceValues.FireValues.Power += additionalSpellTypeNum;
     }
 }

@@ -16,56 +16,44 @@ public abstract class CoreCard : Card
 
     [SerializeField] private CoreCardType _coreType;
 
-    protected CombinedCardValues _finalValues;
+    protected CardValueSet _finalValues;
 
     /// <summary>
     /// Calculates the total values of this core card and its peripheral cards for each element.
     /// </summary>
     /// <param name="peripheralCards">The peripheral cards associated with this core card.</param>
     /// <returns>The total combined values.</returns>
-    public CombinedCardValues CalculateFinalValues(List<Card> peripheralCards)
+    public CardValueSet CalculateFinalValues(List<Card> peripheralCards)
     {
-        _finalValues = new CombinedCardValues();
+        _finalValues = new CardValueSet();
 
         // Add this card's values to the pool
         if (!IsNullfied)
         {
             switch (Element)
             {
-                case CardElement.Electricity: _finalValues.ElectricityValues.Power += _values.Power; break;
-                case CardElement.Fire: _finalValues.FireValues.Power += _values.Power; break;
-                case CardElement.Water: _finalValues.WaterValues.Power += _values.Power; break;
+                case CardElement.Electricity: _finalValues.OffenceValues.ElectricityValues += _values; break;
+                case CardElement.Fire: _finalValues.OffenceValues.FireValues += _values; break;
+                case CardElement.Water: _finalValues.OffenceValues.WaterValues += _values; break;
             }
         }
 
-        // Add all peripheral values to the pool
+        // Remove all nullified peripheral cards
         for (int i = peripheralCards.Count - 1; i >= 0; i--)
         {
             if (peripheralCards[i].IsNullfied) peripheralCards.RemoveAt(i);
         }
 
+        // Add all peripheral values to the pool
         foreach (Card card in peripheralCards)
         {
+            CombinedCardValues relevantCombinedValues = card.Type == ICard.CardType.Offence ? _finalValues.OffenceValues : _finalValues.DefenceValues;
+
             switch (card.Element)
             {
-                case CardElement.Electricity:
-                    {
-                        _finalValues.ElectricityValues.Power += card.Values.Power;
-                        _finalValues.ElectricityValues.Special += card.Values.Special;
-                    }
-                    break;
-                case CardElement.Fire:
-                    {
-                        _finalValues.FireValues.Power += card.Values.Power;
-                        _finalValues.FireValues.Special += card.Values.Special;
-                    }
-                    break;
-                case CardElement.Water:
-                    {
-                        _finalValues.WaterValues.Power += card.Values.Power;
-                        _finalValues.WaterValues.Special += card.Values.Special;
-                    } 
-                    break;
+                case CardElement.Electricity: relevantCombinedValues.ElectricityValues += card.Values; break;
+                case CardElement.Fire: relevantCombinedValues.FireValues += card.Values; break;
+                case CardElement.Water: relevantCombinedValues.WaterValues += card.Values; break;
             }
         }
 
@@ -78,5 +66,5 @@ public abstract class CoreCard : Card
     /// </summary>
     /// <param name="peripheralCards">The peripheral cards associated with this core card.</param>
     /// <returns>The combined values after applying the core card's effects.</returns>
-    protected abstract CombinedCardValues ApplyEffect(Card[] peripheralCards);
+    protected abstract void ApplyEffect(Card[] peripheralCards);
 }

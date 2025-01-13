@@ -200,10 +200,7 @@ public class PlayManager : NetworkBehaviour
         if (currentPlayerCoreSlot.IsUsable) return card.Type == ICard.CardType.Core;
 
         // Enforce peripheral cards
-        bool isOffenceCard = card.Type == ICard.CardType.Offence;
-        bool isDefenceCard = card.Type == ICard.CardType.Defence;
-
-        return (IsPlayer1Turn == _gameStateManager.P1Attacking) ? isOffenceCard : isDefenceCard;
+        return card.Type != ICard.CardType.Utility;
     }
 
     /// <summary>

@@ -41,7 +41,7 @@ public class Amnesia : UtilityCard
         foreach (ICard card in cardManager.Draw(cardManager.DefenceDeck, defenceNum)) newCards.Add(card);
         foreach (ICard card in cardManager.Draw(cardManager.UtilityDeck, utilityNum)) newCards.Add(card);
 
-        _ = cardManager.InstantiateCards(newCards, utilityInfo.ActivatedByPlayer1);
+        _ = cardManager.InstantiateCards(newCards, !utilityInfo.ActivatedByPlayer1);
 
         // Finish
         OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);

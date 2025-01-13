@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Radiant Lightshow", fileName = "Radiant_Lightshow")]
 public class RadiantLightshow : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
         var usedFire = false;
         var usedWater = false;
@@ -18,8 +18,6 @@ public class RadiantLightshow : CoreCard
         if (usedFire) additionalSpellTypeNum++;
         if (usedWater) additionalSpellTypeNum++;
 
-        _finalValues.ElectricityValues.Power += additionalSpellTypeNum;
-
-        return _finalValues;
+        _finalValues.OffenceValues.ElectricityValues.Power += additionalSpellTypeNum;
     }
 }

@@ -3,23 +3,21 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Core Card/Rainbow Rope", fileName = "Rainbow_Rope")]
 public class RainbowRope : CoreCard
 {
-    protected override CombinedCardValues ApplyEffect(Card[] peripheralCards)
+    protected override void ApplyEffect(Card[] peripheralCards)
     {
         var usedWater = false;
-        var usedLight = false;
+        var usedElectricity = false;
 
         foreach (Card card in peripheralCards)
         {
             if (card.Element == CardElement.Water) usedWater = true;
-            if (card.Element == CardElement.Electricity) usedLight = true;
+            if (card.Element == CardElement.Electricity) usedElectricity = true;
         }
 
         var additionalSpellTypeNum = 0;
         if (usedWater) additionalSpellTypeNum++;
-        if (usedLight) additionalSpellTypeNum++;
+        if (usedElectricity) additionalSpellTypeNum++;
 
-        _finalValues.FireValues.Power += additionalSpellTypeNum;
-
-        return _finalValues;
+        _finalValues.OffenceValues.FireValues.Power += additionalSpellTypeNum;
     }
 }
