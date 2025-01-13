@@ -6,6 +6,7 @@ public class PlayCard : NetworkBehaviour
     public bool Placed { get => _placed; set => _placed = value; }
     public ICard CardData { get => _cardData; }
     public bool IsFaceUp { get => _isFaceUp; }
+    public bool IsBeingDragged { get => _isBeingDragged; }
     public BoxCollider2D BoxCollider { get => _boxCollider; }
     public CardSlot PlacedCardSlot { get => _placedCardSlot; set => _placedCardSlot = value; }
 

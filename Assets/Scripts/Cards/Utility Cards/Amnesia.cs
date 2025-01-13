@@ -30,6 +30,7 @@ public class Amnesia : UtilityCard
                 case ICard.CardType.Utility: utilityNum++; break;
             }
 
+            cardManager.RemoveCardFromPlayer(playCard.gameObject, !utilityInfo.ActivatedByPlayer1);
             cardManager.DiscardCard(playCard);
         }
 

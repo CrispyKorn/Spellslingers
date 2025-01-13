@@ -40,9 +40,6 @@ public class Refresh : UtilityCard
         {
             foreach (PlayCard card in _selectedCards)
             {
-                // Discard
-                _cardManager.DiscardCard(card);
-
                 // Refund Player
                 Deck drawDeck = null;
                 switch (card.CardData.Type)
@@ -55,6 +52,10 @@ public class Refresh : UtilityCard
 
                 ICard newCard = _cardManager.DrawOne(drawDeck);
                 _ = _cardManager.InstantiateCards(new List<ICard>() { newCard }, _utilityInfo.ActivatedByPlayer1);
+
+                // Discard
+                _cardManager.RemoveCardFromPlayer(card.gameObject, _utilityInfo.ActivatedByPlayer1);
+                _cardManager.DiscardCard(card);
             }
 
             // Finish

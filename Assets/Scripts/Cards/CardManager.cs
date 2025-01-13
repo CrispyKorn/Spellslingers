@@ -212,6 +212,7 @@ public class CardManager : NetworkBehaviour
             var cardRot = cardObj.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
             if (!isPlayer1Cards) cardRot = Quaternion.Euler(0f, 0f, 180f);
 
+            if (playCard.IsBeingDragged) playCard.SetIsBeingDraggedRpc(false);
             playCard.FlipToRpc(isPlayer1Cards, !isPlayer1Cards);
             playCard.SetOrderRpc(sortingOrder);
             playCard.SetCardTransformRpc(cardPos, cardRot);
@@ -380,7 +381,9 @@ public class CardManager : NetworkBehaviour
     {
         Player holdingPlayer = removeFromPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
         Hand playerHand = holdingPlayer.Hand;
+        PlayCard playCard = cardObj.GetComponent<PlayCard>();
 
+        if (playCard.IsBeingDragged) playCard.SetIsBeingDraggedRpc(false);
         playerHand.RemoveCard(cardObj);
         _ = SpreadCards(playerHand, removeFromPlayer1);
     }
