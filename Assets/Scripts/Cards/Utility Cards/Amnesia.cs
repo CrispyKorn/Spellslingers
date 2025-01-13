@@ -15,10 +15,9 @@ public class Amnesia : UtilityCard
         var offenceNum = 0;
         var defenceNum = 0;
         var utilityNum = 0;
-        int affectedHandSize = affectedHand.Size;
 
         // Count the number of each type of card in the affected player's hand
-        for (var i = 0; i < affectedHandSize; i++)
+        for (var i = affectedHand.Size; i >= 0; i--)
         {
             var playCard = affectedHand.CardObjs[i].GetComponent<PlayCard>();
 

@@ -52,7 +52,7 @@ public class Sabotage : UtilityCard
         // Add the card to the enemy spell
         CardManager cardManager = Locator.Instance.CardManager;
         cardManager.RemoveCardFromPlayer(selectedCard.gameObject, _utilityInfo.ActivatedByPlayer1);
-        cardManager.InstantiateCardToSlot(selectedCard.CardData, chosenCardSlot, cardType != ICard.CardType.Core);
+        cardManager.InstantiateCardToSlot(selectedCard.CardData, chosenCardSlot, cardType != ICard.CardType.Core, _utilityInfo.ActivatedByPlayer1);
         cardManager.DiscardCard(selectedCard);
 
         //Finish

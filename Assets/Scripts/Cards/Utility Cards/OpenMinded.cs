@@ -80,10 +80,11 @@ public class OpenMinded : UtilityCard
 
         // Swap cards
         bool selectedCardIsFaceUp = _selectedCard.IsFaceUp;
+        bool selectedCardOwnedByPlayer2 = !_selectedCard.IsOwnedByServer;
 
         _selectedCardSlot.TakeCard();
         cardManager.DiscardCard(_selectedCard);
-        cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp);
+        cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp, selectedCardOwnedByPlayer2);
 
         // Finish
         OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);

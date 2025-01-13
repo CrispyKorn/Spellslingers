@@ -22,7 +22,7 @@ public class RollTheDice : UtilityCard
             cardManager.DiscardCard(coreSlot.TakeCard().GetComponent<PlayCard>());
         }
         
-        cardManager.InstantiateCardToSlot(newCoreCard, coreSlot, coreCardIsFaceUp);
+        cardManager.InstantiateCardToSlot(newCoreCard, coreSlot, coreCardIsFaceUp, !utilityInfo.ActivatedByPlayer1);
 
         // Update game state
         Locator.Instance.PlayManager.StateManager.UpdateState();

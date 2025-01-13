@@ -332,11 +332,13 @@ public class CardManager : NetworkBehaviour
         }
     }
 
-    public void InstantiateCardToSlot(ICard newCard, CardSlot cardSlot, bool faceUp)
+    public void InstantiateCardToSlot(ICard newCard, CardSlot cardSlot, bool faceUp, bool ownedByPlayer2)
     {
         GameObject cardObj = InitializeCard(newCard);
         cardSlot.TryPlaceCard(cardObj, true);
-        cardObj.GetComponent<PlayCard>().FlipToRpc(faceUp, faceUp);
+        var playCard = cardObj.GetComponent<PlayCard>();
+        playCard.FlipToRpc(faceUp, faceUp);
+        if (ownedByPlayer2) playCard.NetworkObject.ChangeOwnership(Locator.Instance.RelayManager.Player2ClientId);
     }
 
     /// <summary>
