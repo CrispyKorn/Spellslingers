@@ -103,7 +103,13 @@ public class PlayManager : NetworkBehaviour
     /// <param name="gameState"></param>
     private void UpdateGameState(int gameState)
     {
-        UpdateUIRpc(_playerManager.Player1.Health, _playerManager.Player2.Health, gameState);
+        // Determine whether to enable/disable pass button
+        bool isPlayer1Turn = gameState == (int)GameStateManager.GameStateIndex.Player1Turn || gameState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
+        bool isPlayer2Turn = gameState == (int)GameStateManager.GameStateIndex.Player2Turn || gameState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
+        bool player1CoreSlotFilled = Locator.Instance.PlayManager.Board.Player1Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool player2CoreSlotFilled = Locator.Instance.PlayManager.Board.Player2Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+
+        UpdateUIRpc(_playerManager.Player1.Health, _playerManager.Player2.Health, gameState, isPlayer1Turn, isPlayer2Turn, player1CoreSlotFilled, player2CoreSlotFilled);
     }
 
     /// <summary>
@@ -220,9 +226,10 @@ public class PlayManager : NetworkBehaviour
     /// <param name="player2Health">The current health of player 2 (client).</param>
     /// <param name="currentGameState">The current value of the game state.</param>
     [Rpc(SendTo.Everyone)]
-    public void UpdateUIRpc(int player1Health, int player2Health, int currentGameState)
+    public void UpdateUIRpc(int player1Health, int player2Health, int currentGameState, bool player1Turn, bool player2Turn, bool player1CoreSlotFilled, bool player2CoreSlotFilled)
     {
-        _uiManager.UpdateUI(player1Health, player2Health, currentGameState, IsHost);
+        bool passButtonActive = IsHost ? player1Turn && player1CoreSlotFilled : player2Turn && player2CoreSlotFilled;
+        _uiManager.UpdateUI(player1Health, player2Health, currentGameState, passButtonActive);
     }
     #endregion
 }

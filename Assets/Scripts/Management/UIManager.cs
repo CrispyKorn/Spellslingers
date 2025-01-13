@@ -39,7 +39,7 @@ public class UIManager : NetworkBehaviour
     /// <param name="player1Hp">The current health of player 1 (host).</param>
     /// <param name="player2Hp">The current health of player 2 (client).</param>
     /// <param name="currentState">The current value of the game state.</param>
-    public void UpdateUI(int player1Hp, int player2Hp, int currentState, bool isHost)
+    public void UpdateUI(int player1Hp, int player2Hp, int currentState, bool passButtonActive)
     {
         _txtP1Health.text = "HP: " + player1Hp;
         _txtP2Health.text = "HP: " + player2Hp;
@@ -57,15 +57,7 @@ public class UIManager : NetworkBehaviour
         }
         _txtTurn.text = turnText;
 
-        // Update pass button visibility
-        bool enabledForPlayer1 = currentState == (int)GameStateManager.GameStateIndex.Player1Turn || currentState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
-        bool enabledForPlayer2 = currentState == (int)GameStateManager.GameStateIndex.Player2Turn || currentState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
-        bool activeForMe = isHost ? enabledForPlayer1 : enabledForPlayer2;
-        bool player1CoreSlotFilled = Locator.Instance.PlayManager.Board.Player1Board[(int)GameBoard.Slot.CoreSlot].HasCard;
-        bool player2CoreSlotFilled = Locator.Instance.PlayManager.Board.Player2Board[(int)GameBoard.Slot.CoreSlot].HasCard;
-        bool myCoreSlotFilled = isHost ? player1CoreSlotFilled : player2CoreSlotFilled;
-
-        ChangePassBtnVisibility(activeForMe && myCoreSlotFilled);
+        ChangePassBtnVisibility(passButtonActive);
     }
 
     /// <summary>

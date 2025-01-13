@@ -163,9 +163,7 @@ public class CardManager : NetworkBehaviour
     /// <param name="targetHand">The hand to move cards to.</param>
     private void MoveHand(Hand sourceHand, Hand targetHand)
     {
-        int sourceHandSize = sourceHand.Size;
-
-        for (int i = 0; i < sourceHandSize; i++)
+        for (int i = sourceHand.Size; i >= 0; i--)
         {
             GameObject cardObj = sourceHand.CardObjs[i];
 
