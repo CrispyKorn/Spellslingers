@@ -11,6 +11,15 @@ public class WhatSpell : UtilityCard
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
+        // Check for invalid play
+        bool allPlayer1BoardSlotsEmpty = !Array.Exists(Locator.Instance.PlayManager.Board.Player1Board, slot => slot.HasCard);
+        bool allPlayer2BoardSlotsEmpty = !Array.Exists(Locator.Instance.PlayManager.Board.Player2Board, slot => slot.HasCard);
+        if (allPlayer1BoardSlotsEmpty && allPlayer2BoardSlotsEmpty)
+        {
+            OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, false);
+            return;
+        }
+
         _utilityInfo = utilityInfo;
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayerManager.Player1 : Locator.Instance.PlayerManager.Player2;
 
