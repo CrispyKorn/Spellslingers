@@ -6,6 +6,7 @@ using Unity.Netcode;
 public class UIManager : NetworkBehaviour
 {
     public Button BtnPass { get => _btnPass; }
+    public Image ZoomCard { get => _zoomCard; }
     public ElementSelectionManager ElementSelectionManager { get => _elementSelectionManager; }
     public PeripheralSelectionManager PeripheralSelectionManager { get => _peripheralSelectionManager; }
 
@@ -16,6 +17,7 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI _txtUtilitySlot;
     [SerializeField] private GameObject _pnlGameOver;
     [SerializeField] private Button _btnPass;
+    [SerializeField] private Image _zoomCard;
     [SerializeField] private ElementSelectionManager _elementSelectionManager;
     [SerializeField] private PeripheralSelectionManager _peripheralSelectionManager;
 
@@ -76,11 +78,23 @@ public class UIManager : NetworkBehaviour
     /// </summary>
     public void SwapUIElements()
     {
+        // Health
         TextMeshProUGUI temp = _txtP1Health;
         _txtP1Health = _txtP2Health;
         _txtP2Health = temp;
 
+        // Utility slot text
         _txtUtilitySlot.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 180);
+
+        // Pass button
+        var passBtnTransform = _btnPass.GetComponent<RectTransform>();
+        Vector3 passBtnPos = passBtnTransform.localPosition;
+        passBtnTransform.localPosition = new Vector3(-passBtnPos.x, passBtnPos.y, passBtnPos.z);
+
+        // Zoom Card
+        var zoomCardTransform = _zoomCard.GetComponent<RectTransform>();
+        Vector3 zoomCardPos = zoomCardTransform.localPosition;
+        zoomCardTransform.localPosition = new Vector3(-zoomCardPos.x, zoomCardPos.y, zoomCardPos.z);
     }
 
     public void SetElementSelectionActive(bool active, ulong targetClientId)

@@ -3,14 +3,11 @@ using Unity.Netcode;
 
 public class PlayManager : NetworkBehaviour
 {    
-    public SpriteRenderer SelectedCard { get => _selectedCard; }
     public int CurrentGameState { get => _gameStateManager.CurrentStateIndex; }
     public bool IsPlayer1Turn { get => _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn 
                                     || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn; }
     public GameBoard Board { get => _board; }
     public GameStateManager StateManager { get => _gameStateManager; }
-
-    [SerializeField] private SpriteRenderer _selectedCard;
 
     private PlayerManager _playerManager;
     private GameStateManager _gameStateManager;
@@ -186,8 +183,6 @@ public class PlayManager : NetworkBehaviour
         else
         {
             Camera.main.transform.rotation = Quaternion.Euler(0f, 0f, 180f);
-            _selectedCard.flipX = true;
-            _selectedCard.flipY = true;
 
             _uiManager.SwapUIElements();
         }

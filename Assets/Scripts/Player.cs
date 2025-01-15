@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Unity.Netcode;
+using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
@@ -20,7 +21,7 @@ public class Player : NetworkBehaviour
     private bool _isPlayer1;
     private Hand _hand = new();
     private PlayCard _selectedCard = null;
-    private SpriteRenderer _selectedCardZoom;
+    private Image _selectedCardZoom;
     private bool _pickupDisabled;
 
     private void OnEnable()
@@ -230,7 +231,7 @@ public class Player : NetworkBehaviour
     public override async void OnNetworkSpawn()
     {
         while (Locator.Instance.PlayManager == null) await Awaitable.NextFrameAsync();
-        _selectedCardZoom = Locator.Instance.PlayManager.SelectedCard;
+        _selectedCardZoom = Locator.Instance.UIManager.ZoomCard;
 
         SubToInputEvents();        
     }
