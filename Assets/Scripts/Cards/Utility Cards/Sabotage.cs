@@ -5,7 +5,7 @@ using System.Linq;
 [CreateAssetMenu(menuName = "Utility Card/Sabotage", fileName = "Sabotage")]
 public class Sabotage : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private PlayerManager _playerManager;
@@ -14,10 +14,10 @@ public class Sabotage : UtilityCard
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         // Check for invalid play
-        CardSlot[] playerBoard = utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayManager.Board.Player1Board : Locator.Instance.PlayManager.Board.Player2Board;
+        CardSlot[] playerBoard = utilityInfo.ActivatedByPlayer1 ? Locator.Instance.GameBoard.Player1Board : Locator.Instance.GameBoard.Player2Board;
         if (!Array.Exists(playerBoard, slot => !slot.HasCard))
         {
-            OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, false);
+            OnCardEffectComplete?.Invoke(utilityInfo);
             return;
         }
 
@@ -25,8 +25,8 @@ public class Sabotage : UtilityCard
         _utilityInfo = utilityInfo;
         _playerManager = Locator.Instance.PlayerManager;
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
-        _placingPlayer.PickupDisabled = true;
-        _placingPlayer.OnCardSelected += OnCardSelected;
+        _placingPlayer.Interaction.PickupDisabled = true;
+        _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
 
     }
 
@@ -34,20 +34,13 @@ public class Sabotage : UtilityCard
     {
         // Check for invalid card selection
         ICard.CardType cardType = selectedCard.CardData.Type;
-        bool placingPlayerAttacking = Locator.Instance.PlayManager.StateManager.P1First == _utilityInfo.ActivatedByPlayer1;
-        ICard.CardType requiredCardType = placingPlayerAttacking ? requiredCardType = ICard.CardType.Defence : requiredCardType = ICard.CardType.Offence;
+        bool placingPlayerAttacking = Locator.Instance.GameStateManager.P1First == _utilityInfo.ActivatedByPlayer1;
         bool cardNotFromHand = !_placingPlayer.Hand.CardObjs.Contains(selectedCard.gameObject);
-        bool invalidCardType = cardType != requiredCardType && cardType != ICard.CardType.Core;
-        CardSlot[] opponentBoard = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayManager.Board.Player2Board : Locator.Instance.PlayManager.Board.Player1Board;
+        bool invalidCardType = cardType == ICard.CardType.Utility;
+        CardSlot[] opponentBoard = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.GameBoard.Player2Board : Locator.Instance.GameBoard.Player1Board;
         CardSlot chosenCardSlot = FindValidCardSlot(opponentBoard, cardType);
         
-        if (cardNotFromHand || invalidCardType || chosenCardSlot == null)
-        {
-            _placingPlayer.PickupDisabled = false;
-            _placingPlayer.OnCardSelected -= OnCardSelected;
-            OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, false);
-            return;
-        }
+        if (cardNotFromHand || invalidCardType || chosenCardSlot == null) return;
         
         // Add the card to the enemy spell
         CardManager cardManager = Locator.Instance.CardManager;
@@ -56,10 +49,11 @@ public class Sabotage : UtilityCard
         cardManager.DiscardCard(selectedCard);
 
         //Finish
-        Locator.Instance.PlayManager.StateManager.UpdateState();
-        _placingPlayer.PickupDisabled = false;
-        _placingPlayer.OnCardSelected -= OnCardSelected;
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        Locator.Instance.GameStateManager.UpdateState();
+        _placingPlayer.Interaction.PickupDisabled = false;
+        _placingPlayer.Interaction.OnCardSelected -= OnCardSelected;
+        _utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(_utilityInfo);
     }
 
     /// <summary>
@@ -80,8 +74,8 @@ public class Sabotage : UtilityCard
         }
 
         // Check peripheral
-        bool isP1ExtendedTurn = Locator.Instance.PlayManager.CurrentGameState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
-        bool isP2ExtendedTurn = Locator.Instance.PlayManager.CurrentGameState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
+        bool isP1ExtendedTurn = Locator.Instance.GameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
+        bool isP2ExtendedTurn = Locator.Instance.GameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
         bool isExtendedTurn = (!_utilityInfo.ActivatedByPlayer1 && isP1ExtendedTurn) || (_utilityInfo.ActivatedByPlayer1  && isP2ExtendedTurn);
         int endNum = isExtendedTurn ? 5 : 3;
 

@@ -3,35 +3,19 @@ using Unity.Netcode;
 
 public class PlayManager : NetworkBehaviour
 {    
-    public int CurrentGameState { get => _gameStateManager.CurrentStateIndex; }
     public bool IsPlayer1Turn { get => _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1Turn 
                                     || _gameStateManager.CurrentStateIndex == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn; }
-    public GameBoard Board { get => _board; }
-    public GameStateManager StateManager { get => _gameStateManager; }
 
     private PlayerManager _playerManager;
     private GameStateManager _gameStateManager;
     private CardManager _cardManager;
     private UtilityManager _utilityManager;
     private UIManager _uiManager;
-    private GameBoard _board;
-
-    private int count;
+    private GameBoard _gameBoard;
 
     private void Awake()
     {
         Locator.Instance.RegisterInstance(this);
-
-        _playerManager = GetComponent<PlayerManager>();
-        _cardManager = GetComponent<CardManager>();
-        _utilityManager = GetComponent<UtilityManager>();
-        _uiManager = GetComponent<UIManager>();
-        _board = GetComponent<GameBoard>();
-    }
-
-    private void Start()
-    {
-        Locator.Instance.InputManager.SetActionMap(InputManager.ActionMap.Battle);
     }
 
     #region Private
@@ -43,11 +27,11 @@ public class PlayManager : NetworkBehaviour
         _cardManager.PopulateDecks();
         _cardManager.InitializePlayerCards();
 
-        _playerManager.Player1.OnPlaceCard += PlayCard;
-        _playerManager.Player2.OnPlaceCard += PlayCard;
+        _playerManager.Player1.Interaction.OnPlaceCard += PlayCard;
+        _playerManager.Player2.Interaction.OnPlaceCard += PlayCard;
 
         //Game Start
-        _gameStateManager.SetState(_gameStateManager.Player1Turn, _board);
+        _gameStateManager.SetState(_gameStateManager.Player1Turn, _gameBoard);
     }
 
     /// <summary>
@@ -63,30 +47,6 @@ public class PlayManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Run when a utility card effect is complete. Cleans up the game state and cards.
-    /// </summary>
-    /// <param name="utilityCard">The utility card that was used.</param>
-    /// <param name="activatedByPlayer1">Whether player 1 played the utility card.</param>
-    /// <param name="successful">Whether the utility card applied its effect successfully.</param>
-    private void UtilityCardCleanup(UtilityCard utilityCard, bool activatedByPlayer1, bool successful)
-    {
-        _gameStateManager.UpdateState();
-        Hand playerHand = activatedByPlayer1 ? _playerManager.Player1.Hand : _playerManager.Player2.Hand;
-
-        if (successful)
-        {
-            if (utilityCard.UtilityType == UtilityCard.UtilityCardType.Normal)
-            {
-                PlayCard utilityPlayCard = _board.UtilitySlot.TakeCard().GetComponent<PlayCard>();
-                _cardManager.DiscardCard(utilityPlayCard);
-            }
-        }
-        else _cardManager.GiveCardToPlayer(_board.UtilitySlot.TakeCard(), activatedByPlayer1);
-
-        utilityCard.OnCardEffectComplete -= UtilityCardCleanup;
-    }
-
-    /// <summary>
     /// Ends a round, moving to the next round
     /// </summary>
     public async void HandleEndOfRound()
@@ -95,7 +55,7 @@ public class PlayManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Run when the game state is updated. Updates the local value of n_currentGameState and the UI.
+    /// Run when the game state is updated. Updates the UI.
     /// </summary>
     /// <param name="gameState"></param>
     private void UpdateGameState(int gameState)
@@ -103,10 +63,13 @@ public class PlayManager : NetworkBehaviour
         // Determine whether to enable/disable pass button
         bool isPlayer1Turn = gameState == (int)GameStateManager.GameStateIndex.Player1Turn || gameState == (int)GameStateManager.GameStateIndex.Player1ExtendedTurn;
         bool isPlayer2Turn = gameState == (int)GameStateManager.GameStateIndex.Player2Turn || gameState == (int)GameStateManager.GameStateIndex.Player2ExtendedTurn;
-        bool player1CoreSlotFilled = Locator.Instance.PlayManager.Board.Player1Board[(int)GameBoard.Slot.CoreSlot].HasCard;
-        bool player2CoreSlotFilled = Locator.Instance.PlayManager.Board.Player2Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool player1CoreSlotFilled = _gameBoard.Player1Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool player2CoreSlotFilled = _gameBoard.Player2Board[(int)GameBoard.Slot.CoreSlot].HasCard;
+        bool passBtnActiveForP1 = isPlayer1Turn && player1CoreSlotFilled;
+        bool passBtnActiveForP2 = isPlayer2Turn && player2CoreSlotFilled;
 
-        UpdateUIRpc(_playerManager.Player1.Health, _playerManager.Player2.Health, gameState, isPlayer1Turn, isPlayer2Turn, player1CoreSlotFilled, player2CoreSlotFilled);
+        _uiManager.UpdateUIStateRpc(gameState);
+        _uiManager.UpdateUIPassBtnRpc(passBtnActiveForP1, passBtnActiveForP2);
     }
 
     /// <summary>
@@ -143,11 +106,10 @@ public class PlayManager : NetworkBehaviour
         // Play Card
         if (cardSlot.Type == CardSlot.SlotType.Utility)
         {
-            _gameStateManager.SetState(_gameStateManager.Interrupt, _board);
+            _gameStateManager.SetState(_gameStateManager.Interrupt, _gameBoard);
 
             var utilityCard = (UtilityCard)cardData;
-            utilityCard.OnCardEffectComplete += UtilityCardCleanup;
-            _utilityManager.ApplyUtilityEffect(utilityCard, placedByPlayer1);
+            _utilityManager.ApplyUtilityEffect(new UtilityInfo(placedByPlayer1, utilityCard));
         }
         else _gameStateManager.UpdateState();
     }
@@ -165,17 +127,22 @@ public class PlayManager : NetworkBehaviour
     #region Public
     public override async void OnNetworkSpawn()
     {
+        _playerManager = Locator.Instance.PlayerManager;
+        _cardManager = Locator.Instance.CardManager;
+        _utilityManager = Locator.Instance.UtilityManager;
+        _uiManager = Locator.Instance.UIManager;
+        _gameBoard = Locator.Instance.GameBoard;
+
+        Locator.Instance.InputManager.SetActionMap(InputManager.ActionMap.Battle);
         _uiManager.BtnPass.onClick.AddListener(EndTurnEarlyRpc);
 
         if (IsHost)
         {
-            _gameStateManager = new GameStateManager(this, _cardManager, _board);
+            _gameStateManager = new GameStateManager(this, _cardManager, _gameBoard);
 
             _gameStateManager.OnGameStateChanged += UpdateGameState;
             _gameStateManager.OnStateUpdated += UpdateGameState;
             _gameStateManager.Battle.OnDamageDealt += (b, i) => { _playerManager.DealDamage(b, i); };
-
-            _utilityManager.Initialize(new UtilityInfo());
 
             await Awaitable.WaitForSecondsAsync(3f);
             SetupGame();
@@ -195,7 +162,7 @@ public class PlayManager : NetworkBehaviour
     /// <returns>Whether the card is valid.</returns>
     public bool CheckValidCard(ICard card)
     {
-        CardSlot currentPlayerCoreSlot = IsPlayer1Turn ? _board.Player1Board[(int)GameBoard.Slot.CoreSlot] : _board.Player2Board[(int)GameBoard.Slot.CoreSlot];
+        CardSlot currentPlayerCoreSlot = IsPlayer1Turn ? _gameBoard.Player1Board[(int)GameBoard.Slot.CoreSlot] : _gameBoard.Player2Board[(int)GameBoard.Slot.CoreSlot];
 
         // Enforce core cards when slot is vacant
         if (currentPlayerCoreSlot.IsUsable) return card.Type == ICard.CardType.Core;
@@ -210,21 +177,8 @@ public class PlayManager : NetworkBehaviour
     /// <param name="player1Winner">Whether player 1 (host) was the winner.</param>
     public void GameOver(bool player1Winner)
     {
-        _gameStateManager.SetState(_gameStateManager.Interrupt, _board);
+        _gameStateManager.SetState(_gameStateManager.Interrupt, _gameBoard);
         GameOverRpc(player1Winner);
-    }
-
-    /// <summary>
-    /// Locally updates the UI for everyone on the network.
-    /// </summary>
-    /// <param name="player1Health">The current health of player 1 (host).</param>
-    /// <param name="player2Health">The current health of player 2 (client).</param>
-    /// <param name="currentGameState">The current value of the game state.</param>
-    [Rpc(SendTo.Everyone)]
-    public void UpdateUIRpc(int player1Health, int player2Health, int currentGameState, bool player1Turn, bool player2Turn, bool player1CoreSlotFilled, bool player2CoreSlotFilled)
-    {
-        bool passButtonActive = IsHost ? player1Turn && player1CoreSlotFilled : player2Turn && player2CoreSlotFilled;
-        _uiManager.UpdateUI(player1Health, player2Health, currentGameState, passButtonActive);
     }
     #endregion
 }

@@ -37,7 +37,7 @@ public class PlayerManager : NetworkBehaviour
         playerHurt.Health -= damage;
 
         // Update UI
-        Locator.Instance.UIManager.UpdateUI(_player1.Health, _player2.Health, Locator.Instance.PlayManager.CurrentGameState, IsHost);
+        Locator.Instance.UIManager.UpdateUIHealthRpc(_player1.Health, _player2.Health);
 
         // Check Game Over
         if (playerHurt.Health <= 0) Locator.Instance.PlayManager.GameOver(player1Attacking);

@@ -27,26 +27,25 @@ public class UIManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// Sets the visibility of the 'Pass' button.
-    /// </summary>
-    /// <param name="visible"></param>
-    private void ChangePassBtnVisibility(bool visible)
-    {
-        _btnPass.gameObject.SetActive(visible);
-    }
-
-    /// <summary>
-    /// Updates the game UI
+    /// Updates the UI for player health.
     /// </summary>
     /// <param name="player1Hp">The current health of player 1 (host).</param>
     /// <param name="player2Hp">The current health of player 2 (client).</param>
-    /// <param name="currentState">The current value of the game state.</param>
-    public void UpdateUI(int player1Hp, int player2Hp, int currentState, bool passButtonActive)
+    [Rpc(SendTo.Everyone)]
+    public void UpdateUIHealthRpc(int player1Hp, int player2Hp)
     {
         _txtP1Health.text = "HP: " + player1Hp;
         _txtP2Health.text = "HP: " + player2Hp;
-
+    }
+    /// <summary>
+    /// Updates the UI for game state.
+    /// </summary>
+    /// <param name="currentState">The current value of the game state.</param>
+    [Rpc(SendTo.Everyone)]
+    public void UpdateUIStateRpc(int currentState)
+    {
         string turnText;
+
         switch (currentState)
         {
             case 0: turnText = "Interrupt"; break;
@@ -57,9 +56,19 @@ public class UIManager : NetworkBehaviour
             case 5: turnText = "Battle"; break;
             default: turnText = "Error"; break;
         }
-        _txtTurn.text = turnText;
 
-        ChangePassBtnVisibility(passButtonActive);
+        _txtTurn.text = turnText;
+    }
+
+    /// <summary>
+    /// Updates the UI for the pass button.
+    /// </summary>
+    /// <param name="activeForP1">Whether the pass button is active for player 1 (host).</param>
+    /// <param name="activeForP2">Whether the pass button is active for player 2 (client).</param>
+    [Rpc(SendTo.Everyone)]
+    public void UpdateUIPassBtnRpc(bool activeForP1, bool activeForP2)
+    {
+        _btnPass.gameObject.SetActive(IsHost ? activeForP1 : activeForP2);
     }
 
     /// <summary>

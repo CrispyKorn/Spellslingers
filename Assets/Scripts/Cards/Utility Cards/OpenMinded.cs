@@ -6,7 +6,7 @@ using Unity.Netcode;
 [CreateAssetMenu(menuName = "Utility Card/Open Minded", fileName = "Open_Minded")]
 public class OpenMinded : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private struct CoreCardSet
     {
@@ -41,7 +41,7 @@ public class OpenMinded : UtilityCard
         _uiManager = Locator.Instance.UIManager;
         _elementSelectionManager = _uiManager.ElementSelectionManager;
         _placingPlayerClientId = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.RelayManager.Player1ClientId : Locator.Instance.RelayManager.Player2ClientId;
-        _placingPlayer.OnCardSelected += OnCardSelected;
+        _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
     }
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedCard)
@@ -55,7 +55,7 @@ public class OpenMinded : UtilityCard
         // Activate selection buttons and await choice
         _uiManager.SetElementSelectionActive(true, _placingPlayerClientId);
         _elementSelectionManager.OnElementButtonClicked += OnElementButtonClicked;
-        _placingPlayer.OnCardSelected -= OnCardSelected;
+        _placingPlayer.Interaction.OnCardSelected -= OnCardSelected;
     }
 
     private void OnElementButtonClicked(Card.CardElement element)
@@ -87,7 +87,8 @@ public class OpenMinded : UtilityCard
         cardManager.InstantiateCardToSlot(equivalentCard, _selectedCardSlot, selectedCardIsFaceUp, selectedCardOwnedByPlayer2);
 
         // Finish
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        _utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(_utilityInfo);
     }
 
     private ICard FindEquivalentCard(ICard.CardType cardType, Card.CardElement element, Deck searchDeck)

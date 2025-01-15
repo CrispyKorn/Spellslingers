@@ -4,12 +4,15 @@ using System;
 [CreateAssetMenu(menuName = "Utility Card/One Mans Trash", fileName = "One_Mans_Trash")]
 public class OneMansTrash : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
+        // Apply effect
         Locator.Instance.CardManager.SwapPlayerCards();
 
-        OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);
+        // Finish
+        utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(utilityInfo);
     }
 }

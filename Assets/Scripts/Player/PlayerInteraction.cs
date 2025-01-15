@@ -1,28 +1,34 @@
-using System.Collections.Generic;
-using UnityEngine;
 using System;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class Player : NetworkBehaviour
-{
+public class PlayerInteraction : NetworkBehaviour
+{   
+    /// <summary>
+    /// Triggered when a card is placed. [placing player, placed card, slot placed into]
+    /// </summary>
     public event Action<Player, GameObject, CardSlot> OnPlaceCard;
+    /// <summary>
+    /// Triggered when a card is selected. [selecting player, selected card]
+    /// </summary>
     public event Action<Player, PlayCard> OnCardSelected;
-
-    public int Health { get => _health; set => _health = value; }
-    public bool IsPlayer1 { get => _isPlayer1; set => _isPlayer1 = value; }
-    public Hand Hand { get => _hand; }
+    
     public bool PickupDisabled { get => _pickupDisabled; set => _pickupDisabled = value; }
 
     [SerializeField] private LayerMask _cardCollisionMask;
     [SerializeField] private LayerMask _cardSlotCollisionMask;
 
-    private int _health = 30;
-    private bool _isPlayer1;
-    private Hand _hand = new();
+    private Player _player;
+    private bool _pickupDisabled;
     private PlayCard _selectedCard = null;
     private Image _selectedCardZoom;
-    private bool _pickupDisabled;
+
+    private void Awake()
+    {
+        _player = GetComponent<Player>();
+    }
 
     private void OnEnable()
     {
@@ -37,6 +43,7 @@ public class Player : NetworkBehaviour
         Locator.Instance.InputManager.OnSelect_Ended -= TryPlaceCardRpc;
     }
 
+    #region Private
     /// <summary>
     /// Subscribes to the relevant input events when available.
     /// </summary>
@@ -119,7 +126,7 @@ public class Player : NetworkBehaviour
             _selectedCard.OnSelected(PickupDisabled);
         }
 
-        OnCardSelected?.Invoke(this, selectedCard);
+        OnCardSelected?.Invoke(_player, selectedCard);
     }
 
     /// <summary>
@@ -191,8 +198,8 @@ public class Player : NetworkBehaviour
             bool isSlotBlocker = false;
             PlayManager playManager = Locator.Instance.PlayManager;
             bool isValidCard = playManager.CheckValidCard(_selectedCard.CardData);
-            bool isMyTurn = _isPlayer1 == playManager.IsPlayer1Turn;
-            bool isMyBoard = _isPlayer1 == playManager.Board.IsSlotOnPlayer1Board(cardSlot);
+            bool isMyTurn = _player.IsPlayer1 == playManager.IsPlayer1Turn;
+            bool isMyBoard = _player.IsPlayer1 == Locator.Instance.GameBoard.IsSlotOnPlayer1Board(cardSlot);
             bool isUtilitySlot = cardSlot.Type == CardSlot.SlotType.Utility;
             bool isCoreSlot = cardSlot.Type == CardSlot.SlotType.Core;
             bool canPlace = false;
@@ -214,9 +221,9 @@ public class Player : NetworkBehaviour
             if (canPlace && cardSlot.TryPlaceCard(_selectedCard.gameObject, isSlotBlocker))
             {
                 // Card placement allowed, place the card!
-                Locator.Instance.CardManager.RemoveCardFromPlayer(_selectedCard.gameObject, _isPlayer1);
+                Locator.Instance.CardManager.RemoveCardFromPlayer(_selectedCard.gameObject, _player.IsPlayer1);
                 _selectedCard.SetIsBeingDraggedRpc(false);
-                OnPlaceCard?.Invoke(this, _selectedCard.gameObject, cardSlot);
+                OnPlaceCard?.Invoke(_player, _selectedCard.gameObject, cardSlot);
                 placed = true;
             }
         }
@@ -227,12 +234,15 @@ public class Player : NetworkBehaviour
             _selectedCard.ResetTransformRpc();
         }
     }
+    #endregion
 
+    #region Public
     public override async void OnNetworkSpawn()
     {
-        while (Locator.Instance.PlayManager == null) await Awaitable.NextFrameAsync();
+        while (Locator.Instance.UIManager == null) await Awaitable.NextFrameAsync();
         _selectedCardZoom = Locator.Instance.UIManager.ZoomCard;
 
         SubToInputEvents();        
     }
+    #endregion
 }

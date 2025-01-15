@@ -5,7 +5,7 @@ using System;
 [CreateAssetMenu(menuName = "Utility Card/Amnesia", fileName = "Amnesia")]
 public class Amnesia : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
@@ -44,6 +44,7 @@ public class Amnesia : UtilityCard
         _ = cardManager.InstantiateCards(newCards, !utilityInfo.ActivatedByPlayer1);
 
         // Finish
-        OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);
+        utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(utilityInfo);
     }
 }

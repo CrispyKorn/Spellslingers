@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(menuName = "Utility Card/Single Minded", fileName = "Single_Minded")]
 public class SingleMinded : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private UIManager _uiManager;
@@ -44,7 +44,8 @@ public class SingleMinded : UtilityCard
         await _cardManager.InstantiateCards(replacementCards, _utilityInfo.ActivatedByPlayer1);
 
         //Finish
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        _utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(_utilityInfo);
     }
 
     private int RemoveCardTypeFromHand(Hand playerHand, bool removeOffenceCards)

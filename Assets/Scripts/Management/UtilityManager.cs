@@ -2,25 +2,44 @@ using UnityEngine;
 
 public class UtilityManager : MonoBehaviour
 {
-    UtilityInfo utilityInfo;
+    private void Awake()
+    {
+        Locator.Instance.RegisterInstance(this);
+    }
 
     /// <summary>
-    /// Sets up the UtilityManager with the given UtilityInfo
+    /// Run when a utility card effect is complete. Cleans up the game state and cards.
     /// </summary>
-    /// <param name="_utilityInfo">The info to setup with.</param>
-    public void Initialize(UtilityInfo _utilityInfo)
+    /// <param name="utilityCard">The utility card that was used.</param>
+    /// <param name="activatedByPlayer1">Whether player 1 played the utility card.</param>
+    /// <param name="successful">Whether the utility card applied its effect successfully.</param>
+    private void UtilityCardCleanup(UtilityInfo utilityInfo)
     {
-        utilityInfo = _utilityInfo;
+        Locator locator = Locator.Instance;
+
+        locator.GameStateManager.UpdateState();
+        Hand playerHand = utilityInfo.ActivatedByPlayer1 ? locator.PlayerManager.Player1.Hand : locator.PlayerManager.Player2.Hand;
+
+        if (utilityInfo.Successful)
+        {
+            if (utilityInfo.UtilityCard.UtilityType == UtilityCard.UtilityCardType.Normal)
+            {
+                PlayCard utilityPlayCard = locator.GameBoard.UtilitySlot.TakeCard().GetComponent<PlayCard>();
+                locator.CardManager.DiscardCard(utilityPlayCard);
+            }
+        }
+        else locator.CardManager.GiveCardToPlayer(locator.GameBoard.UtilitySlot.TakeCard(), utilityInfo.ActivatedByPlayer1);
+
+        utilityInfo.UtilityCard.OnCardEffectComplete -= UtilityCardCleanup;
     }
 
     /// <summary>
     /// Applies the effect of the given utility card.
     /// </summary>
-    /// <param name="utilityCard">The utility card to apply.</param>
-    /// <param name="activatedByPlayer1">Whether the utility card was placed by player 1 (host).</param>
-    public void ApplyUtilityEffect(UtilityCard utilityCard, bool activatedByPlayer1)
+    /// <param name="utilityInfo">The information about the activated utility effect.</param>
+    public void ApplyUtilityEffect(UtilityInfo utilityInfo)
     {
-        utilityInfo.ActivatedByPlayer1 = activatedByPlayer1;
-        utilityCard.ApplyEffect(utilityInfo);
+        utilityInfo.UtilityCard.OnCardEffectComplete += UtilityCardCleanup;
+        utilityInfo.UtilityCard.ApplyEffect(utilityInfo);
     }
 }

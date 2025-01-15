@@ -6,7 +6,7 @@ using System.Linq;
 [CreateAssetMenu(menuName = "Utility Card/Smooth Talker", fileName = "Smooth_Talker")]
 public class SmoothTalker : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private Player _opponent;
@@ -19,11 +19,11 @@ public class SmoothTalker : UtilityCard
         if (!Array.Exists(_opponent.Hand.CardObjs, (o) => o.GetComponent<PlayCard>().CardData.Type == ICard.CardType.Offence 
                                                         || o.GetComponent<PlayCard>().CardData.Type == ICard.CardType.Defence))
         {
-            OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, false);
+            OnCardEffectComplete?.Invoke(utilityInfo);
             return;
         }
 
-        _opponent.OnCardSelected += OnCardSelected;
+        _opponent.Interaction.OnCardSelected += OnCardSelected;
     }
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedCard)
@@ -39,7 +39,8 @@ public class SmoothTalker : UtilityCard
         Locator.Instance.CardManager.GiveCardToPlayer(selectedCard.gameObject, _utilityInfo.ActivatedByPlayer1);
 
         // Finish
-        _opponent.OnCardSelected -= OnCardSelected;
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        _opponent.Interaction.OnCardSelected -= OnCardSelected;
+        _utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(_utilityInfo);
     }
 }

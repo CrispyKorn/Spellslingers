@@ -21,6 +21,11 @@ public class GameBoard : MonoBehaviour
     [SerializeField] private CardSlot[] _player2Board = new CardSlot[6];
     [SerializeField] private CardSlot _utilitySlot;
 
+    private void Awake()
+    {
+        Locator.Instance.RegisterInstance(this);
+    }
+
     public bool IsSlotOnPlayer1Board(CardSlot slot)
     {
         return _player1Board.Contains(slot);

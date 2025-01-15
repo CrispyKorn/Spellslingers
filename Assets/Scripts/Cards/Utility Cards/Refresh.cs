@@ -6,7 +6,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Utility Card/Refresh", fileName = "Refresh")]
 public class Refresh : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private PlayerManager _playerManager;
@@ -24,7 +24,7 @@ public class Refresh : UtilityCard
         _numOfCardsToTake = Mathf.Min(3, _playerManager.Player1.Hand.Size);
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
 
-        _placingPlayer.OnCardSelected += OnCardSelected;
+        _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
     }
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedCard)
@@ -59,8 +59,9 @@ public class Refresh : UtilityCard
             }
 
             // Finish
-            _placingPlayer.OnCardSelected -= OnCardSelected;
-            OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+            _placingPlayer.Interaction.OnCardSelected -= OnCardSelected;
+            _utilityInfo.Successful = true;
+            OnCardEffectComplete?.Invoke(_utilityInfo);
         }
     }
 }

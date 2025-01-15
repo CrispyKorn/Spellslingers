@@ -4,13 +4,13 @@ using System;
 [CreateAssetMenu(menuName = "Utility Card/Roll The Dice", fileName = "Roll_The_Dice")]
 public class RollTheDice : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         // Setup required data
         CardManager cardManager = Locator.Instance.CardManager;
-        CardSlot[] playerBoard = utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayManager.Board.Player1Board : Locator.Instance.PlayManager.Board.Player2Board;
+        CardSlot[] playerBoard = utilityInfo.ActivatedByPlayer1 ? Locator.Instance.GameBoard.Player1Board : Locator.Instance.GameBoard.Player2Board;
         CardSlot coreSlot = playerBoard[(int)GameBoard.Slot.CoreSlot];
         bool coreCardIsFaceUp = false;
         ICard newCoreCard = cardManager.DrawOne(cardManager.CoreDeck);
@@ -25,9 +25,10 @@ public class RollTheDice : UtilityCard
         cardManager.InstantiateCardToSlot(newCoreCard, coreSlot, coreCardIsFaceUp, !utilityInfo.ActivatedByPlayer1);
 
         // Update game state
-        Locator.Instance.PlayManager.StateManager.UpdateState();
+        Locator.Instance.GameStateManager.UpdateState();
 
         //Finish
-        OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, true);
+        utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(utilityInfo);
     }
 }

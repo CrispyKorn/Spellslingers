@@ -4,7 +4,7 @@ using System;
 [CreateAssetMenu(menuName = "Utility Card/What Spell", fileName = "What_Spell")]
 public class WhatSpell : UtilityCard
 {
-    public override event Action<UtilityCard, bool, bool> OnCardEffectComplete;
+    public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
     private Player _placingPlayer;
@@ -12,18 +12,18 @@ public class WhatSpell : UtilityCard
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         // Check for invalid play
-        bool allPlayer1BoardSlotsEmpty = !Array.Exists(Locator.Instance.PlayManager.Board.Player1Board, slot => slot.HasCard);
-        bool allPlayer2BoardSlotsEmpty = !Array.Exists(Locator.Instance.PlayManager.Board.Player2Board, slot => slot.HasCard);
+        bool allPlayer1BoardSlotsEmpty = !Array.Exists(Locator.Instance.GameBoard.Player1Board, slot => slot.HasCard);
+        bool allPlayer2BoardSlotsEmpty = !Array.Exists(Locator.Instance.GameBoard.Player2Board, slot => slot.HasCard);
         if (allPlayer1BoardSlotsEmpty && allPlayer2BoardSlotsEmpty)
         {
-            OnCardEffectComplete?.Invoke(this, utilityInfo.ActivatedByPlayer1, false);
+            OnCardEffectComplete?.Invoke(_utilityInfo);
             return;
         }
 
         _utilityInfo = utilityInfo;
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayerManager.Player1 : Locator.Instance.PlayerManager.Player2;
 
-        _placingPlayer.OnCardSelected += OnCardSelected;
+        _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
     }
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedPlayCard)
@@ -37,7 +37,8 @@ public class WhatSpell : UtilityCard
         Debug.Log($"{selectedCard.CardName} has been nullified.");
 
         // Finish
-        _placingPlayer.OnCardSelected -= OnCardSelected;
-        OnCardEffectComplete?.Invoke(this, _utilityInfo.ActivatedByPlayer1, true);
+        _placingPlayer.Interaction.OnCardSelected -= OnCardSelected;
+        _utilityInfo.Successful = true;
+        OnCardEffectComplete?.Invoke(_utilityInfo);
     }
 }

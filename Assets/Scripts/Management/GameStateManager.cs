@@ -49,6 +49,8 @@ public class GameStateManager
 
     public GameStateManager(PlayManager playManager, CardManager cardManager, GameBoard board)
     {
+        Locator.Instance.RegisterInstance(this);
+
         _currentState = _interrupt;
         _playManager = playManager;
         _cardManager = cardManager;
