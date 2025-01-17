@@ -20,13 +20,16 @@ public class PlayCard : NetworkBehaviour
     private bool _isFaceUp;
     private bool _isBeingDragged;
     private CardSlot _placedCardSlot;
+    private GameObject _highlight;
 
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _boxCollider = GetComponent<BoxCollider2D>();
+        _highlight = transform.GetChild(0).gameObject;
     }
 
+    #region Private
     /// <summary>
     /// Sets the card sprite based on whether it is face-up or face-down.
     /// </summary>
@@ -55,7 +58,9 @@ public class PlayCard : NetworkBehaviour
             await Awaitable.NextFrameAsync();
         }
     }
+    #endregion
 
+    #region Public
     public override void OnNetworkSpawn()
     {
         if (_cardData == null) _cardData = Locator.Instance.CardManager.CardIndexToCard[0];
@@ -135,4 +140,11 @@ public class PlayCard : NetworkBehaviour
     {
         _spriteRenderer.sortingOrder = layer;
     }
+
+    [Rpc(SendTo.Everyone)]
+    public void SetHighlightRpc(bool active)
+    {
+        _highlight.SetActive(active);
+    }
+    #endregion
 }

@@ -31,14 +31,16 @@ public class GSPlayerTurn : GameState
             _opponentBoard = _gameBoard.Player1Board;
         }
 
-        _myBoard[(int)GameBoard.Slot.CoreSlot].IsUsable = !_isExtendedTurn;
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot1].IsUsable = false;
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot2].IsUsable = false;
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot3].IsUsable = false;
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot4].IsUsable = _isExtendedTurn;
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot5].IsUsable = false;
+        board.UtilitySlot.SetUsable(true);
 
-        foreach (CardSlot slot in _opponentBoard) slot.IsUsable = false;
+        _myBoard[(int)GameBoard.Slot.CoreSlot].SetUsable(!_isExtendedTurn);
+        _myBoard[(int)GameBoard.Slot.PeripheralSlot1].SetUsable(false);
+        _myBoard[(int)GameBoard.Slot.PeripheralSlot2].SetUsable(false);
+        _myBoard[(int)GameBoard.Slot.PeripheralSlot3].SetUsable(false);
+        _myBoard[(int)GameBoard.Slot.PeripheralSlot4].SetUsable(_isExtendedTurn);
+        _myBoard[(int)GameBoard.Slot.PeripheralSlot5].SetUsable(false);
+
+        foreach (CardSlot slot in _opponentBoard) slot.SetUsable(false);
 
         if (UpdateCardSlotUsability()) _stateManager.FinishState();
     }
@@ -64,13 +66,13 @@ public class GSPlayerTurn : GameState
         {
             if (!_myBoard[i].HasCard)
             {
-                _myBoard[i].IsUsable = true;
+                _myBoard[i].SetUsable(true);
                 allFilled = false;
                 break;
             }
             else
             {
-                _myBoard[i].IsUsable = false;
+                _myBoard[i].SetUsable(false);
             }
         }
 

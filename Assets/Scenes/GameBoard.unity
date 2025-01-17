@@ -614,6 +614,10 @@ PrefabInstance:
       propertyPath: m_enableAutoSizing
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1917426816513226520, guid: 4e10c4b85bf924747af34e9a9fcc597a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4195834916364869648, guid: 4e10c4b85bf924747af34e9a9fcc597a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

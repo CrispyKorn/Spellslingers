@@ -11,7 +11,7 @@ public class CardSlot : NetworkBehaviour
         Utility
     }
 
-    public bool IsUsable { get => _isUsable; set => _isUsable = value; }
+    public bool IsUsable { get => _isUsable; }
     public bool HasCard { get => _hasCard; }
     public Bounds Bounds { get => _boxCollider.bounds; }
     public GameObject Card { get => _heldCard; }
@@ -21,12 +21,19 @@ public class CardSlot : NetworkBehaviour
 
     [Header("Read Only")]
     [BeginReadOnlyGroup]
-    [SerializeField] private bool _isUsable = true;
+    [SerializeField] private bool _isUsable = false;
     [SerializeField] private bool _hasCard;
     [EndReadOnlyGroup]
 
     private BoxCollider2D _boxCollider;
     private GameObject _heldCard;
+    private GameObject _highlight;
+
+    private void Awake()
+    {
+        _boxCollider = GetComponent<BoxCollider2D>();
+        _highlight = transform.GetChild(0).gameObject;
+    }
 
     /// <summary>
     /// Places the held card.
@@ -42,9 +49,10 @@ public class CardSlot : NetworkBehaviour
         heldPlayCard.PlacedCardSlot = this;
     }
 
-    public override void OnNetworkSpawn()
+    [Rpc(SendTo.Everyone)]
+    private void SetHighlightRpc(bool active)
     {
-        _boxCollider = GetComponent<BoxCollider2D>();
+        _highlight.SetActive(active);
     }
 
     /// <summary>
@@ -78,5 +86,12 @@ public class CardSlot : NetworkBehaviour
         _hasCard = false;
 
         return tempCard;
+    }
+
+    public void SetUsable(bool usable)
+    {
+        if (usable != _isUsable) SetHighlightRpc(usable);
+
+        _isUsable = usable;
     }
 }

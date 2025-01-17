@@ -18,19 +18,22 @@ public class GSInterrupt : GameState
             _preInterruptSlotStates[0,i] = p1Slot.IsUsable;
             _preInterruptSlotStates[1,i] = p2Slot.IsUsable;
 
-            p1Slot.IsUsable = false;
-            p2Slot.IsUsable = false;
+            p1Slot.SetUsable(false);
+            p2Slot.SetUsable(false);
         }
+
+        _gameBoard.UtilitySlot.SetUsable(false);
     }
 
     public override void OnUpdateState()
     {
         for (int i = 0; i < _preInterruptSlotStates.GetLength(1); i++)
         {
-            _gameBoard.Player1Board[i].IsUsable = _preInterruptSlotStates[0,i];
-            _gameBoard.Player2Board[i].IsUsable = _preInterruptSlotStates[1,i];
+            _gameBoard.Player1Board[i].SetUsable(_preInterruptSlotStates[0,i]);
+            _gameBoard.Player2Board[i].SetUsable(_preInterruptSlotStates[1,i]);
         }
 
+        _gameBoard.UtilitySlot.SetUsable(true);
         _stateManager.FinishState();
     }
 }

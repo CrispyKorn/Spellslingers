@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode;
 
 public class GSBattle : GameState
 {
@@ -17,9 +16,11 @@ public class GSBattle : GameState
 
         for (int i = 0; i < _gameBoard.Player1Board.Length; i++)
         {
-            _gameBoard.Player1Board[i].IsUsable = false;
-            _gameBoard.Player2Board[i].IsUsable = false;
+            _gameBoard.Player1Board[i].SetUsable(false);
+            _gameBoard.Player2Board[i].SetUsable(false);
         }
+
+        _gameBoard.UtilitySlot.SetUsable(false);
 
         // Calculate Damage
         CardValueSet p1Values = GetPlayerValues(_gameBoard.Player1Board);
