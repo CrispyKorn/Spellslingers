@@ -17,7 +17,6 @@ public class UtilityManager : MonoBehaviour
     {
         Locator locator = Locator.Instance;
 
-        locator.GameStateManager.UpdateState();
         Hand playerHand = utilityInfo.ActivatedByPlayer1 ? locator.PlayerManager.Player1.Hand : locator.PlayerManager.Player2.Hand;
 
         if (utilityInfo.Successful)
@@ -30,6 +29,7 @@ public class UtilityManager : MonoBehaviour
         }
         else locator.CardManager.GiveCardToPlayer(locator.GameBoard.UtilitySlot.TakeCard(), utilityInfo.ActivatedByPlayer1);
 
+        locator.GameStateManager.UpdateState();
         utilityInfo.UtilityCard.OnCardEffectComplete -= UtilityCardCleanup;
     }
 

@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 public class CardManager : NetworkBehaviour
 {
@@ -163,13 +164,12 @@ public class CardManager : NetworkBehaviour
     /// <param name="targetHand">The hand to move cards to.</param>
     private void MoveHand(Hand sourceHand, Hand targetHand)
     {
-        for (int i = sourceHand.Size; i >= 0; i--)
+        foreach (GameObject cardObj in sourceHand.CardObjs)
         {
-            GameObject cardObj = sourceHand.CardObjs[i];
-
             targetHand.AddCard(sourceHand.GetCardFromObj(cardObj), cardObj);
-            sourceHand.RemoveCard(cardObj);
         }
+
+        sourceHand.Clear();
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public class CardManager : NetworkBehaviour
                 cardPos = new Vector3(cardPosX, handPosY, 0f);
 
                 // Set card layering
-                sortingOrder = cardNum - 1 - i;
+                sortingOrder = (cardNum - 1 - i) * 2;
             }
 
             // Set card position and orientation
@@ -217,6 +217,17 @@ public class CardManager : NetworkBehaviour
             playCard.ResetTransformRpc();
 
             await Awaitable.NextFrameAsync();
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void ActivateCardHightlightsRpc(ulong[] cardNetworkObjIds, bool[] activeSettings)
+    {
+        for (int i = 0; i < cardNetworkObjIds.Length; i++)
+        {
+            var playCard = GetNetworkObject(cardNetworkObjIds[i]).GetComponent<PlayCard>();
+
+            playCard.SetDraggable(activeSettings[i]);
         }
     }
     #endregion
@@ -263,7 +274,7 @@ public class CardManager : NetworkBehaviour
     /// <summary>
     /// Initializes both players' hands with live cards.
     /// </summary>
-    public async void InitializePlayerCards()
+    public async Task InitializePlayerCards()
     {
         List<ICard> player1Cards = GetInitialPlayerCards();
         List<ICard> player2Cards = GetInitialPlayerCards();
@@ -333,10 +344,11 @@ public class CardManager : NetworkBehaviour
     public void InstantiateCardToSlot(ICard newCard, CardSlot cardSlot, bool faceUp, bool ownedByPlayer2)
     {
         GameObject cardObj = InitializeCard(newCard);
-        cardSlot.TryPlaceCard(cardObj, true);
         var playCard = cardObj.GetComponent<PlayCard>();
-        playCard.FlipToRpc(faceUp, faceUp);
+        
         if (ownedByPlayer2) playCard.NetworkObject.ChangeOwnership(Locator.Instance.RelayManager.Player2ClientId);
+        cardSlot.TryPlaceCard(cardObj, true);
+        playCard.FlipToRpc(faceUp, faceUp);
     }
 
     /// <summary>
@@ -399,10 +411,24 @@ public class CardManager : NetworkBehaviour
     }
 
     /// <summary>
+    /// Returns all cards from a given hand to the deck and destroys their GameObject representations.
+    /// </summary>
+    /// <param name="hand">The hand to discard.</param>
+    public void DiscardHand(Hand hand)
+    {
+        foreach (GameObject obj in hand.CardObjs)
+        {
+            DiscardCard(obj.GetComponent<PlayCard>());
+        }
+
+        hand.Clear();
+    }
+
+    /// <summary>
     /// Updates both players hands. 
     /// Note: Runs over multiple frames to keep the network from being overloaded.
     /// </summary>
-    public async void UpdatePlayerCards()
+    public async Task UpdatePlayerCards()
     {
         await UpdateHand(true);
         await UpdateHand(false);
@@ -411,7 +437,7 @@ public class CardManager : NetworkBehaviour
     /// <summary>
     /// Swaps the hands of each player.
     /// </summary>
-    public void SwapPlayerCards()
+    public async Task SwapPlayerCards()
     {
         Hand p1Hand = _playerManager.Player1.Hand;
         Hand p2Hand = _playerManager.Player2.Hand;
@@ -419,9 +445,55 @@ public class CardManager : NetworkBehaviour
 
         MoveHand(p1Hand, tempHand);
         MoveHand(p2Hand, p1Hand);
-        MoveHand(tempHand, p1Hand);
+        MoveHand(tempHand, p2Hand);
 
-        UpdatePlayerCards();
+        await UpdatePlayerCards();
+    }
+
+    /// <summary>
+    /// Sets the active state of the card highlights from the chosen players hand for the given types.
+    /// </summary>
+    /// <param name="active">Whether to enable the card highlights.</param>
+    /// <param name="player1Cards">Whether to set the highlights for player 1 (host).</param>
+    /// <param name="cardTypes">The types of cards to set the highlights for.</param>
+    public void SetCardHighlights(bool active, bool player1Cards, params ICard.CardType[] cardTypes)
+    {
+        Hand playerHand = player1Cards ? _playerManager.Player1.Hand : _playerManager.Player2.Hand;
+        List<ulong> cardNetworkObjIds = new();
+        List<bool> cardActiveSettings = new();
+
+        foreach (GameObject cardObj in playerHand.CardObjs)
+        {
+            var playCard = cardObj.GetComponent<PlayCard>();
+            ICard.CardType cardType = playCard.CardData.Type;
+
+            if (cardTypes.Contains(cardType)) cardActiveSettings.Add(active);
+            else cardActiveSettings.Add(!active);
+
+            cardNetworkObjIds.Add(cardObj.GetComponent<NetworkObject>().NetworkObjectId);
+        }
+
+        ActivateCardHightlightsRpc(cardNetworkObjIds.ToArray(), cardActiveSettings.ToArray());
+    }
+
+    /// <summary>
+    /// Sets the active state of the card highlights from the chosen players hand, regardless of type.
+    /// </summary>
+    /// <param name="active">Whether to enable the card highlights.</param>
+    /// <param name="player1Cards">Whether to set the highlights for player 1 (host).</param>
+    public void SetCardHighlights(bool active, bool player1Cards)
+    {
+        Hand playerHand = player1Cards ? _playerManager.Player1.Hand : _playerManager.Player2.Hand;
+        List<ulong> cardNetworkObjIds = new();
+        List<bool> cardActiveSettings = new();
+
+        foreach (GameObject cardObj in playerHand.CardObjs)
+        {
+            cardNetworkObjIds.Add(cardObj.GetComponent<NetworkObject>().NetworkObjectId);
+            cardActiveSettings.Add(active);
+        }
+
+        ActivateCardHightlightsRpc(cardNetworkObjIds.ToArray(), cardActiveSettings.ToArray());
     }
     #endregion
 }

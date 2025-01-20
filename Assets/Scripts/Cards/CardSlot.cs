@@ -47,8 +47,13 @@ public class CardSlot : NetworkBehaviour
         heldPlayCard.ResetTransformRpc();
         heldPlayCard.Placed = true;
         heldPlayCard.PlacedCardSlot = this;
+        heldPlayCard.SetDraggableRpc(false);
     }
 
+    /// <summary>
+    /// Sets the card slot highlight effect's active state.
+    /// </summary>
+    /// <param name="active">Whether to enable the highlight.</param>
     [Rpc(SendTo.Everyone)]
     private void SetHighlightRpc(bool active)
     {
@@ -88,6 +93,10 @@ public class CardSlot : NetworkBehaviour
         return tempCard;
     }
 
+    /// <summary>
+    /// Sets whether the card slot can be placed in.
+    /// </summary>
+    /// <param name="usable">Whether the card slot is usable.</param>
     public void SetUsable(bool usable)
     {
         if (usable != _isUsable) SetHighlightRpc(usable);

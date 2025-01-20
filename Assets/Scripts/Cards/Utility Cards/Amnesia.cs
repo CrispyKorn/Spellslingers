@@ -17,9 +17,9 @@ public class Amnesia : UtilityCard
         var utilityNum = 0;
 
         // Count the number of each type of card in the affected player's hand
-        for (var i = affectedHand.Size; i >= 0; i--)
+        foreach (GameObject cardObj in affectedHand.CardObjs)
         {
-            var playCard = affectedHand.CardObjs[i].GetComponent<PlayCard>();
+            var playCard = cardObj.GetComponent<PlayCard>();
 
             switch (playCard.CardData.Type)
             {
@@ -28,10 +28,9 @@ public class Amnesia : UtilityCard
                 case ICard.CardType.Defence: defenceNum++; break;
                 case ICard.CardType.Utility: utilityNum++; break;
             }
-
-            cardManager.RemoveCardFromPlayer(playCard.gameObject, !utilityInfo.ActivatedByPlayer1);
-            cardManager.DiscardCard(playCard);
         }
+
+        cardManager.DiscardHand(affectedHand);
 
         // Refund Cards
         List<ICard> newCards = new();

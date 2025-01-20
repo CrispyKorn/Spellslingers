@@ -123,7 +123,7 @@ public class PlayerInteraction : NetworkBehaviour
         {
             UpdateSelectedCardRpc(selectedCard.NetworkObjectId);
             SetSelectedCardZoomRpc();
-            _selectedCard.OnSelected(PickupDisabled);
+            _selectedCard.OnSelected(_pickupDisabled);
         }
 
         OnCardSelected?.Invoke(_player, selectedCard);

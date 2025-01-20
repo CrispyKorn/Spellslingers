@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Threading.Tasks;
 
 public class PlayManager : NetworkBehaviour
 {    
@@ -22,16 +23,16 @@ public class PlayManager : NetworkBehaviour
     /// <summary>
     /// Sets up the game on a high level, initializing players, and cards before starting the game.
     /// </summary>
-    private void SetupGame()
+    private async void SetupGame()
     {
         _cardManager.PopulateDecks();
-        _cardManager.InitializePlayerCards();
+        await _cardManager.InitializePlayerCards();
 
         _playerManager.Player1.Interaction.OnPlaceCard += PlayCard;
         _playerManager.Player2.Interaction.OnPlaceCard += PlayCard;
 
         //Game Start
-        _gameStateManager.SetState(_gameStateManager.Player1Turn, _gameBoard);
+        _gameStateManager.SetState(_gameStateManager.Player1Turn);
     }
 
     /// <summary>
@@ -49,7 +50,7 @@ public class PlayManager : NetworkBehaviour
     /// <summary>
     /// Ends a round, moving to the next round
     /// </summary>
-    public async void HandleEndOfRound()
+    public async Task HandleEndOfRound()
     {
         await _cardManager.AddEndOfRoundCards();
     }
@@ -106,7 +107,7 @@ public class PlayManager : NetworkBehaviour
         // Play Card
         if (cardSlot.Type == CardSlot.SlotType.Utility)
         {
-            _gameStateManager.SetState(_gameStateManager.Interrupt, _gameBoard);
+            _gameStateManager.SetState(_gameStateManager.Interrupt);
 
             var utilityCard = (UtilityCard)cardData;
             _utilityManager.ApplyUtilityEffect(new UtilityInfo(placedByPlayer1, utilityCard));
@@ -177,7 +178,7 @@ public class PlayManager : NetworkBehaviour
     /// <param name="player1Winner">Whether player 1 (host) was the winner.</param>
     public void GameOver(bool player1Winner)
     {
-        _gameStateManager.SetState(_gameStateManager.Interrupt, _gameBoard);
+        _gameStateManager.SetState(_gameStateManager.Interrupt);
         GameOverRpc(player1Winner);
     }
     #endregion

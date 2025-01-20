@@ -24,6 +24,9 @@ public class Refresh : UtilityCard
         _numOfCardsToTake = Mathf.Min(3, _playerManager.Player1.Hand.Size);
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
 
+        _placingPlayer.Interaction.PickupDisabled = true;
+        _cardManager.SetCardHighlights(true, _utilityInfo.ActivatedByPlayer1);
+
         _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
     }
 
@@ -34,6 +37,7 @@ public class Refresh : UtilityCard
         
         // Add the selected card
         _selectedCards.Add(selectedCard);
+        selectedCard.SetDraggableRpc(false);
 
         // Handle activation
         if (_selectedCards.Count == _numOfCardsToTake)
@@ -59,6 +63,8 @@ public class Refresh : UtilityCard
             }
 
             // Finish
+            _placingPlayer.Interaction.PickupDisabled = false;
+            _cardManager.SetCardHighlights(false, _utilityInfo.ActivatedByPlayer1);
             _placingPlayer.Interaction.OnCardSelected -= OnCardSelected;
             _utilityInfo.Successful = true;
             OnCardEffectComplete?.Invoke(_utilityInfo);

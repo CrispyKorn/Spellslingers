@@ -10,6 +10,7 @@ public class Sabotage : UtilityCard
     private UtilityInfo _utilityInfo;
     private PlayerManager _playerManager;
     private Player _placingPlayer;
+    private CardSlot[] _opponentBoard;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
@@ -25,9 +26,16 @@ public class Sabotage : UtilityCard
         _utilityInfo = utilityInfo;
         _playerManager = Locator.Instance.PlayerManager;
         _placingPlayer = _utilityInfo.ActivatedByPlayer1 ? _playerManager.Player1 : _playerManager.Player2;
+        _opponentBoard = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.GameBoard.Player2Board : Locator.Instance.GameBoard.Player1Board;
+
+        // Highlight valid cards
+        CardManager cardManager = Locator.Instance.CardManager;
+        bool coreSlotEmpty = FindValidCardSlot(_opponentBoard, ICard.CardType.Core) != null;
+        if (coreSlotEmpty) cardManager.SetCardHighlights(true, _utilityInfo.ActivatedByPlayer1, ICard.CardType.Core, ICard.CardType.Offence, ICard.CardType.Defence);
+        else cardManager.SetCardHighlights(true, _utilityInfo.ActivatedByPlayer1, ICard.CardType.Offence, ICard.CardType.Defence);
+
         _placingPlayer.Interaction.PickupDisabled = true;
         _placingPlayer.Interaction.OnCardSelected += OnCardSelected;
-
     }
 
     private void OnCardSelected(Player selectingPlayer, PlayCard selectedCard)
@@ -37,8 +45,7 @@ public class Sabotage : UtilityCard
         bool placingPlayerAttacking = Locator.Instance.GameStateManager.P1First == _utilityInfo.ActivatedByPlayer1;
         bool cardNotFromHand = !_placingPlayer.Hand.CardObjs.Contains(selectedCard.gameObject);
         bool invalidCardType = cardType == ICard.CardType.Utility;
-        CardSlot[] opponentBoard = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.GameBoard.Player2Board : Locator.Instance.GameBoard.Player1Board;
-        CardSlot chosenCardSlot = FindValidCardSlot(opponentBoard, cardType);
+        CardSlot chosenCardSlot = FindValidCardSlot(_opponentBoard, cardType);
         
         if (cardNotFromHand || invalidCardType || chosenCardSlot == null) return;
         

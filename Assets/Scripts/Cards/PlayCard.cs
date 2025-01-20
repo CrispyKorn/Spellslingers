@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PlayCard : NetworkBehaviour
 {
+    public bool IsDraggable { get => _isDraggable; }
     public bool Placed { get => _placed; set => _placed = value; }
     public ICard CardData { get => _cardData; }
     public bool IsFaceUp { get => _isFaceUp; }
@@ -10,8 +11,8 @@ public class PlayCard : NetworkBehaviour
     public BoxCollider2D BoxCollider { get => _boxCollider; }
     public CardSlot PlacedCardSlot { get => _placedCardSlot; set => _placedCardSlot = value; }
 
+    private bool _isDraggable;
     private bool _placed;
-
     private SpriteRenderer _spriteRenderer;
     private BoxCollider2D _boxCollider;
     private ICard _cardData;
@@ -73,7 +74,7 @@ public class PlayCard : NetworkBehaviour
     {
         _cardData.PrintDataToConsole();
 
-        if (_placed || doNotPickup) return;
+        if (!_isDraggable || _placed || doNotPickup) return;
 
         SetIsBeingDraggedRpc(true);
         FollowMouseRpc();
@@ -135,16 +136,28 @@ public class PlayCard : NetworkBehaviour
         _isBeingDragged = value;
     }
 
+    /// <summary>
+    /// Sets the sorting order for the playcard sprite.
+    /// </summary>
+    /// <param name="layer">The value to set the sprite's sorting order.</param>
     [Rpc(SendTo.Everyone)]
     public void SetOrderRpc(int layer)
     {
-        _spriteRenderer.sortingOrder = layer;
+        _spriteRenderer.sortingOrder = layer + 1;
+        _highlight.GetComponent<SpriteRenderer>().sortingOrder = layer;
+    }
+
+    public void SetDraggable(bool draggable)
+    {
+        _isDraggable = draggable;
+        _highlight.SetActive(draggable);
     }
 
     [Rpc(SendTo.Everyone)]
-    public void SetHighlightRpc(bool active)
+    public void SetDraggableRpc(bool draggable)
     {
-        _highlight.SetActive(active);
+        _isDraggable = draggable;
+        _highlight.SetActive(draggable);
     }
     #endregion
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using System.Threading.Tasks;
 
 public class GameStateManager
 {
@@ -73,13 +74,13 @@ public class GameStateManager
         _currentState.OnUpdateState();
     }
 
-    public void FinishState()
+    public async void FinishState()
     {
         switch (_stateIndices[_currentState])
         {
             case 0: // Interrupt
                 {
-                    SetState(_prevState, false);
+                    SetState(_prevState);
                 }
                 break;
             case 1: // Player 1 Turn
@@ -108,7 +109,7 @@ public class GameStateManager
                 break;
             case 5: // Battle
                 {
-                    _playManager.HandleEndOfRound();
+                    await _playManager.HandleEndOfRound();
                     ChangeRound();
                     SetState(_p1First ? _player1Turn : _player2Turn);
                 }
@@ -122,12 +123,12 @@ public class GameStateManager
     /// <param name="state">The new state to set the game to.</param>
     /// <param name="board">The active game board.</param>
     /// <param name="resetState">Whether to run the OnEnterState method of the new state.</param>
-    public void SetState(GameState state, bool resetState = true)
+    public void SetState(GameState state)
     {
         _prevState = _currentState;
         _currentState = state;
 
-        if (resetState) _currentState.OnEnterState(this, _board);
+        _currentState.OnEnterState(this, _board);
 
         OnGameStateChanged?.Invoke(_stateIndices[_currentState]);
     }
@@ -184,10 +185,8 @@ public class GameStateManager
     /// <summary>
     /// Ends a round, moving to the next round
     /// </summary>
-    public async void EndRound()
+    public void EndRound()
     {
-        await Awaitable.WaitForSecondsAsync(3);
-
         // Battle Phase Begin
         SetState(_battle);
     }

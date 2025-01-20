@@ -9,11 +9,13 @@ public class SmoothTalker : UtilityCard
     public override event Action<UtilityInfo> OnCardEffectComplete;
 
     private UtilityInfo _utilityInfo;
+    private CardManager _cardManager;
     private Player _opponent;
 
     public override void ApplyEffect(UtilityInfo utilityInfo)
     {
         _utilityInfo = utilityInfo;
+        _cardManager = Locator.Instance.CardManager;
         _opponent = _utilityInfo.ActivatedByPlayer1 ? Locator.Instance.PlayerManager.Player2 : Locator.Instance.PlayerManager.Player1;
 
         if (!Array.Exists(_opponent.Hand.CardObjs, (o) => o.GetComponent<PlayCard>().CardData.Type == ICard.CardType.Offence 
@@ -22,6 +24,8 @@ public class SmoothTalker : UtilityCard
             OnCardEffectComplete?.Invoke(utilityInfo);
             return;
         }
+
+        _cardManager.SetCardHighlights(true, !_utilityInfo.ActivatedByPlayer1, ICard.CardType.Offence, ICard.CardType.Defence);
 
         _opponent.Interaction.OnCardSelected += OnCardSelected;
     }
@@ -35,10 +39,11 @@ public class SmoothTalker : UtilityCard
         if (cardIsNotOpponents || cardIsNotPeripheral) return;
 
         // Give the selected card to the activating player
-        Locator.Instance.CardManager.RemoveCardFromPlayer(selectedCard.gameObject, !_utilityInfo.ActivatedByPlayer1);
-        Locator.Instance.CardManager.GiveCardToPlayer(selectedCard.gameObject, _utilityInfo.ActivatedByPlayer1);
+        _cardManager.RemoveCardFromPlayer(selectedCard.gameObject, !_utilityInfo.ActivatedByPlayer1);
+        _cardManager.GiveCardToPlayer(selectedCard.gameObject, _utilityInfo.ActivatedByPlayer1);
 
         // Finish
+        _cardManager.SetCardHighlights(false, !_utilityInfo.ActivatedByPlayer1);
         _opponent.Interaction.OnCardSelected -= OnCardSelected;
         _utilityInfo.Successful = true;
         OnCardEffectComplete?.Invoke(_utilityInfo);

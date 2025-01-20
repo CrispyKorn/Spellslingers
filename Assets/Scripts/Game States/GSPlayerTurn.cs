@@ -33,14 +33,10 @@ public class GSPlayerTurn : GameState
 
         board.UtilitySlot.SetUsable(true);
 
-        _myBoard[(int)GameBoard.Slot.CoreSlot].SetUsable(!_isExtendedTurn);
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot1].SetUsable(false);
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot2].SetUsable(false);
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot3].SetUsable(false);
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot4].SetUsable(_isExtendedTurn);
-        _myBoard[(int)GameBoard.Slot.PeripheralSlot5].SetUsable(false);
-
+        foreach (CardSlot slot in _myBoard) slot.SetUsable(false);
         foreach (CardSlot slot in _opponentBoard) slot.SetUsable(false);
+
+        _stateManager.CardManager.SetCardHighlights(true, !_isP1Turn, ICard.CardType.Utility);
 
         if (UpdateCardSlotUsability()) _stateManager.FinishState();
     }
@@ -49,7 +45,11 @@ public class GSPlayerTurn : GameState
     {
         Debug.Log($"Updating Player {(_isP1Turn ? 1 : 2)} Turn...");
 
-        if (UpdateCardSlotUsability()) _stateManager.FinishState();
+        if (UpdateCardSlotUsability()) 
+        {
+            _stateManager.CardManager.SetCardHighlights(false, _isP1Turn);
+            _stateManager.FinishState();
+        }
     }
 
     /// <summary>
@@ -68,6 +68,16 @@ public class GSPlayerTurn : GameState
             {
                 _myBoard[i].SetUsable(true);
                 allFilled = false;
+                
+                if (i == (int)GameBoard.Slot.CoreSlot)
+                {
+                    _stateManager.CardManager.SetCardHighlights(true, _isP1Turn, ICard.CardType.Core, ICard.CardType.Utility);
+                }
+                else
+                {
+                    _stateManager.CardManager.SetCardHighlights(true, _isP1Turn, ICard.CardType.Offence, ICard.CardType.Defence, ICard.CardType.Utility);
+                }
+
                 break;
             }
             else

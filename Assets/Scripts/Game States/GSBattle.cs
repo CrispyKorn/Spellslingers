@@ -9,7 +9,7 @@ public class GSBattle : GameState
     /// </summary>
     public event Action<bool, int> OnDamageDealt;
 
-    public override void OnEnterState(GameStateManager stateManager, GameBoard board)
+    public override async void OnEnterState(GameStateManager stateManager, GameBoard board)
     {
         _stateManager = stateManager;
         _gameBoard = board;
@@ -21,6 +21,11 @@ public class GSBattle : GameState
         }
 
         _gameBoard.UtilitySlot.SetUsable(false);
+
+        _stateManager.CardManager.SetCardHighlights(false, true);
+        _stateManager.CardManager.SetCardHighlights(false, false);
+
+        await Awaitable.WaitForSecondsAsync(2f);
 
         // Calculate Damage
         CardValueSet p1Values = GetPlayerValues(_gameBoard.Player1Board);

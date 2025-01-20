@@ -21,8 +21,11 @@ public class GSInterrupt : GameState
             p1Slot.SetUsable(false);
             p2Slot.SetUsable(false);
         }
-
+        
         _gameBoard.UtilitySlot.SetUsable(false);
+
+        _stateManager.CardManager.SetCardHighlights(false, true);
+        _stateManager.CardManager.SetCardHighlights(false, false);
     }
 
     public override void OnUpdateState()
@@ -34,6 +37,8 @@ public class GSInterrupt : GameState
         }
 
         _gameBoard.UtilitySlot.SetUsable(true);
+        _stateManager.CardManager.SetCardHighlights(false, true);
+        _stateManager.CardManager.SetCardHighlights(false, false);
         _stateManager.FinishState();
     }
 }

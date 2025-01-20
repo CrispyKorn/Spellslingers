@@ -57,4 +57,12 @@ public class Deck
     {
         if (_cards.Contains(card)) _cards.Remove(card);
     }
+
+    /// <summary>
+    /// Removes all cards from the deck.
+    /// </summary>
+    public void Clear()
+    {
+        _cards.Clear();
+    }
 }

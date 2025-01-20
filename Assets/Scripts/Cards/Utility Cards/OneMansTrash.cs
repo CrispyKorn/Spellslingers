@@ -6,10 +6,10 @@ public class OneMansTrash : UtilityCard
 {
     public override event Action<UtilityInfo> OnCardEffectComplete;
 
-    public override void ApplyEffect(UtilityInfo utilityInfo)
+    public override async void ApplyEffect(UtilityInfo utilityInfo)
     {
         // Apply effect
-        Locator.Instance.CardManager.SwapPlayerCards();
+        await Locator.Instance.CardManager.SwapPlayerCards();
 
         // Finish
         utilityInfo.Successful = true;

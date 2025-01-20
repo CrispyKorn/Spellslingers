@@ -10,10 +10,18 @@ public class MindControl : UtilityCard
     {
         GameBoard board = Locator.Instance.GameBoard;
         GameObject coreCardObj = utilityInfo.ActivatedByPlayer1 ? board.Player2Board[(int)GameBoard.Slot.CoreSlot].Card : board.Player1Board[(int)GameBoard.Slot.CoreSlot].Card;
-        PlayCard corePlayCard = coreCardObj.GetComponent<PlayCard>();
+        PlayCard corePlayCard;
 
         // Check for invalid play
-        if (coreCardObj == null || corePlayCard.IsFaceUp)
+        if (coreCardObj == null)
+        {
+            OnCardEffectComplete?.Invoke(utilityInfo);
+            return;
+        }
+
+        corePlayCard = coreCardObj.GetComponent<PlayCard>();
+        
+        if (corePlayCard.IsFaceUp)
         {
             OnCardEffectComplete?.Invoke(utilityInfo);
             return;

@@ -48,6 +48,16 @@ public class Hand
     }
 
     /// <summary>
+    /// Removes all cards from the hand.
+    /// </summary>
+    public void Clear()
+    {
+        _deck.Clear();
+        _cardObjs.Clear();
+        _objToCard.Clear();
+    }
+
+    /// <summary>
     /// Sorts the given cards.
     /// </summary>
     public void SortHand()
