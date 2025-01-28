@@ -69,8 +69,9 @@ public class SleightOfHand : UtilityCard
     private void UpdateCardHighlights(bool placingPlayerCardSelected)
     {
         ICard.CardType selectedCardType = placingPlayerCardSelected ? _selectedPlayerCard.CardData.Type : _selectedOpponentCard.CardData.Type;
+        bool player1CardsSelected = _utilityInfo.ActivatedByPlayer1 == placingPlayerCardSelected;
 
-        _cardManager.SetCardHighlights(false, placingPlayerCardSelected);
-        _cardManager.SetCardHighlights(true, !placingPlayerCardSelected, selectedCardType);
+        _cardManager.SetCardHighlights(false, player1CardsSelected);
+        _cardManager.SetCardHighlights(true, !player1CardsSelected, selectedCardType);
     }
 }
