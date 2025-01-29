@@ -13,6 +13,7 @@ public class PlayManager : NetworkBehaviour
     private UtilityManager _utilityManager;
     private UIManager _uiManager;
     private GameBoard _gameBoard;
+    private DamageIndicatorManager _damageIndicatorManager;
 
     private void Awake()
     {
@@ -94,15 +95,15 @@ public class PlayManager : NetworkBehaviour
         //Extrapolate objects
         var placingPlayer = GetNetworkObject(placingPlayerNetworkId).GetComponent<Player>();
         GameObject cardObj = GetNetworkObject(cardObjNetworkId).gameObject;
-        var card = cardObj.GetComponent<PlayCard>();
-        ICard cardData = card.CardData;
+        var playCard = cardObj.GetComponent<PlayCard>();
+        ICard cardData = playCard.CardData;
         cardSlotNetworkReference.TryGet(out var cardSlotNetworkObject, NetworkManager);
         var cardSlot = cardSlotNetworkObject.GetComponent<CardSlot>();
         bool placedByPlayer1 = placingPlayer == _playerManager.Player1;
 
         // Handle core and peripheral cards
-        if (card.CardData.Type == ICard.CardType.Core) card.FlipToRpc(false, false);
-        else card.FlipToRpc(true, true);
+        if (cardData.Type == ICard.CardType.Core) playCard.FlipToRpc(false, false);
+        else playCard.FlipToRpc(true, true);
 
         // Play Card
         if (cardSlot.Type == CardSlot.SlotType.Utility)
@@ -112,7 +113,16 @@ public class PlayManager : NetworkBehaviour
             var utilityCard = (UtilityCard)cardData;
             _utilityManager.ApplyUtilityEffect(new UtilityInfo(placedByPlayer1, utilityCard));
         }
-        else _gameStateManager.UpdateState();
+        else 
+        {
+            if (cardData.Type != ICard.CardType.Core)
+            {
+                Card card = (Card)cardData;
+                _damageIndicatorManager.AddIndicatorsRpc(placedByPlayer1, card.Element, card.Values);
+            }
+            
+            _gameStateManager.UpdateState();
+        }
     }
 
     /// <summary>
@@ -133,6 +143,7 @@ public class PlayManager : NetworkBehaviour
         _utilityManager = Locator.Instance.UtilityManager;
         _uiManager = Locator.Instance.UIManager;
         _gameBoard = Locator.Instance.GameBoard;
+        _damageIndicatorManager = Locator.Instance.DamageIndicatorManager;
 
         Locator.Instance.InputManager.SetActionMap(InputManager.ActionMap.Battle);
         _uiManager.BtnPass.onClick.AddListener(EndTurnEarlyRpc);

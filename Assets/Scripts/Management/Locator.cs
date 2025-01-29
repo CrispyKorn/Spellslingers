@@ -14,6 +14,7 @@ public class Locator : MonoBehaviour
     public GameBoard GameBoard { get => _gameBoard; }
     public RelayManager RelayManager { get => _relayManager; }
     public UIManager UIManager { get => _uiManager; }
+    public DamageIndicatorManager DamageIndicatorManager { get => _damageIndicatorManager; }
 
     private DebugMenu _debugMenu;
     private InputManager _inputManager;
@@ -25,6 +26,7 @@ public class Locator : MonoBehaviour
     private GameBoard _gameBoard;
     private RelayManager _relayManager;
     private UIManager _uiManager;
+    private DamageIndicatorManager _damageIndicatorManager;
 
     private void Awake()
     {
@@ -53,4 +55,5 @@ public class Locator : MonoBehaviour
     public void RegisterInstance(RelayManager instance) { if (instance != null) _relayManager = instance; }
 
     public void RegisterInstance(UIManager instance) { if (instance != null) _uiManager = instance; }
+    public void RegisterInstance(DamageIndicatorManager instance) { if (instance != null) _damageIndicatorManager = instance; }
 }

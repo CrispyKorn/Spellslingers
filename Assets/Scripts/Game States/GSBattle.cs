@@ -14,6 +14,7 @@ public class GSBattle : GameState
         _stateManager = stateManager;
         _gameBoard = board;
 
+        // Cleanup
         for (int i = 0; i < _gameBoard.Player1Board.Length; i++)
         {
             _gameBoard.Player1Board[i].SetUsable(false);
@@ -24,6 +25,8 @@ public class GSBattle : GameState
 
         _stateManager.CardManager.SetCardHighlights(false, true);
         _stateManager.CardManager.SetCardHighlights(false, false);
+
+        Locator.Instance.DamageIndicatorManager.ClearIndicatorsRpc();
 
         await Awaitable.WaitForSecondsAsync(2f);
 
