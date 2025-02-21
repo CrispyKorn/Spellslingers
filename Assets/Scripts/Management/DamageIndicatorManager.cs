@@ -2,56 +2,76 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using Unity.Netcode;
+using TMPro;
 
 public class DamageIndicatorManager : NetworkBehaviour
 {
     [Serializable]
-    private class HolderSet
+    private class IndicatorSet
     {
-        public Holder P1Holder { get => _p1Holder; }
-        public Holder P2Holder { get => _p2Holder; }
+        public Indicator P1Holder { get => _p1Holder; }
+        public Indicator P2Holder { get => _p2Holder; }
 
-        [SerializeField] Holder _p1Holder;
-        [SerializeField] Holder _p2Holder;
+        [SerializeField] Indicator _p1Holder;
+        [SerializeField] Indicator _p2Holder;
 
-        public void ClearIndicators()
+        public void ResetCounters()
         {
-            _p1Holder.ClearIndicators();
-            _p2Holder.ClearIndicators();
+            _p1Holder.ResetCounters();
+            _p2Holder.ResetCounters();
         }
     }
 
     [Serializable]
-    private class Holder
+    private class Indicator
     {
-        public Transform HolderTransform { get => _holder; }
-        public List<GameObject> PowerIndicators { get => _powerIndicators; }
-        public List<GameObject> SpecialIndicators { get => _specialIndicators; }
+        public int AttackCounter { get => _attackCounter; set => _attackCounter = value; }
+        public int DefenceCounter { get => _defenceCounter; set => _defenceCounter = value; }
+        public int SpecialAttackCounter { get => _specialAttackCounter; set => _specialAttackCounter = value; }
+        public int SpecialDefenceCounter { get => _specialDefenceCounter; set => _specialDefenceCounter = value; }
 
-        [SerializeField] private Transform _holder;
+        [SerializeField] private TextMeshProUGUI _attackCounterText;
+        [SerializeField] private TextMeshProUGUI _defenceCounterText;
+        [SerializeField] private TextMeshProUGUI _specialAttackCounterText;
+        [SerializeField] private TextMeshProUGUI _specialDefenceCounterText;
 
-        private List<GameObject> _powerIndicators = new();
-        private List<GameObject> _specialIndicators = new();
+         private int _attackCounter;
+         private int _defenceCounter;
+         private int _specialAttackCounter;
+         private int _specialDefenceCounter;
 
-        public void ClearIndicators()
+        public void UpdateText()
         {
-            foreach (GameObject indicator in _powerIndicators) Destroy(indicator);
-            foreach (GameObject indicator in _specialIndicators) Destroy(indicator);
+            _attackCounterText.text = _attackCounter.ToString();
+            _defenceCounterText.text = _defenceCounter.ToString();
+            _specialAttackCounterText.text = _specialAttackCounter.ToString();
+            _specialDefenceCounterText.text = _specialDefenceCounter.ToString();
 
-            _powerIndicators.Clear();
-            _specialIndicators.Clear();
+            if (_attackCounter > 0) _attackCounterText.gameObject.SetActive(true);
+            if (_defenceCounter > 0) _defenceCounterText.gameObject.SetActive(true);
+            if (_specialAttackCounter > 0) _specialAttackCounterText.gameObject.SetActive(true);
+            if (_specialDefenceCounter > 0) _specialDefenceCounterText.gameObject.SetActive(true);
+        }
+
+        public void ResetCounters()
+        {
+            _attackCounter = 0;
+            _defenceCounter = 0;
+            _specialAttackCounter = 0;
+            _specialDefenceCounter = 0;
+
+            _attackCounterText.gameObject.SetActive(false);
+            _defenceCounterText.gameObject.SetActive(false);
+            _specialAttackCounterText.gameObject.SetActive(false);
+            _specialDefenceCounterText.gameObject.SetActive(false);
+
+            UpdateText();
         }
     }
-
-    [SerializeField] private GameObject _powerPrefab;
-    [SerializeField] private GameObject _specialPrefab;
-    [SerializeField] private Color _waterColour = Color.blue;
-    [SerializeField] private Color _fireColour = Color.red;
-    [SerializeField] private Color _electricityColour = Color.yellow;
-    [SerializeField] private HolderSet _waterHolders;
-    [SerializeField] private HolderSet _fireHolders;
-    [SerializeField] private HolderSet _electricityHolders;
-    [SerializeField] private float _indicatorHeight = 1f;
+    
+    [SerializeField] private IndicatorSet _waterIndicators;
+    [SerializeField] private IndicatorSet _fireIndicators;
+    [SerializeField] private IndicatorSet _electricityIndicators;
 
     private void Awake()
     {
@@ -59,70 +79,50 @@ public class DamageIndicatorManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Everyone)]
-    public void AddIndicatorsRpc(bool forPlayer1, Card.CardElement cardElement, CardValues cardValues)
+    public void SetIndicatorsRpc(bool forPlayer1, ICard.CardType cardType, Card.CardElement cardElement, CardValues cardValues)
     {
-        Holder holder = null;
-        Color colour = Color.white;
+        Indicator indicator = null;
         
         // Find relevant holder and colour
         switch (cardElement)
         {
             case Card.CardElement.Water: 
             {
-                holder = forPlayer1 ? _waterHolders.P1Holder : _waterHolders.P2Holder; 
-                colour = _waterColour;
+                indicator = forPlayer1 ? _waterIndicators.P1Holder : _waterIndicators.P2Holder;
             }
             break;
             case Card.CardElement.Fire: 
             {
-                holder = forPlayer1 ? _fireHolders.P1Holder : _fireHolders.P2Holder; 
-                colour = _fireColour;
+                indicator = forPlayer1 ? _fireIndicators.P1Holder : _fireIndicators.P2Holder;
             }
             break;
             case Card.CardElement.Electricity: 
             {
-                holder = forPlayer1 ? _electricityHolders.P1Holder : _electricityHolders.P2Holder; 
-                colour = _electricityColour;
+                indicator = forPlayer1 ? _electricityIndicators.P1Holder : _electricityIndicators.P2Holder;
             }
             break;
         }
         
-        // Add power and special indicators
-        for (int i = 0; i < cardValues.Power; i++)
+        // Set power and special indicators
+        if (cardType == ICard.CardType.Defence)
         {
-            GameObject powerIndicator = Instantiate(_powerPrefab, holder.HolderTransform);
-            powerIndicator.transform.GetChild(0).GetComponent<SpriteRenderer>().color = colour;
-            holder.PowerIndicators.Add(powerIndicator);
+            indicator.DefenceCounter += cardValues.Power;
+            indicator.SpecialDefenceCounter += cardValues.Special;
+        }
+        else
+        {
+            indicator.AttackCounter += cardValues.Power;
+            indicator.SpecialAttackCounter += cardValues.Special;
         }
 
-        for (int i = 0; i < cardValues.Special; i++)
-        {
-            GameObject specialIndicator = Instantiate(_specialPrefab, holder.HolderTransform);
-            specialIndicator.transform.GetChild(0).GetComponent<SpriteRenderer>().color = colour;
-            holder.SpecialIndicators.Add(specialIndicator);
-        }
-
-        // Sort/Layout Indicators
-        for (int i = 0; i < holder.SpecialIndicators.Count; i++)
-        {
-            Transform indicatorTransform = holder.SpecialIndicators[i].transform;
-            indicatorTransform.localPosition = new Vector3(indicatorTransform.localPosition.x, i * -_indicatorHeight, 0f);
-        }
-
-        for (int i = 0; i < holder.PowerIndicators.Count; i++)
-        {
-            Transform indicatorTransform = holder.PowerIndicators[i].transform;
-            int specialCount = holder.SpecialIndicators.Count;
-
-            indicatorTransform.localPosition = new Vector3(indicatorTransform.localPosition.x, (specialCount + i) * -_indicatorHeight, 0f);
-        }
+        indicator.UpdateText();
     }
 
     [Rpc(SendTo.Everyone)]
     public void ClearIndicatorsRpc()
     {
-        _waterHolders.ClearIndicators();
-        _fireHolders.ClearIndicators();
-        _electricityHolders.ClearIndicators();
+        _waterIndicators.ResetCounters();
+        _fireIndicators.ResetCounters();
+        _electricityIndicators.ResetCounters();
     }
 }

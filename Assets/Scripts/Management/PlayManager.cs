@@ -118,7 +118,7 @@ public class PlayManager : NetworkBehaviour
             if (cardData.Type != ICard.CardType.Core)
             {
                 Card card = (Card)cardData;
-                _damageIndicatorManager.AddIndicatorsRpc(placedByPlayer1, card.Element, card.Values);
+                _damageIndicatorManager.SetIndicatorsRpc(placedByPlayer1, card.Type, card.Element, card.Values);
             }
             
             _gameStateManager.UpdateState();
