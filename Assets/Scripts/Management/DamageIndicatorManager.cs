@@ -79,7 +79,7 @@ public class DamageIndicatorManager : NetworkBehaviour
     }
 
     [Rpc(SendTo.Everyone)]
-    public void SetIndicatorsRpc(bool forPlayer1, ICard.CardType cardType, Card.CardElement cardElement, CardValues cardValues)
+    public void SetIndicatorsRpc(bool forPlayer1, bool isOffenceCard, Card.CardElement cardElement, CardValues cardValues)
     {
         Indicator indicator = null;
         
@@ -104,15 +104,15 @@ public class DamageIndicatorManager : NetworkBehaviour
         }
         
         // Set power and special indicators
-        if (cardType == ICard.CardType.Defence)
-        {
-            indicator.DefenceCounter += cardValues.Power;
-            indicator.SpecialDefenceCounter += cardValues.Special;
-        }
-        else
+        if (isOffenceCard)
         {
             indicator.AttackCounter += cardValues.Power;
             indicator.SpecialAttackCounter += cardValues.Special;
+        }
+        else
+        {
+            indicator.DefenceCounter += cardValues.Power;
+            indicator.SpecialDefenceCounter += cardValues.Special;
         }
 
         indicator.UpdateText();

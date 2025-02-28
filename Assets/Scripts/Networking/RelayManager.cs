@@ -16,6 +16,8 @@ public class RelayManager : NetworkBehaviour
     public ulong Player1ClientId { get => NetworkManager.ServerClientId; }
     public ulong Player2ClientId { get => _player2ClientId; }
 
+    [SerializeField] private bool _useWebGLSettings;
+
     private string _joinCode;
     private ulong _player2ClientId;
 
@@ -57,7 +59,8 @@ public class RelayManager : NetworkBehaviour
             Locator.Instance.DebugMenu.WriteToDebugMenu(DebugMenu.DebugSection.JoinCode, joinCode);
 
             // Create relay server and start hosting
-            RelayServerData relayServerData = AllocationUtils.ToRelayServerData(allocation, "dtls");
+            string connectionType = _useWebGLSettings ? "wss" : "dtls";
+            RelayServerData relayServerData = AllocationUtils.ToRelayServerData(allocation, connectionType);
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartHost();
 
@@ -81,7 +84,9 @@ public class RelayManager : NetworkBehaviour
         {
             // Join allocation (slot) using join code, and initialize relay connection as client
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode); 
-            RelayServerData relayServerData = AllocationUtils.ToRelayServerData(joinAllocation, "dtls");
+
+            string connectionType = _useWebGLSettings ? "wss" : "dtls";
+            RelayServerData relayServerData = AllocationUtils.ToRelayServerData(joinAllocation, connectionType);
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
             NetworkManager.Singleton.StartClient();
 

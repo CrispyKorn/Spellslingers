@@ -86,13 +86,13 @@ public class GameStateManager
             case 1: // Player 1 Turn
                 {
                     if (_p1First) SetState(_player2Turn);
-                    else if (!HandleExtendTurn()) EndRound();
+                    else EndMainPhase();
                 }
                 break;
             case 2: // Player 2 Turn
                 {
                     if (!_p1First) SetState(_player1Turn);
-                    else if (!HandleExtendTurn()) EndRound();
+                    else EndMainPhase();
                 }
                 break;
             case 3: // Player 1 Extended Turn
@@ -134,32 +134,24 @@ public class GameStateManager
     }
 
     /// <summary>
-    /// Checks for turn extension core cards.
+    /// Moves into the extended turn phase or the battle phase via EndRound
     /// </summary>
-    /// <returns>Whether there are turn extensions.</returns>
-    private bool HandleExtendTurn()
+    private void EndMainPhase()
     {
         var p1CorePlayCard = _board.Player1Board[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>();
         var p2CorePlayCard = _board.Player2Board[(int)GameBoard.Slot.CoreSlot].Card.GetComponent<PlayCard>();
 
-        if (!p1CorePlayCard.IsFaceUp)
-        {
-            p1CorePlayCard.FlipToRpc(true, true);
-            p2CorePlayCard.FlipToRpc(true, true);
+        p1CorePlayCard.FlipToRpc(true, true);
+        p2CorePlayCard.FlipToRpc(true, true);
 
-            var p1CoreCard = (CoreCard)p1CorePlayCard.CardData;
-            var p2CoreCard = (CoreCard)p2CorePlayCard.CardData;
-            bool extendP1Turn = p1CoreCard.IsNullfied ? false : p1CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
-            bool extendP2Turn = p2CoreCard.IsNullfied ? false : p2CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
+        // Check for turn extensions
+        var p1CoreCard = (CoreCard)p1CorePlayCard.CardData;
+        var p2CoreCard = (CoreCard)p2CorePlayCard.CardData;
+        bool extendP1Turn = p1CoreCard.IsNullfied ? false : p1CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
+        bool extendP2Turn = p2CoreCard.IsNullfied ? false : p2CoreCard.CoreType == CoreCard.CoreCardType.TurnExtender;
 
-            if (extendP1Turn || extendP2Turn)
-            {
-                ExtendTurn(extendP1Turn, extendP2Turn);
-                return true;
-            }
-        }
-
-        return false;
+        if (extendP1Turn || extendP2Turn) ExtendTurn(extendP1Turn, extendP2Turn);
+        else EndRound();
     }
 
     private void ExtendTurn(bool extendP1Turn, bool extendP2Turn)
