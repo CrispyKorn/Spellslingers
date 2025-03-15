@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class GSBattle : GameState
@@ -8,6 +9,8 @@ public class GSBattle : GameState
     /// Fires when damage is dealt to a player. (player 1 is attacking, damage amount)
     /// </summary>
     public event Action<bool, int> OnDamageDealt;
+
+    private DamageIndicatorManager _damageIndicatorManager;
 
     public override async void OnEnterState(GameStateManager stateManager, GameBoard board)
     {
@@ -45,36 +48,46 @@ public class GSBattle : GameState
         Debug.Log($"Player 2 dealt {p2Atk} damage!");
 
         // Update indicators
-        DamageIndicatorManager damageIndicatorManager = Locator.Instance.DamageIndicatorManager;
+        _damageIndicatorManager = Locator.Instance.DamageIndicatorManager;
 
-        damageIndicatorManager.ClearIndicatorsRpc();
+        _damageIndicatorManager.ClearIndicatorsRpc();
 
         // Update P1 indicators
-        damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Fire, p1Values.OffenceValues.FireValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Fire, p1Values.OffenceValues.FireValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Water, p1Values.OffenceValues.WaterValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Water, p1Values.OffenceValues.WaterValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Electricity, p1Values.OffenceValues.ElectricityValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, true, Card.CardElement.Electricity, p1Values.OffenceValues.ElectricityValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Fire, p1Values.DefenceValues.FireValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Fire, p1Values.DefenceValues.FireValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Water, p1Values.DefenceValues.WaterValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Water, p1Values.DefenceValues.WaterValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Electricity, p1Values.DefenceValues.ElectricityValues);
+        _damageIndicatorManager.SetIndicatorsRpc(true, false, Card.CardElement.Electricity, p1Values.DefenceValues.ElectricityValues);
         await Awaitable.NextFrameAsync();
 
         // Update P2 indicators
-        damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Fire, p2Values.OffenceValues.FireValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Fire, p2Values.OffenceValues.FireValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Water, p2Values.OffenceValues.WaterValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Water, p2Values.OffenceValues.WaterValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Electricity, p2Values.OffenceValues.ElectricityValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, true, Card.CardElement.Electricity, p2Values.OffenceValues.ElectricityValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Fire, p2Values.DefenceValues.FireValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Fire, p2Values.DefenceValues.FireValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Water, p2Values.DefenceValues.WaterValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Water, p2Values.DefenceValues.WaterValues);
         await Awaitable.NextFrameAsync();
-        damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Electricity, p2Values.DefenceValues.ElectricityValues);
+        _damageIndicatorManager.SetIndicatorsRpc(false, false, Card.CardElement.Electricity, p2Values.DefenceValues.ElectricityValues);
+
+        await Awaitable.WaitForSecondsAsync(3f);
+
+        // P1 Attacking
+        await PlayBattleAnimation(true, Card.CardElement.Fire);
+        await PlayBattleAnimation(false, Card.CardElement.Fire);
+        await PlayBattleAnimation(true, Card.CardElement.Electricity);
+        await PlayBattleAnimation(false, Card.CardElement.Electricity);
+        await PlayBattleAnimation(true, Card.CardElement.Water);
+        await PlayBattleAnimation(false, Card.CardElement.Water);
 
         await Awaitable.WaitForSecondsAsync(5f);
 
@@ -166,6 +179,34 @@ public class GSBattle : GameState
         int finalValue = attackerValues.Power - defenderValues.Power;
         if (finalValue < 0) finalValue = 0;
         attackerAtk += finalValue;
+    }
+
+    /// <summary>
+    /// Plays a set of indicator animations for the specified set.
+    /// </summary>
+    /// <param name="p1Attacking">Whether player 1 (host) is attacking.</param>
+    /// <param name="element">The element of the indicator set</param>
+    /// <returns>When all animations in the set are complete.</returns>
+    private async Task PlayBattleAnimation(bool p1Attacking, Card.CardElement element)
+    {
+        await PlayStrikeAnimation(p1Attacking, element, true, true); // Special v Special
+        await PlayStrikeAnimation(p1Attacking, element, true, false); // Special v Power
+        await PlayStrikeAnimation(p1Attacking, element, false, true); // Power v Special
+        await PlayStrikeAnimation(p1Attacking, element, false, false); // Power vs Power
+    }
+
+    /// <summary>
+    /// Plays an indivial indicator pair animation.
+    /// </summary>
+    /// <param name="p1Attacking">Whether player 1 (host) is attacking.</param>
+    /// <param name="element">The element of the indicators.</param>
+    /// <param name="attackingSpecial">Whether to use the special attack indicator.</param>
+    /// <param name="defendingSpecial">Whether to use the special defence indicator.</param>
+    /// <returns>When the animation is complete.</returns>
+    private async Task PlayStrikeAnimation(bool p1Attacking, Card.CardElement element, bool attackingSpecial, bool defendingSpecial)
+    {
+        _ = _damageIndicatorManager.AnimateIndicator(p1Attacking, element, true, attackingSpecial);
+        await _damageIndicatorManager.AnimateIndicator(!p1Attacking, element, false, defendingSpecial);
     }
 
     public override void OnUpdateState()
