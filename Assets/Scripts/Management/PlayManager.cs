@@ -106,7 +106,7 @@ public class PlayManager : NetworkBehaviour
         else playCard.FlipToRpc(true, true);
 
         // Play Card
-        if (cardSlot.Type == CardSlot.SlotType.Utility)
+        if (cardData.Type == ICard.CardType.Utility)
         {
             _gameStateManager.SetState(_gameStateManager.Interrupt);
 

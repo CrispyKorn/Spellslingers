@@ -4,94 +4,14 @@ using System;
 using Unity.Netcode;
 using TMPro;
 using System.Threading.Tasks;
+using Unity.VisualScripting;
 
 public class DamageIndicatorManager : NetworkBehaviour
-{
-    [Serializable]
-    private class IndicatorSet
-    {
-        public Indicator P1Holder { get => _p1Holder; }
-        public Indicator P2Holder { get => _p2Holder; }
+{    
+    public IndicatorSet WaterIndicators { get => _waterIndicators; }
+    public IndicatorSet FireIndicators { get => _fireIndicators; }
+    public IndicatorSet ElectricityIndicators { get => _electricityIndicators; }
 
-        [SerializeField] Indicator _p1Holder;
-        [SerializeField] Indicator _p2Holder;
-
-        public void Initialize()
-        {
-            _p1Holder.Initialize();
-            _p2Holder.Initialize();
-        }
-
-        public void ResetCounters()
-        {
-            _p1Holder.ResetCounters();
-            _p2Holder.ResetCounters();
-        }
-    }
-
-    [Serializable]
-    private class Indicator
-    {
-        public int AttackCounter { get => _attackCounter; set => _attackCounter = value; }
-        public int DefenceCounter { get => _defenceCounter; set => _defenceCounter = value; }
-        public int SpecialAttackCounter { get => _specialAttackCounter; set => _specialAttackCounter = value; }
-        public int SpecialDefenceCounter { get => _specialDefenceCounter; set => _specialDefenceCounter = value; }
-        public Animator AttackCounterAnimator { get => _attackCounterAnimator; }
-        public Animator DefenceCounterAnimator { get => _defenceCounterAnimator; }
-        public Animator SpecialAttackCounterAnimator { get => _specialAttackCounterAnimator; }
-        public Animator SpecialDefenceCounterAnimator { get => _specialDefenceCounterAnimator; }
-
-        [SerializeField] private TextMeshProUGUI _attackCounterText;
-        [SerializeField] private TextMeshProUGUI _defenceCounterText;
-        [SerializeField] private TextMeshProUGUI _specialAttackCounterText;
-        [SerializeField] private TextMeshProUGUI _specialDefenceCounterText;
-        private Animator _attackCounterAnimator;
-        private Animator _defenceCounterAnimator;
-        private Animator _specialAttackCounterAnimator;
-        private Animator _specialDefenceCounterAnimator;
-
-        private int _attackCounter;
-        private int _defenceCounter;
-        private int _specialAttackCounter;
-        private int _specialDefenceCounter;
-
-        public void Initialize()
-        {
-            _attackCounterAnimator = _attackCounterText.GetComponentInParent<Animator>();
-            _defenceCounterAnimator = _defenceCounterText.GetComponentInParent<Animator>();
-            _specialAttackCounterAnimator = _specialAttackCounterText.GetComponentInParent<Animator>();
-            _specialDefenceCounterAnimator = _specialDefenceCounterText.GetComponentInParent<Animator>();
-        }
-
-        public void UpdateText()
-        {
-            _attackCounterText.text = _attackCounter.ToString();
-            _defenceCounterText.text = _defenceCounter.ToString();
-            _specialAttackCounterText.text = _specialAttackCounter.ToString();
-            _specialDefenceCounterText.text = _specialDefenceCounter.ToString();
-
-            if (_attackCounter > 0) _attackCounterText.gameObject.SetActive(true);
-            if (_defenceCounter > 0) _defenceCounterText.gameObject.SetActive(true);
-            if (_specialAttackCounter > 0) _specialAttackCounterText.gameObject.SetActive(true);
-            if (_specialDefenceCounter > 0) _specialDefenceCounterText.gameObject.SetActive(true);
-        }
-
-        public void ResetCounters()
-        {
-            _attackCounter = 0;
-            _defenceCounter = 0;
-            _specialAttackCounter = 0;
-            _specialDefenceCounter = 0;
-
-            _attackCounterText.gameObject.SetActive(false);
-            _defenceCounterText.gameObject.SetActive(false);
-            _specialAttackCounterText.gameObject.SetActive(false);
-            _specialDefenceCounterText.gameObject.SetActive(false);
-
-            UpdateText();
-        }
-    }
-    
     [SerializeField] private IndicatorSet _waterIndicators;
     [SerializeField] private IndicatorSet _fireIndicators;
     [SerializeField] private IndicatorSet _electricityIndicators;
@@ -183,10 +103,10 @@ public class DamageIndicatorManager : NetworkBehaviour
     /// <param name="element">The element of the indicator.</param>
     /// <param name="isAttack">Whether the indicator is an attack indicator.</param>
     /// <param name="isSpecial">Whether the indicator is a special indicator.</param>
-    public async Task AnimateIndicator(bool p1Indicator, Card.CardElement element, bool isAttack, bool isSpecial)
+    public async Task AnimateIndicator(bool p1Indicator, Card.CardElement element, bool isAttack, bool isSpecial, int indicatorValue, Action<bool, int> dealDamageCallback, int damageAmount)
     {
         TriggerClientAnimationRpc(p1Indicator, element, isAttack, isSpecial);
-        await PlayIndicator(p1Indicator, element, isAttack, isSpecial);
+        await PlayIndicator(p1Indicator, element, isAttack, isSpecial, indicatorValue, dealDamageCallback, damageAmount);
     }
 
     /// <summary>
@@ -197,7 +117,7 @@ public class DamageIndicatorManager : NetworkBehaviour
     /// <param name="isAttack">Whether the indicator is an attack indicator.</param>
     /// <param name="isSpecial">Whether the indicator is a special indicator.</param>
     /// <returns></returns>
-    private async Task PlayIndicator(bool p1Indicator, Card.CardElement element, bool isAttack, bool isSpecial)
+    private async Task PlayIndicator(bool p1Indicator, Card.CardElement element, bool isAttack, bool isSpecial, int indicatorValue, Action<bool, int> dealDamageCallback, int damageAmount)
     {
         Indicator indicator = GetIndicator(p1Indicator, element);
         Animator animator = isAttack ? 
@@ -207,10 +127,38 @@ public class DamageIndicatorManager : NetworkBehaviour
         animator.SetTrigger("Activate");
         await Awaitable.NextFrameAsync();
 
+        bool passedMidpoint = false;
+
         while (!animator.GetCurrentAnimatorStateInfo(0).IsName("IndicatorIdle"))
         {
+            if (!passedMidpoint && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.5f) 
+            {
+                UpdateIndicatorTextRpc(p1Indicator, element, isAttack, isSpecial, indicatorValue);
+                passedMidpoint = true;
+                if (damageAmount > 0) dealDamageCallback.Invoke(p1Indicator, damageAmount);
+            }
+
             await Awaitable.NextFrameAsync();
         }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void UpdateIndicatorTextRpc(bool p1Indicator, Card.CardElement element, bool isAttack, bool isSpecial, int indicatorValue)
+    {
+        Indicator indicator = GetIndicator(p1Indicator, element);
+        
+        if (isAttack)
+        {
+            if (isSpecial) indicator.SpecialAttackCounter = indicatorValue;
+            else indicator.AttackCounter = indicatorValue;
+        }
+        else
+        {
+            if (isSpecial) indicator.SpecialDefenceCounter = indicatorValue;
+            else indicator.DefenceCounter = indicatorValue;
+        }
+
+        indicator.UpdateText();
     }
 
     /// <summary>
@@ -229,5 +177,16 @@ public class DamageIndicatorManager : NetworkBehaviour
                                 (isSpecial ? indicator.SpecialDefenceCounterAnimator : indicator.DefenceCounterAnimator);
 
         animator.SetTrigger("Activate");
+    }
+
+    public int GetIndicatorValue(bool p1Attacking, Card.CardElement element, bool isAttack, bool isSpecial)
+    {
+        Indicator indicator = GetIndicator(p1Attacking, element);
+
+        int value = isAttack ? 
+                    (isSpecial ? indicator.SpecialAttackCounter : indicator.AttackCounter) : 
+                    (isSpecial ? indicator.SpecialDefenceCounter : indicator.DefenceCounter);
+        
+        return value;
     }
 }

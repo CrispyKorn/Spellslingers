@@ -91,10 +91,6 @@ public class GSBattle : GameState
 
         await Awaitable.WaitForSecondsAsync(5f);
 
-        // Apply damage
-        OnDamageDealt?.Invoke(true, p1Atk);
-        OnDamageDealt?.Invoke(false, p2Atk);
-
         // Reset
         ResetBoard(_gameBoard.Player1Board);
         ResetBoard(_gameBoard.Player2Board);
@@ -148,15 +144,18 @@ public class GSBattle : GameState
     /// <param name="attackerAtk">Attacking player's final attack value.</param>
     /// <param name="defenderAtk">Defending player's final attack value (from deflects).</param>
     /// <param name="attackerValues">The values used to calculate the attackers damage.</param>
-    /// <param name="defenderValues">The values used to calculate the defenders defence.</param>
-    private void CalculateDamage(ref int attackerAtk, ref int defenderAtk, CardValues attackerValues, CardValues defenderValues)
+    /// <param name="defenderValues">The values used to calculate the defenders damage.</param>
+    private void CalculateDamage(ref int attackerAtk, ref int defenderAtk, CardValues attackerValuesRef, CardValues defenderValuesRef)
     {
+        // Make copies to preserve values
+        CardValues attackerValues = new(attackerValuesRef.Power, attackerValuesRef.Special);
+        CardValues defenderValues = new(defenderValuesRef.Power, attackerValuesRef.Special);
+
         // Special v Special
         while (attackerValues.Special > 0 && defenderValues.Special > 0)
         {
             attackerValues.Special--;
             defenderValues.Special--;
-            defenderValues.Power--;
         }
 
         // Special v Power
@@ -171,12 +170,12 @@ public class GSBattle : GameState
         {
             attackerValues.Power--;
             defenderValues.Special--;
-            defenderValues.Power--;
             defenderAtk++;
         }
 
         // Power v Power
         int finalValue = attackerValues.Power - defenderValues.Power;
+        
         if (finalValue < 0) finalValue = 0;
         attackerAtk += finalValue;
     }
@@ -205,8 +204,34 @@ public class GSBattle : GameState
     /// <returns>When the animation is complete.</returns>
     private async Task PlayStrikeAnimation(bool p1Attacking, Card.CardElement element, bool attackingSpecial, bool defendingSpecial)
     {
-        _ = _damageIndicatorManager.AnimateIndicator(p1Attacking, element, true, attackingSpecial);
-        await _damageIndicatorManager.AnimateIndicator(!p1Attacking, element, false, defendingSpecial);
+        int attackValue = _damageIndicatorManager.GetIndicatorValue(p1Attacking, element, true, attackingSpecial);
+        int defenceValue = _damageIndicatorManager.GetIndicatorValue(!p1Attacking, element, false, defendingSpecial);
+        bool attackEmpty = attackValue == 0;
+        bool defenceEmpty = defenceValue == 0;
+        int attackerDamage = 0;
+        int defenderDamage = 0;
+
+        if (attackEmpty) return;
+        if (defendingSpecial && defenceEmpty) return;
+
+        // Update indicators to match values of attack - defence and defence - attack
+        if (defendingSpecial && !attackingSpecial) defenderDamage = Math.Min(defenceValue, attackValue);
+
+        int prevAttackValue = attackValue;
+        attackValue = Math.Max(0, attackValue - defenceValue);
+        defenceValue = Math.Max(0, defenceValue - prevAttackValue);
+
+        if (!defendingSpecial && !attackingSpecial) attackerDamage = attackValue;
+
+        if (!defenceEmpty) _ = _damageIndicatorManager.AnimateIndicator(!p1Attacking, element, false, defendingSpecial, defenceValue, DealDamage, defenderDamage);
+        else attackValue = 0; // Use up all attack value on dealing damage
+
+        await _damageIndicatorManager.AnimateIndicator(p1Attacking, element, true, attackingSpecial, attackValue, DealDamage, attackerDamage);
+    }
+
+    private void DealDamage(bool toP2, int amount)
+    {
+        OnDamageDealt?.Invoke(toP2, amount);
     }
 
     public override void OnUpdateState()
